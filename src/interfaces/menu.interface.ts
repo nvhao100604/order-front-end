@@ -15,3 +15,12 @@ export interface Category {
     id: string,
     name: string
 }
+
+export interface IDish {
+    idMeal?: string,
+    strArea?: string,
+    strCategory?: string
+    strMeal?: string,
+    strMealThumb?: string,
+    strTags?: string
+}

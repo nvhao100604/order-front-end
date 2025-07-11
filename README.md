@@ -17,13 +17,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - Typescript
 ### Libraries:
     - React-icons
-    - Axios
+    - SWR (Stale-While-Revalidate)
 ## Installing:
 ```bash
 npm install react-icons
 ```
 ```bash
-npm install axios
+npm add swr
 ```
 ## Learn More
 
