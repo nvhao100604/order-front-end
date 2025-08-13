@@ -11,19 +11,31 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## About:
 ### Framework: 
-    - Next.JS
+    - Next.JS (15.3.5)
     - Tailwindcss
 ### Programming language: 
     - Typescript
 ### Libraries:
     - React-icons
+    - Axios
     - SWR (Stale-While-Revalidate)
+### Tools:
+    - Redux toolkit
 ## Installing:
 ```bash
 npm install react-icons
 ```
 ```bash
+npm install axios
+```
+```bash
 npm add swr
+```
+```bash
+npm install @reduxjs/toolkit
+```
+```bash
+npm install react-redux
 ```
 ## Learn More
 

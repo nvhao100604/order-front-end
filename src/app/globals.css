@@ -4,3 +4,75 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: rotate(-3deg);
+    transform: scale(1.05);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes shake-x {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulse-small {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.scroll-appear-animation {
+  animation-name: appear;
+  animation-fill-mode: both;
+  animation-duration: 0.7s;
+  animation-timeline: view();
+  animation-range: entry 0 cover 40%;
+}
+
+@theme {
+  --animate-appear: appear 0.3s ease-out;
+
+  @keyframes appear {
+    from {
+      opacity: 0.5;
+      transform: scale(0.5);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
