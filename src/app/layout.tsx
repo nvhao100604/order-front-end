@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer, Header } from "@/components/app";
-import { Providers } from "@/components";
+import { StoreProvider, SWRProvider } from "@/components";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,13 +25,15 @@ function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <Header />
-          <div className="min-h-[calc(150vh_-_50rem)] z-0">
-            {children}
-          </div>
-          <Footer />
-        </Providers>
+        <SWRProvider>
+          <StoreProvider>
+            <Header />
+            <div className="min-h-[calc(150vh_-_50rem)] z-0">
+              {children}
+            </div>
+            <Footer />
+          </StoreProvider>
+        </SWRProvider>
       </body>
     </html>
   );

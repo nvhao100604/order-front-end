@@ -1,0 +1,6 @@
+
+const BASE_SERVER_URL = "http://localhost:5041/api/"
+const DEFAULT_TIMEOUT = 8000;
+const RESPONSE_DELAY = 2000;
+
+export { BASE_SERVER_URL, DEFAULT_TIMEOUT, RESPONSE_DELAY }
