@@ -3,7 +3,7 @@ import { AuthResponse, AuthState, LoginCredentials, RegisterData, User } from "@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
 // Async thunks
-export const loginUser = createAsyncThunk<
+const loginUser = createAsyncThunk<
     AuthResponse,
     LoginCredentials,
     { rejectValue: string }
@@ -21,7 +21,7 @@ export const loginUser = createAsyncThunk<
     }
 })
 
-export const registerUser = createAsyncThunk<
+const registerUser = createAsyncThunk<
     AuthResponse,
     RegisterData,
     { rejectValue: string }
@@ -38,7 +38,7 @@ export const registerUser = createAsyncThunk<
     }
 })
 
-export const refreshToken = createAsyncThunk<
+const refreshToken = createAsyncThunk<
     AuthResponse,
     void,
     { rejectValue: string }
@@ -52,7 +52,7 @@ export const refreshToken = createAsyncThunk<
     }
 })
 
-export const updateProfile = createAsyncThunk<
+const updateProfile = createAsyncThunk<
     User,
     Partial<User>,
     { rejectValue: string }
@@ -160,5 +160,6 @@ const authSlice = createSlice({
     },
 })
 
+export { loginUser, registerUser, refreshToken, updateProfile }
 export const { logout, clearError, initializeAuth } = authSlice.actions
 export default authSlice.reducer

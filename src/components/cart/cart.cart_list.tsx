@@ -6,39 +6,28 @@ import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi"
 import ConfirmModal from "./cart.confirm_modal";
 import { removeFromCart, selectDish, updateQuantity } from "@/redux/slices/cartSlices";
 import { Modal } from "../app";
+import { formatter } from "@/utils";
 
 const CartList = () => {
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [selectedDishToRemove, setSelectedDishToRemove] = useState(tempDish)
+    const [selectedDishToRemove, setSelectedDishToRemove] = useState<IDish | null>()
     const cartList = useAppSelector(state => state.cart)
     const dispatch = useAppDispatch()
     const cart = cartList.currentCart.dishes
 
-    const formatter = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    })
+    const toggleItemSelection = (dish: IDish) => dispatch(selectDish(dish))
+    const confirmRemove = (dish: IDish) => setSelectedDishToRemove(dish)
 
-    const toggleItemSelection = (dish: IDish) => {
-        dispatch(selectDish(dish))
-    }
-    const confirmRemove = (dish: IDish) => {
-        setSelectedDishToRemove(dish)
-        setShowConfirmModal(true)
-    };
     const removeDish = () => {
         if (selectedDishToRemove) {
             dispatch(removeFromCart(selectedDishToRemove))
             console.log("removed")
-            setShowConfirmModal(false)
-            setSelectedDishToRemove(tempDish)
+            setSelectedDishToRemove(null)
         }
     }
     const updateDishQuantity = (dish: IDish, change: number) => {
         console.log("change: " + change)
         if (dish.quantity! + change <= 0) {
             setSelectedDishToRemove(dish)
-            setShowConfirmModal(true)
             return
         }
         dispatch(updateQuantity({ ...dish, quantity: (dish.quantity ?? 0) + change }))
@@ -106,11 +95,11 @@ const CartList = () => {
                 </>
             )}
             {
-                showConfirmModal && (
-                    <Modal handleClick={() => setShowConfirmModal(false)}>
+                selectedDishToRemove && (
+                    <Modal handleClick={() => setSelectedDishToRemove(null)}>
                         <ConfirmModal
                             dish={selectedDishToRemove as IDish}
-                            setShowConfirmModal={() => setShowConfirmModal(false)}
+                            setShowConfirmModal={() => setSelectedDishToRemove(null)}
                             removeFromCart={removeDish}
                         />
                     </Modal>

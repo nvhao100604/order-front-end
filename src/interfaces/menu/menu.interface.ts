@@ -1,5 +1,4 @@
-
-export interface Category {
+export interface ICategory {
     id: number,
     name: string
 }
@@ -25,3 +24,6 @@ export const tempDish: IDish = {
     quantity: 0,
     checked: false
 }
+
+// export type DishAPIResponse = { dishes: IDish[], isLoading: boolean, error: any } | null
+

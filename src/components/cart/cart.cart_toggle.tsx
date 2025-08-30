@@ -1,6 +1,7 @@
 'use client'
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { controlCart } from "@/redux/slices/cartSlices"
+import { scrollToTop } from "@/utils"
 import { useEffect, useRef, useState } from "react"
 
 const CartToggle = () => {
@@ -24,12 +25,7 @@ const CartToggle = () => {
         dispatch(controlCart())
         scrollToTop()
     }
-    const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-        });
-    };
+
     return (
         <button
             onClick={setCartOpen}

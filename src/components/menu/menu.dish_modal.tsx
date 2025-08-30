@@ -22,7 +22,7 @@ const DishModal = ({ dish, onClose, addToCart }:
             <h2 className="text-2xl font-bold mb-2">{dish.name}</h2>
             <p className="text-gray-600 mb-4">{dish.describe}</p>
             <div className="flex items-center justify-between">
-                <span className="text-xl font-semibold">{formatter.format(dish.price)}</span>
+                <span className="text-xl font-semibold text-orange-500">{formatter.format(dish.price)}</span>
                 <AddToCart addToCart={addToCart} />
             </div>
         </>

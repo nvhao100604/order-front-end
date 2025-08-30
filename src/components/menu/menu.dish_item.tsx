@@ -14,9 +14,9 @@ const DishItem = ({ dish, onClick, addToCart }:
                     </button>
                 </div>
             </div>
-            <div 
-            className="mt-0"
-            onClick={() => onClick(dish)}>
+            <div
+                className="mt-0"
+                onClick={() => onClick(dish)}>
                 <div className="relative md:h-48 sm:h-36">
                     <img
                         src={dish.imgUrl}
@@ -38,7 +38,6 @@ const DishItem = ({ dish, onClick, addToCart }:
                 <p className="text-gray-600 text-sm px-2 lg:inline sm:hidden">{dish.describe}</p>
                 <AddToCart addToCart={addToCart} />
             </div>
-
         </>
     )
 }

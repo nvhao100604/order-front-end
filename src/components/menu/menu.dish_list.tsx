@@ -1,42 +1,33 @@
 'use client'
-import { useFetchGet } from "@/hooks"
-import { IDish } from "@/interfaces"
-import { useAppDispatch } from "@/redux/hooks"
-import { addToCart, updateTotal } from "@/redux/slices/cartSlices"
-import { useState } from "react"
+import { useAddToCart, useQuery } from "@/hooks"
+import { defaultQuery, IDish } from "@/interfaces"
+import { useEffect, useState } from "react"
 import DishModal from "./menu.dish_modal"
 import { Modal } from "../app"
 import DishItem from "./menu.dish_item"
+import LoadingBox from "../ui/loading"
+import { scrollToTop } from "@/utils"
+import { getDishesSWR } from "@/services"
 
 const MenuList = () => {
-    const [showModal, setShowModal] = useState(false)
     const [selectedDish, setSelectedDish] = useState<IDish | null>(null)
-    const query = {
-        limit: 12,
-        offset: 0
-    }
-    const { data: dishes, isLoading } = useFetchGet("Dish", query)
-    const dispatch = useAppDispatch()
+    const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
+    const { data: dishes, isLoading } = getDishesSWR(query)
+    const handleAdd = useAddToCart()
 
-    const handleAdd = (dish: IDish) => {
-        console.log(dish)
-        dispatch(addToCart(dish))
-        dispatch(updateTotal())
-        setShowModal(false);
-    }
+    useEffect(() => {
+        if (!isLoading) scrollToTop()
+    }, [isLoading])
 
-    const handleClick = (dish: IDish) => {
-        setSelectedDish(dish);
-        setShowModal(true);
-    }
-    const handleClose = () => {
-        setShowModal(false);
-        setSelectedDish(null);
-    }
+    const handleClick = (dish: IDish) => setSelectedDish(dish)
+    const handleClose = () => setSelectedDish(null)
+
     return (
         <>
             {isLoading ?
-                <div>Loading...</div>
+                <div className="w-full h-screen">
+                    <LoadingBox />
+                </div>
                 :
                 (!dishes ? (
                     <div className="text-center py-12">
@@ -58,7 +49,7 @@ const MenuList = () => {
                     </div>
                 )
                 )}
-            {showModal &&
+            {selectedDish &&
                 <Modal handleClick={handleClose}>
                     <DishModal
                         dish={selectedDish as IDish}

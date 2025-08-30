@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from "react";
 import { FiPackage, FiTruck, FiCheck, FiClock, FiPhone, FiMapPin, FiUser } from "react-icons/fi";
 import { MdStorefront } from "react-icons/md";

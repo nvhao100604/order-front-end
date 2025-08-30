@@ -19,6 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - React-icons
     - Axios
     - SWR (Stale-While-Revalidate)
+    - shadcn/ui
 ### Tools:
     - Redux toolkit
 ## Installing:
@@ -33,6 +34,9 @@ npm add swr
 ```
 ```bash
 npm install @reduxjs/toolkit
+```
+```bash
+npx shadcn@latest init
 ```
 ```bash
 npm install react-redux

@@ -12,7 +12,7 @@ const CartDetail = () => {
     const taxNumber = 8.5;
     const cartList = useAppSelector(state => state.cart)
     const cart = cartList.currentCart.dishes
-
+    const cartLength = cart.reduce((length, dish) => length += dish.checked ? 1 : 0, 0)
     const calculateTotal = (): Total => {
         const subtotal = cart.reduce((subtotal, dish) => subtotal += dish.checked ? dish.price * dish.quantity! : 0, 0)
         const tax = taxNumber * subtotal / 100
@@ -48,7 +48,7 @@ const CartDetail = () => {
             </div>
             <button
                 onClick={onCheckout}
-                disabled={cart.length === 0}
+                disabled={cartLength === 0}
                 className="w-full bg-green-500 hover:bg-green-600 text-white mt-4 py-3 rounded-lg font-semibold text-lg 
                 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >

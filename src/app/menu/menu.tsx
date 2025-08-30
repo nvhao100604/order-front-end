@@ -1,5 +1,5 @@
 'use client'
-import { CartSection, CartToggle, MenuSection } from "@/components"
+import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch } from "@/components"
 import { useAppSelector } from "@/redux/hooks"
 
 const Menu = () => {
@@ -16,7 +16,9 @@ const Menu = () => {
                         ${isCartOpen ? "transform transition-all duration-300 ease-out w-[calc(100%_-_400px)] md:inline sm:hidden"
                             :
                             "-ml-100 w-full"}`}>
-                        <MenuSection />
+                        <MenuHeader />
+                        <MenuSearch />
+                        <MenuList />
                     </div>
                 </div>
                 <CartToggle />
