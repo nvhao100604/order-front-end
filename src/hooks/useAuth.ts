@@ -1,3 +1,4 @@
+'use client'
 import { LoginCredentials, RegisterData } from "@/interfaces"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { clearError, initializeAuth, loginUser, logout, registerUser } from "@/redux/slices/authSlices"

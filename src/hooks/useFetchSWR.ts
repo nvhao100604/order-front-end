@@ -15,6 +15,7 @@ const useFetchSWR = (path: string, query?: Query, config?: object) => {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
             refreshInterval: REFRESH_INTERVAL,
+
             ...config
         }
     )

@@ -16,8 +16,8 @@ const MenuSearch = () => {
                 <div className="flex overflow-x-auto pb-2 md:pb-0 w-full md:w-auto">
                     {error &&
                         <div
-                            className="gap-4 p-2 h-12 w-[calc(100vw_-_32rem)] flex justify-between place-content-center-safe "
-                        >Error data
+                            className="gap-4 p-2 h-12 w-[calc(100vw_-_32rem)] flex justify-center place-content-center-safe "
+                        >No Categories here
                         </div>
                     }
                     {isLoading &&

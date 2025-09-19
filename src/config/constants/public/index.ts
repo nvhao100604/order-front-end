@@ -6,12 +6,14 @@ const RESTAURANT_1 = "/images/restaurant1.jpg"
 const RESTAURANT_2 = "/images/restaurant2.jpg"
 const RESTAURANT_3 = "/images/restaurant3.jpg"
 const RESTAURANT_4 = "/images/restaurant4.jpg"
-
+//System images
+const NOT_FOUND_IMAGE = "/images/404_not_found.png"
 
 export {
     BACKGROUND_URL, LOGO_URL,
     RESTAURANT_1,
     RESTAURANT_2,
     RESTAURANT_3,
-    RESTAURANT_4
+    RESTAURANT_4,
+    NOT_FOUND_IMAGE
 }

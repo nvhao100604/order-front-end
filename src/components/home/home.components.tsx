@@ -30,7 +30,7 @@ const BackgroundContainer = () => {
         <div className="relative h-screen w-full bg-gray-800">
             <img
                 className="object-cover w-full h-full"
-                src={BACKGROUND_URL} alt="" />
+                src={BACKGROUND_URL} alt="foodie-background" />
             <div className="absolute top-[calc(10vh_+_10rem)] left-[calc(10vh_+_5rem)] p-3 w-2/5">
                 <h1
                     ref={el => { h1Ref.current = el }}
@@ -70,7 +70,7 @@ const MarqueeCard = ({ dish }: { dish: IDish }) => {
                     <div className="relative h-48 overflow-hidden">
                         <img
                             className="h-full w-full object-cover overflow-hidden animate-fadeIn"
-                            src={dish.imgUrl ?? BACKGROUND_URL} alt="" />
+                            src={dish.imgUrl ?? BACKGROUND_URL} alt="quality-dishes" />
 
                         <div className="absolute top-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
                             <span className="text-lg font-bold text-orange-600">{formatter.format(dish.price)}</span>
@@ -192,11 +192,21 @@ const MarqueeContainer = () => {
     const marqueeRef = useRef<HTMLElement | null>(null)
     const { isVisible } = useIntersectionObserver({ ref: marqueeRef })
     return (
-        <div
-            ref={ref => { (marqueeRef.current = ref) }}
-            className="storybook-fix relative flex h-full max-h-110 min-h-72 w-full min-w-72 items-center justify-center overflow-hidden rounded bg-transparent animate-fadeIn">
-            {isVisible && isLoading && <MarqueeSkeleton />}
-            {isVisible && dishes && <MarqueeBox dishes={dishes as IDish[]} />}
+        <div className="p-2">
+            <div id="best-seller" className="mt-16 mb-16"></div>
+            <div className="flex flex-col text-center place-items-center justify-center">
+                <div id="best-seller" className="mb-6"></div>
+                <Title title="best Seller" />
+                <h2 className="text-4xl font-bold font-nunito text-shadow-lg mb-16 animate-flip-vertical origin-center">
+                    Most Popular Items
+                </h2>
+                <div
+                    ref={ref => { (marqueeRef.current = ref) }}
+                    className="storybook-fix relative flex h-full max-h-110 min-h-72 w-full min-w-72 items-center justify-center overflow-hidden rounded bg-transparent animate-fadeIn">
+                    {(isVisible && isLoading) && <MarqueeSkeleton />}
+                    {isVisible && dishes && <MarqueeBox dishes={dishes as IDish[]} />}
+                </div>
+            </div>
         </div>
     )
 }
@@ -275,7 +285,7 @@ const AboutImage = ({ width, image, className }: { width: string, image: string,
             <img
                 className={`object-cover overflow-hidden ${width} aspect-square transition-all duration-1000 delay-200 scale-0
                 origin-center ${isVisible && `scale-100`} `}
-                src={image} alt="" />
+                src={image} alt="images-about-foodie" />
         </div>
     )
 }
@@ -319,32 +329,36 @@ const DataSpan = ({
 
 const AboutContainer = () => {
     return (
-        <div className="flex w-full">
-            <div className="flex flex-wrap relative w-1/2 aspect-square gap-4 p-4">
-                <AboutImage className="flex place-items-end" width="w-full" image={RESTAURANT_1} />
-                <AboutImage className="flex flex-wrap justify-start items-end" width="w-3/4" image={RESTAURANT_2} />
-                <AboutImage className="flex flex-wrap justify-end items-start" width="w-3/4" image={RESTAURANT_3} />
-                <AboutImage className="flex place-items-start" width="w-full" image={RESTAURANT_4} />
-            </div>
-            <div className="flex place-items-center m-auto p-6 w-1/2 aspect-square">
-                <div className="w-full flex flex-col gap-8">
-                    <h1 className="font-extrabold font-nunito text-4xl">
-                        Welcome to Foodie Restaurant
-                    </h1>
-                    <p className="text-md break-words font-varela-round text-gray-500 pr-20 text-justify">
-                        We offers a unique culinary journey where traditional flavors blend seamlessly with modern creativity. A cozy ambiance and dedicated service ensure every meal becomes a memorable experience
-                    </p>
-                    <p className="text-md break-words font-varela-round text-gray-500 pr-20 text-justify">
-                        We use only the freshest ingredients, carefully sourced from trusted suppliers. Under the mastery of our chefs, every dish is transformed into a flavorful and inspiring creation
-                    </p>
-                    <div className="flex place-items-stretch justify-stretch font-varela-round">
-                        <DataSpan number={15} span1="Years of" span2="experience" />
-                        <DataSpan number={50} span1="Popular" span2="Master Chefs" />
-                    </div>
+        <div className="flex flex-col justify-center place-items-center">
+            <div id="about-us" className="mb-16"></div>
+            <Title title="About Us" />
+            <div className="flex w-full">
+                <div className="flex flex-wrap relative w-1/2 aspect-square gap-4 p-4">
+                    <AboutImage className="flex place-items-end" width="w-full" image={RESTAURANT_1} />
+                    <AboutImage className="flex flex-wrap justify-start items-end" width="w-3/4" image={RESTAURANT_2} />
+                    <AboutImage className="flex flex-wrap justify-end items-start" width="w-3/4" image={RESTAURANT_3} />
+                    <AboutImage className="flex place-items-start" width="w-full" image={RESTAURANT_4} />
+                </div>
+                <div className="flex place-items-center m-auto p-6 w-1/2 aspect-square">
+                    <div className="w-full flex flex-col gap-8">
+                        <h1 className="font-extrabold font-nunito text-4xl">
+                            Welcome to Foodie Restaurant
+                        </h1>
+                        <p className="text-md break-words font-varela-round text-gray-500 pr-20 text-justify">
+                            We offers a unique culinary journey where traditional flavors blend seamlessly with modern creativity. A cozy ambiance and dedicated service ensure every meal becomes a memorable experience
+                        </p>
+                        <p className="text-md break-words font-varela-round text-gray-500 pr-20 text-justify">
+                            We use only the freshest ingredients, carefully sourced from trusted suppliers. Under the mastery of our chefs, every dish is transformed into a flavorful and inspiring creation
+                        </p>
+                        <div className="flex place-items-stretch justify-stretch font-varela-round">
+                            <DataSpan number={15} span1="Years of" span2="experience" />
+                            <DataSpan number={50} span1="Popular" span2="Master Chefs" />
+                        </div>
 
-                    <button
-                        className="py-4 px-3 bg-yellow-500 hover:bg-yellow-300 transition-all duration-400 w-2/7 text-2xl font-nunito font-bold text-white"
-                    >Read More</button>
+                        <button
+                            className="py-4 px-3 bg-yellow-500 hover:bg-yellow-300 transition-all duration-400 w-2/7 text-2xl font-nunito font-bold text-white"
+                        >Read More</button>
+                    </div>
                 </div>
             </div>
         </div>

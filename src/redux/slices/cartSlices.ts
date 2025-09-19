@@ -51,7 +51,9 @@ export const cartSlice = createSlice({
             }
         },
         updateTotal: (state: ICartState) => {
-            const total = state.currentCart.dishes.reduce((sum, dish) => { return sum += dish.price * (dish.quantity ?? 1) }, 0)
+            const total = state.currentCart.dishes.reduce((sum, dish) => {
+                return sum += dish.checked ? dish.price * (dish.quantity ?? 1) : 0
+            }, 0)
             state.currentCart.totalPrice = total
         },
         openCart: (state: ICartState) => {
@@ -72,10 +74,44 @@ export const cartSlice = createSlice({
                 console.log("Dish not exist")
             }
         },
-
+        selectAllDish: (state: ICartState) => {
+            const cartList = state.currentCart.dishes.map(dish => ({
+                ...dish,
+                checked: true
+            }))
+            state.currentCart.dishes = cartList
+        },
+        unSelectAllDish: (state: ICartState) => {
+            const cartList = state.currentCart.dishes.map(dish => ({
+                ...dish,
+                checked: false
+            }))
+            state.currentCart.dishes = cartList
+        },
+        removeAll: (state: ICartState) => {
+            state.currentCart = initialCart
+        },
+        removeMultiDishes: (state: ICartState) => {
+            const removeList = state.currentCart.dishes.filter(dish => dish.checked != true)
+            state.currentCart.dishes = removeList
+        }
     },
 })
 
-export const { addToCart, removeFromCart, updateQuantity, updateTotal, openCart, closeCart, controlCart, selectDish } = cartSlice.actions
+export const {
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    updateTotal,
+    openCart,
+    closeCart,
+    controlCart,
+    selectDish,
+    selectAllDish,
+    unSelectAllDish,
+    removeAll,
+    removeMultiDishes
+
+} = cartSlice.actions
 
 export default cartSlice.reducer

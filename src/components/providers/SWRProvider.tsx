@@ -16,6 +16,7 @@ const SWRProvider = ({ children }: { children: ReactNode }) => {
                     fetcher: fetcher,
                     revalidateOnFocus: false,
                     dedupingInterval: 10000,
+                    shouldRetryOnError: false
                 }}
             >
                 {children}

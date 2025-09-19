@@ -48,7 +48,7 @@ function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
         <SWRProvider>
           <StoreProvider>
             <Header />
-            <div className="min-h-[calc(150vh_-_50rem)] z-0 bg-cyan-50">
+            <div className="min-h-[calc(150vh_-_50rem)] z-0 bg-amber-50">
               {children}
             </div>
             <Footer />

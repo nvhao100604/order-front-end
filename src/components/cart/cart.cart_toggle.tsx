@@ -1,6 +1,6 @@
 'use client'
-import { useAppDispatch, useAppSelector } from "@/redux/hooks"
-import { controlCart } from "@/redux/slices/cartSlices"
+import { useCartControl } from "@/hooks"
+import { useAppSelector } from "@/redux/hooks"
 import { scrollToTop } from "@/utils"
 import { useEffect, useRef, useState } from "react"
 
@@ -8,7 +8,7 @@ const CartToggle = () => {
     let timerId = useRef<ReturnType<typeof setTimeout> | null>(null)
     const [isCartUpdate, setIsCartUpdate] = useState(true)
     const { currentCart: cart } = useAppSelector(state => state.cart)
-    const dispatch = useAppDispatch()
+    const handleControlCart = useCartControl()
 
     useEffect(() => {
         setIsCartUpdate(true)
@@ -22,7 +22,7 @@ const CartToggle = () => {
     }, [cart.dishes])
 
     const setCartOpen = () => {
-        dispatch(controlCart())
+        handleControlCart()
         scrollToTop()
     }
 
