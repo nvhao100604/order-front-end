@@ -1,4 +1,5 @@
 import { BASE_SERVER_URL, DEFAULT_TIMEOUT, RESPONSE_DELAY } from "@/config/constants";
+import { store } from "@/redux/store";
 import axios from "axios";
 
 const api = axios.create({
@@ -10,10 +11,11 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(config => {
-    // const token = localStorage.getItem("access_token");
-    // if (token) {
-    //     config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // const token = localStorage.getItem("accessToken");
+    const token = store.getState().auth.token
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     console.log(`API request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
 },

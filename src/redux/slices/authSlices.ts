@@ -1,5 +1,6 @@
 import api from "@/config/api/axios"
 import { AuthResponse, AuthState, LoginCredentials, RegisterData, User } from "@/interfaces"
+import { authServices } from "@/services/auth/auth.services"
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
 // Async thunks
@@ -7,19 +8,17 @@ const loginUser = createAsyncThunk<
     AuthResponse,
     LoginCredentials,
     { rejectValue: string }
->('auth/loginUser', async (credentials, { rejectWithValue }) => {
-    try {
-        const response = await api.post<AuthResponse>('/auth/login', credentials)
-        // Save token to localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        return response.data
-    } catch (error: any) {
-        return rejectWithValue(
-            error.response?.data?.message || 'Login failed'
-        )
-    }
-})
+>('auth/loginUser',
+    async (credentials, { rejectWithValue }) => {
+        try {
+            const response = await authServices.authLogin(credentials)
+            return response
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Login failed'
+            )
+        }
+    })
 
 const registerUser = createAsyncThunk<
     AuthResponse,
@@ -28,8 +27,8 @@ const registerUser = createAsyncThunk<
 >('auth/registerUser', async (userData, { rejectWithValue }) => {
     try {
         const response = await api.post<AuthResponse>('/auth/register', userData)
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.accessToken)
+        // localStorage.setItem('user', JSON.stringify(response.data))
         return response.data
     } catch (error: any) {
         return rejectWithValue(
@@ -45,7 +44,7 @@ const refreshToken = createAsyncThunk<
 >('auth/refreshToken', async (_, { rejectWithValue }) => {
     try {
         const response = await api.post<AuthResponse>('/auth/refresh')
-        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('token', response.data.accessToken)
         return response.data
     } catch (error: any) {
         return rejectWithValue('Token refresh failed')
@@ -93,13 +92,13 @@ const authSlice = createSlice({
         },
         initializeAuth: (state) => {
             const token = localStorage.getItem('token')
-            const userStr = localStorage.getItem('user')
+            // const userStr = localStorage.getItem('user')
 
-            if (token && userStr) {
+            if (token) {
                 try {
-                    const user = JSON.parse(userStr)
+                    // const user = JSON.parse(userStr)
                     state.token = token
-                    state.user = user
+                    // state.user = user
                     state.isAuthenticated = true
                 } catch (error) {
                     // Invalid stored data, clear it
@@ -118,8 +117,8 @@ const authSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false
-                state.user = action.payload.user
-                state.token = action.payload.token
+                // state.user = action.payload.user
+                state.token = action.payload.accessToken
                 state.isAuthenticated = true
                 state.error = null
             })
@@ -135,8 +134,8 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.isLoading = false
-                state.user = action.payload.user
-                state.token = action.payload.token
+                // state.user = action.payload.user
+                state.token = action.payload.accessToken
                 state.isAuthenticated = true
                 state.error = null
             })
@@ -146,8 +145,8 @@ const authSlice = createSlice({
             })
             // Refresh token
             .addCase(refreshToken.fulfilled, (state, action) => {
-                state.token = action.payload.token
-                state.user = action.payload.user
+                state.token = action.payload.accessToken
+                // state.user = action.payload.user
                 state.isAuthenticated = true
             })
             // Update profile

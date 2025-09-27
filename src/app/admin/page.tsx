@@ -1,7 +1,7 @@
 import { AdminPage } from "@/components"
 
 export const metadata = {
-    title: 'Admin'
+    title: 'Admin | Foodie Restaurant'
 }
 
 const Admin = () => {

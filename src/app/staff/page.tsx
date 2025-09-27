@@ -1,7 +1,7 @@
 import { StaffPage } from "@/components"
 
 export const metadata = {
-    title: 'Staff'
+    title: 'Staff | Foodie Restaurant'
 }
 
 const TestPage = () => {

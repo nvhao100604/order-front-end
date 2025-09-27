@@ -16,7 +16,7 @@ export interface AuthState {
 }
 
 export interface LoginCredentials {
-    email: string
+    username: string
     password: string
 }
 
@@ -27,7 +27,7 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-    user: User
-    token: string
-    message: string
+    username: string | User
+    accessToken: string
+    expriseIn: number
 }
