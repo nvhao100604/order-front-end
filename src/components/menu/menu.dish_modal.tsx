@@ -1,13 +1,19 @@
 import { IDish } from "@/interfaces";
 import AddToCart from "./menu.addtocart_button";
 import { formatter } from "@/utils";
+import { FaHeart } from "react-icons/fa";
 
 const DishModal = ({ dish, onClose, addToCart }:
     { dish: IDish, onClose: () => void, addToCart: () => void }) => {
     if (!dish) return null;
 
     return (
-        <>
+        <div className="flex flex-col">
+            <div className="absolute top-8 left-8 z-5">
+                <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100">
+                    <FaHeart className="text-gray-400 hover:text-pink-500 text-2xl" />
+                </button>
+            </div>
             <button
                 onClick={onClose}
                 className="absolute z-1 top-2 right-2 text-gray-500 bg-gray-100 rounded-sm w-8 h-8 hover:bg-gray-400 hover:text-white"
@@ -25,7 +31,7 @@ const DishModal = ({ dish, onClose, addToCart }:
                 <span className="text-xl font-semibold text-orange-500">{formatter.format(dish.price)}</span>
                 <AddToCart addToCart={addToCart} />
             </div>
-        </>
+        </div>
     )
 }
 

@@ -8,6 +8,7 @@ import DishItem from "./menu.dish_item"
 import LoadingBox from "../ui/loading"
 import { scrollToTop } from "@/utils"
 import { getDishesSWR } from "@/services"
+import RatingsAndReviews from "./menu.reviews"
 
 const MenuList = () => {
     const [selectedDish, setSelectedDish] = useState<IDish | null>(null)
@@ -50,13 +51,16 @@ const MenuList = () => {
                 )
                 )}
             {selectedDish &&
-                <Modal handleClick={handleClose}>
-                    <DishModal
-                        dish={selectedDish as IDish}
-                        onClose={handleClose}
-                        addToCart={() => handleAdd(selectedDish as IDish)}
-                    />
-                </Modal>
+                <>
+                    <Modal handleClick={handleClose}>
+                        <DishModal
+                            dish={selectedDish as IDish}
+                            onClose={handleClose}
+                            addToCart={() => handleAdd(selectedDish as IDish)}
+                        />
+                    </Modal>
+                </>
+
             }
         </>
     )

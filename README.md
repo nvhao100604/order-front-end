@@ -20,6 +20,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     - Axios
     - SWR (Stale-While-Revalidate)
     - shadcn/ui
+    - react-remove-scroll
 ### Tools:
     - Redux toolkit
 ## Installing:
@@ -40,6 +41,9 @@ npx shadcn@latest init
 ```
 ```bash
 npm install react-redux
+```
+```bash
+npm install react-remove-scroll
 ```
 ## Learn More
 

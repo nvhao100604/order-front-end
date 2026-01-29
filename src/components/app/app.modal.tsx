@@ -1,8 +1,9 @@
 'use client'
-import { ReactElement, useEffect } from "react"
+import { ReactNode, useEffect } from "react"
 import { createPortal } from "react-dom"
 
-const Modal = ({ children, handleClick }: { children: ReactElement, handleClick: () => void }) => {
+const Modal = ({ children, handleClick }:
+    { children: ReactNode, handleClick: () => void }) => {
     useEffect(() => {
         const handleEscape = (e: any) => {
             if (e.key === 'Escape') {
@@ -10,14 +11,14 @@ const Modal = ({ children, handleClick }: { children: ReactElement, handleClick:
             }
         };
 
-        document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
+        document.addEventListener('keydown', handleEscape)
+        return () => document.removeEventListener('keydown', handleEscape)
     }, []);
 
     return createPortal(
         <div className="fixed inset-0 z-1000 flex items-center justify-center">
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClick}></div>
-            <div className="relative bg-white rounded-lg max-w-2xl w-full p-6 z-51">
+            <div className="relative bg-white rounded-lg max-w-2xl w-full p-6 z-51 flex flex-col ">
                 {children}
             </div>
         </div>,

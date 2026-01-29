@@ -77,7 +77,7 @@ const MarqueeCard = ({ dish }: { dish: IDish }) => {
                         </div>
 
                         <button
-                            className="absolute top-4 right-4 bg-white text-gray-600 rounded-full p-2 text-xl hover:text-pink-600">
+                            className="absolute top-4 right-4 bg-white text-gray-600 rounded-full p-2 text-xl hover:text-pink-500">
                             <FaHeart /></button>
                     </div>
 
@@ -188,7 +188,8 @@ const MarqueeContainer = () => {
         limit: 8,
         offset: 0
     }
-    const { data: dishes, isLoading, error } = getDishesSWR(query)
+    const { data, isLoading, error } = getDishesSWR(query)
+    const dishes = data?.data
     const marqueeRef = useRef<HTMLElement | null>(null)
     const { isVisible } = useIntersectionObserver({ ref: marqueeRef })
     return (

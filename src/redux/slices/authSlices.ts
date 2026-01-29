@@ -27,7 +27,7 @@ const registerUser = createAsyncThunk<
 >('auth/registerUser', async (userData, { rejectWithValue }) => {
     try {
         const response = await api.post<AuthResponse>('/auth/register', userData)
-        localStorage.setItem('token', response.data.accessToken)
+        // localStorage.setItem('token', response.data.accessToken)
         // localStorage.setItem('user', JSON.stringify(response.data))
         return response.data
     } catch (error: any) {
@@ -44,7 +44,7 @@ const refreshToken = createAsyncThunk<
 >('auth/refreshToken', async (_, { rejectWithValue }) => {
     try {
         const response = await api.post<AuthResponse>('/auth/refresh')
-        localStorage.setItem('token', response.data.accessToken)
+        // localStorage.setItem('token', response.data.accessToken)
         return response.data
     } catch (error: any) {
         return rejectWithValue('Token refresh failed')
@@ -58,7 +58,7 @@ const updateProfile = createAsyncThunk<
 >('auth/updateProfile', async (userData, { rejectWithValue }) => {
     try {
         const response = await api.put<{ user: User }>('/auth/profile', userData)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        // localStorage.setItem('user', JSON.stringify(response.data.user))
         return response.data.user
     } catch (error: any) {
         return rejectWithValue(

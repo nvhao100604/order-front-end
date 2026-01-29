@@ -10,7 +10,7 @@ const DishItem = ({ dish, onClick, addToCart }:
             <div className="relative">
                 <div className="absolute top-2 right-2 z-5">
                     <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100">
-                        <FaHeart className="text-gray-400 hover:text-red-500" />
+                        <FaHeart className="text-gray-400 hover:text-pink-500" />
                     </button>
                 </div>
             </div>

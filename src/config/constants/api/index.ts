@@ -1,5 +1,5 @@
 
-const BASE_SERVER_URL = "http://localhost:5041/api/"
+const BASE_SERVER_URL = "https://order-fast-api.vercel.app/api/v1/"
 const DEFAULT_TIMEOUT = 8000;
 const RESPONSE_DELAY = 2 * 1000;
 const REFRESH_INTERVAL = 60 * 1000;
@@ -10,9 +10,9 @@ const DELETE = "delete"
 const UPDATE = "update"
 
 //Dish key
-const DISH_KEY = "Dish"
+const DISH_KEY = "dishes"
 //Category key
-const CATEGORY_KEY = "Category"
+const CATEGORY_KEY = "categories"
 export {
     BASE_SERVER_URL,
     DEFAULT_TIMEOUT,
