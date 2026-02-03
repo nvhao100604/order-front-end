@@ -9,7 +9,7 @@ import CartHeader from "../cart/cart.cart_header";
 
 const StaffPage = () => {
     // const [activeCategory, setActiveCategory] = useState<Category>('appetizers');
-    const { data, isLoading, error } = getCategoriesSWR()
+    const { data, isLoading, error } = getCategoriesSWR(1, 100)
     const [showOrderModal, setShowOrderModal] = useState(false);
     console.log("check data: ", data)
     // const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
