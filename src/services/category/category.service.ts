@@ -4,8 +4,14 @@ import { useFetchSWR } from "@/hooks"
 import { ICategory } from "@/interfaces"
 import { mutate } from "swr"
 
-const getCategoriesSWR = (config?: object) => {
-    const { data, isLoading, error } = useFetchSWR(`${CATEGORY_KEY}`, undefined, config)
+const getCategories = async (page: number, limit: number, config?: object) => {
+    const response = await api.get(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, config)
+
+    return response.data
+}
+
+const getCategoriesSWR = (page: number, limit: number, config?: object) => {
+    const { data, isLoading, error } = useFetchSWR(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, undefined, config)
 
     return { data, isLoading, error }
 }
@@ -37,6 +43,7 @@ const deleteCategory = async (categoryID: number, config?: object) => {
 const mutateGetCategories = (config?: object) => mutate(`${CATEGORY_KEY}`, config)
 
 export {
+    getCategories,
     getCategoriesSWR,
     getCategoryByID,
     createCategory,

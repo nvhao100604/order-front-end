@@ -2,12 +2,12 @@ export interface Query {
     [key: string]: string | number | undefined,
     id?: string,
     limit?: number,
-    offset?: number,
-    keyword?: string,
-    typeID?: number
+    page?: number,
+    name?: string,
+    categoryID?: number
 }
 
 export const defaultQuery: Query = {
-    limit: 12,
-    offset: 0
+    limit: 8,
+    page: 1
 } 

@@ -2,7 +2,6 @@ import { ICart, ICartState, IDish, tempDish } from '@/interfaces'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
-
 const initialCart: ICart = {
     dishes: [],
     totalPrice: 0

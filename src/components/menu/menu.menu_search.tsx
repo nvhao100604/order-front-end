@@ -1,14 +1,31 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { Skeleton } from "../ui/skeleton";
-import { ICategory } from "@/interfaces";
+import { defaultQuery, ICategory } from "@/interfaces";
 import { getCategoriesSWR } from "@/services/category/category.service";
+import { useQuery } from "@/hooks";
 
-const MenuSearch = () => {
-    const [activeCategory, setActiveCategory] = useState(1)
-    const [searchQuery, setSearchQuery] = useState("")
-    const { data: categories, error, isLoading } = getCategoriesSWR()
+const MenuSearch = ({ activeCategory, setActiveCategory, searchQuery, setSearchQuery }
+    :
+    {
+        activeCategory: number,
+        setActiveCategory: (id: number) => void,
+        searchQuery: string,
+        setSearchQuery: (query: string) => void
+    }
+) => {
+    const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
+    const { data, error, isLoading } = getCategoriesSWR(query.page ?? 1, query.limit ?? 8)
+    const all_category: ICategory = {
+        id: -1,
+        name: "All"
+    }
+    const categories = [all_category, ...(data?.data ?? [])]
+
+    useEffect(() => {
+        setActiveCategory(-1)
+    }, [])
 
     return (
         <>

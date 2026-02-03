@@ -2,7 +2,7 @@
 import { BACKGROUND_URL, RESTAURANT_1, RESTAURANT_2, RESTAURANT_3, RESTAURANT_4 } from "@/config"
 import Link from "next/link"
 import Marquee from "../animata/container/marquee"
-import { IDish, Query } from "@/interfaces"
+import { defaultQuery, IDish, Query } from "@/interfaces"
 import { formatter } from "@/utils"
 import { FaCartPlus, FaConciergeBell, FaCrown, FaHeart, FaUtensils } from "react-icons/fa"
 import { MouseEvent, useEffect, useRef, useState } from "react"
@@ -184,10 +184,7 @@ const MarqueeSkeleton = () => {
 }
 
 const MarqueeContainer = () => {
-    const query: Query = {
-        limit: 8,
-        offset: 0
-    }
+    const query: Query = defaultQuery
     const { data, isLoading, error } = getDishesSWR(query)
     const dishes = data?.data
     const marqueeRef = useRef<HTMLElement | null>(null)

@@ -1,9 +1,30 @@
 'use client'
 import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch } from "@/components"
+import useQuery from "@/hooks/useQuery"
+import { IDish } from "@/interfaces"
+import { defaultQuery } from "@/interfaces/query/query.interface"
 import { useAppSelector } from "@/redux/hooks"
+import { getDishesSWR } from "@/services/dish/dish.services.ts"
+import { useEffect, useState } from "react"
 
 const Menu = () => {
     const { isOpen: isCartOpen } = useAppSelector(state => state.cart)
+    const [query, updateQuery, resetQuery] = useQuery(
+        {
+            ...defaultQuery,
+            page: 1,
+            limit: 9,
+            categoryID: 1,
+            name: ""
+        }
+    )
+    const { data, isLoading } = getDishesSWR(query)
+    const dishes = data?.data
+
+    useEffect(() => {
+        console.log("Active Category changed:", query.typeID)
+    }, [query.typeID])
+
     return (
         <>
             <div className="container flex items-center md:min-h-screen md:p-4 m-auto sm:p-8">
@@ -17,8 +38,16 @@ const Menu = () => {
                             :
                             "-ml-100 w-full"}`}>
                         <MenuHeader />
-                        <MenuSearch />
-                        <MenuList />
+                        <MenuSearch
+                            activeCategory={query.categoryID ?? 1}
+                            searchQuery={query.name ?? ""}
+                            setActiveCategory={(id) => updateQuery({ ...query, categoryID: id })}
+                            setSearchQuery={(text) => updateQuery({ ...query, name: text })}
+                        />
+                        <MenuList
+                            dishes={(dishes as IDish[])}
+                            isLoading={isLoading}
+                        />
                     </div>
                 </div>
                 <CartToggle />

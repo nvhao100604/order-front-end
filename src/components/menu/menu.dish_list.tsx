@@ -1,19 +1,21 @@
 'use client'
-import { useAddToCart, useQuery } from "@/hooks"
-import { defaultQuery, IDish } from "@/interfaces"
+import { useAddToCart } from "@/hooks"
+import { IDish } from "@/interfaces"
 import { useEffect, useState } from "react"
 import DishModal from "./menu.dish_modal"
 import { Modal } from "../app"
 import DishItem from "./menu.dish_item"
 import LoadingBox from "../ui/loading"
 import { scrollToTop } from "@/utils"
-import { getDishesSWR } from "@/services"
-import RatingsAndReviews from "./menu.reviews"
 
-const MenuList = () => {
+const MenuList = (
+    { dishes, isLoading }:
+        {
+            dishes: IDish[] | undefined,
+            isLoading: boolean
+        }
+) => {
     const [selectedDish, setSelectedDish] = useState<IDish | null>(null)
-    const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
-    const { data: dishes, isLoading } = getDishesSWR(query)
     const handleAdd = useAddToCart()
 
     useEffect(() => {

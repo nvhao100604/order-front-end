@@ -6,11 +6,11 @@ const useQuery = (initialQuery: Query): [Query, (newQuery: Query) => void, () =>
     const [query, setQuery] = useState(initialQuery)
 
     const updateQuery = (newQuery: Query) => {
-        // setQuery((prevQuery: Query) => ({
-        //     ...prevQuery,
-        //     newQuery
-        // })
-        // )
+        setQuery((prevQuery: Query) => ({
+            ...prevQuery,
+            ...newQuery
+        })
+        )
     }
 
     const resetQuery = () => {
