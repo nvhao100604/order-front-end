@@ -35,9 +35,9 @@ const Menu = () => {
                         fixed inset-0 z-50
                         lg:z-auto lg:h-auto lg:sticky lg:top-4
                         ${isCartOpen ?
-                            "translate-x-0 opacity-100 lg:w-96 lg:translate-x-0"
+                            "translate-x-0 opacity-100 lg:w-96 lg:translate-x-0 lg:mr-8"
                             :
-                            "translate-x-full opacity-0 lg:w-0 lg:translate-x-0 lg:p-0 pointer-events-none"}
+                            "translate-x-full opacity-0 lg:w-0 lg:translate-x-0 lg:p-0 pointer-events-none lg:mr-0"}
                         `}>
                         {isCartOpen && (
                             <div className="h-full lg:h-auto overflow-y-auto max-h-screen lg:max-h-[calc(100vh-2rem)] custom-scrollbar w-full">
@@ -51,7 +51,7 @@ const Menu = () => {
                         <div className="space-y-6 mb-8">
                             <MenuHeader />
                             <MenuSearch
-                                activeCategory={query.categoryID ?? 1}
+                                activeCategory={query.categoryID ?? -1}
                                 searchQuery={query.name ?? ""}
                                 setActiveCategory={(id) => updateQuery({ ...query, categoryID: id })}
                                 setSearchQuery={(text) => updateQuery({ ...query, name: text })}
