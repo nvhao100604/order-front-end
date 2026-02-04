@@ -1,4 +1,5 @@
 const envCheck = (value: string | undefined, fallback_value: string): string => {
+    console.log("value check: " + value)
     if (!value) {
         if (fallback_value) {
             console.warn(`⚠️ [ENV WARNING] Missing "${value}". Using: "${fallback_value}"`)
@@ -15,7 +16,7 @@ const envCheck = (value: string | undefined, fallback_value: string): string => 
 
 export const BASE_SERVER_URL = envCheck(
     process.env.NEXT_PUBLIC_API_BASE_URL,
-    "localhost:8080/api/v1/"
+    "http://localhost:8080/api/v1/"
 )
 
 // Timeout: Cần chuyển từ string sang number
