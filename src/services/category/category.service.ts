@@ -1,7 +1,6 @@
 import { CATEGORY_KEY } from "@/config"
 import api from "@/config/api/axios"
 import { useFetchSWR } from "@/hooks"
-import { ICategory } from "@/interfaces"
 import { mutate } from "swr"
 
 const getCategories = async (page: number, limit: number, config?: object) => {

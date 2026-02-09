@@ -38,5 +38,6 @@ export const REFRESH_INTERVAL = Number(envCheck(
 ))
 
 // Query Keys (cho SWR hoặc React Query)
-export const DISH_KEY = "dishes";
-export const CATEGORY_KEY = "categories";
+export const DISH_KEY = "dishes"
+export const CATEGORY_KEY = "categories"
+export const ORDER_KEY = "orders"

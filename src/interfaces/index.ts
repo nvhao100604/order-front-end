@@ -5,7 +5,7 @@ export * from './auth/admin.interface'
 export * from './cart/cart.interface'
 //dashboard
 export * from './dashboard/dashboard.interface'
-//menu
-export * from './menu/menu.interface'
+//ordering
+export * from './ordering/ordering.interface'
 //query
 export * from './query/query.interface'
