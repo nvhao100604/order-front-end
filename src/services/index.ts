@@ -1,4 +1,4 @@
 // export * from './auth/auth.services'
-export * from './dish/dish.services.ts'
-export * from './category/category.service.js'
-export * from './order/order_services.js'
+export { dishes_services } from './dish/dish.services'
+export { default as categories_services } from './category/category.services'
+export { orders_services } from './order/order.services'

@@ -1,7 +1,7 @@
 import { useAddToCart } from "@/hooks";
-import { ICategory, IDish } from "@/interfaces";
-import { getDishesSWR } from "@/services";
+import { ICartItem, ICategory, IDish } from "@/interfaces";
 import { formatter } from "@/utils";
+import { dishes_services } from './../../services/dish/dish.services';
 
 const CategoriesSidebar = ({ categories, activeCategory }: { categories: ICategory[], activeCategory: number }) => {
 
@@ -68,7 +68,11 @@ const StaffDishCard = ({ dish }: { dish: IDish }) => {
                     {formatter.format(dish.price)}
                 </span>
                 <button
-                    onClick={() => handleAdd(dish)}
+                    onClick={() => handleAdd({
+                        ...(dish as ICartItem),
+                        quantity: 1,
+                        checked: false
+                    })}
                     className="rounded-lg bg-orange-500 hover:bg-orange-700 transition-colors duration-300 py-2 px-4 font-bold text-white">
                     Add
                 </button>
@@ -77,7 +81,7 @@ const StaffDishCard = ({ dish }: { dish: IDish }) => {
     )
 }
 const StaffMenuList = () => {
-    const { data, isLoading, error } = getDishesSWR({ limit: 10, offset: 0 })
+    const { data, isLoading, error } = dishes_services.getDishesSWR({ limit: 10, offset: 0 })
     const dishes = data as IDish[]
     if (error) return <div>Error</div>
     if (isLoading) return <div>Loading...</div>

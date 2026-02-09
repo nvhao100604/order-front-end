@@ -1,7 +1,7 @@
-import { IDish } from "../menu/menu.interface";
+import { ICartItem } from "../ordering/ordering.interface"
 
 export interface ICart {
-    dishes: IDish[],
+    dishes: ICartItem[],
     totalPrice: number
 }
 
@@ -14,5 +14,5 @@ export interface ICartState {
 
 export interface ICartAction {
     type: string,
-    payload?: IDish
+    payload?: ICartItem
 }

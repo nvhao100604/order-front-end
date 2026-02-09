@@ -4,8 +4,8 @@ import useQuery from "@/hooks/useQuery"
 import { IDish } from "@/interfaces"
 import { defaultQuery } from "@/interfaces/query/query.interface"
 import { useAppSelector } from "@/redux/hooks"
-import { getDishesSWR } from "@/services/dish/dish.services.ts"
 import { useEffect, useState } from "react"
+import { dishes_services } from './../../../services/dish/dish.services';
 
 const Menu = () => {
     const { isOpen: isCartOpen } = useAppSelector(state => state.cart)
@@ -18,7 +18,7 @@ const Menu = () => {
             name: ""
         }
     )
-    const { data, isLoading } = getDishesSWR(query)
+    const { data, isLoading } = dishes_services.getDishesSWR(query)
     const dishes = data?.data
 
     useEffect(() => {

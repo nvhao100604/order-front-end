@@ -1,11 +1,11 @@
-import { IDish } from "@/interfaces"
+import { ICartItem, IOrderCreate, IOrderDetailBase } from "@/interfaces"
 import { useAppDispatch } from "@/redux/hooks"
-import { addToCart, closeCart, controlCart, openCart, removeAll, removeFromCart, removeMultiDishes, selectAllDish, selectDish, unSelectAllDish, updateQuantity, updateTotal } from "@/redux/slices/cartSlices"
+import { addToCart, closeCart, controlCart, openCart, placeOrder, removeAll, removeFromCart, removeMultiDishes, selectAllDish, selectDish, unSelectAllDish, updateQuantity, updateTotal } from "@/redux/slices/cartSlices"
 
 const useAddToCart = () => {
     const dispatch = useAppDispatch()
 
-    const handleAddToCart = (dish: IDish) => {
+    const handleAddToCart = (dish: ICartItem) => {
         console.log(dish)
         dispatch(addToCart(dish))
         dispatch(updateTotal())
@@ -16,7 +16,7 @@ const useAddToCart = () => {
 
 const useUpdateQuantity = () => {
     const dispatch = useAppDispatch()
-    const updateDishQuantity = (dish: IDish, change: number) => {
+    const updateDishQuantity = (dish: ICartItem, change: number) => {
         dispatch(updateQuantity({ ...dish, quantity: (dish.quantity ?? 0) + change }))
         dispatch(updateTotal())
     }
@@ -25,7 +25,7 @@ const useUpdateQuantity = () => {
 
 const useRemoveFromCart = () => {
     const dispatch = useAppDispatch()
-    const removeDish = (dishToRemove: IDish) => dispatch(removeFromCart(dishToRemove))
+    const removeDish = (dishToRemove: ICartItem) => dispatch(removeFromCart(dishToRemove))
 
     return removeDish
 }
@@ -48,7 +48,7 @@ const useRemoveAll = () => {
 
 const useSelectItem = () => {
     const dispatch = useAppDispatch()
-    const toggleItemSelection = (dish: IDish) => dispatch(selectDish(dish))
+    const toggleItemSelection = (dish: ICartItem) => dispatch(selectDish(dish))
     return toggleItemSelection
 }
 
@@ -86,6 +86,17 @@ const useCartControl = () => {
     return handleControlCart
 }
 
+const useSubmitOrder = () => {
+    const dispatch = useAppDispatch()
+    const closeCartList = async (order: IOrderCreate) => {
+        console.log(order)
+        await dispatch(placeOrder(order))
+        dispatch(removeAll())
+        dispatch(closeCart())
+    }
+    return closeCartList
+}
+
 export {
     useAddToCart,
     useUpdateQuantity,
@@ -96,5 +107,6 @@ export {
     useSelectAll,
     useOpenCart,
     useCloseCart,
-    useCartControl
+    useCartControl,
+    useSubmitOrder
 }

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from "react";
-import { IDish } from "@/interfaces"
+import { ICartItem } from "@/interfaces"
 import { useAppSelector } from "@/redux/hooks"
 import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi"
 import ConfirmModal from "./cart.confirm_modal";
@@ -8,19 +8,18 @@ import { Modal } from "../app";
 import { formatter } from "@/utils";
 import { useRemoveFromCart, useSelectItem, useUpdateQuantity } from "@/hooks";
 
-
 const CardItem = ({ item, setSelectedDishToRemove }
     : {
-        item: IDish,
-        setSelectedDishToRemove: (dish: IDish) => void
+        item: ICartItem,
+        setSelectedDishToRemove: (dish: ICartItem) => void
     }) => {
     const toggleItemSelection = useSelectItem()
-    const confirmRemove = (dish: IDish) => setSelectedDishToRemove(dish)
+    const confirmRemove = (dish: ICartItem) => setSelectedDishToRemove(dish)
     const updateQuantity = useUpdateQuantity()
 
-    const updateDishQuantity = (dish: IDish, change: number) => {
+    const updateDishQuantity = (dish: ICartItem, change: number) => {
         // console.log("change: " + change)
-        if (dish.quantity! + change <= 0) {
+        if (dish.quantity + change <= 0) {
             setSelectedDishToRemove(dish)
             return
         }
@@ -76,7 +75,7 @@ const CardItem = ({ item, setSelectedDishToRemove }
 }
 
 const CartList = () => {
-    const [selectedDishToRemove, setSelectedDishToRemove] = useState<IDish | null>()
+    const [selectedDishToRemove, setSelectedDishToRemove] = useState<ICartItem | null>()
     const cartList = useAppSelector(state => state.cart)
     const cart = cartList.currentCart.dishes
     const removeDish = useRemoveFromCart()
@@ -99,7 +98,7 @@ const CartList = () => {
                             <CardItem
                                 key={item.id}
                                 item={item}
-                                setSelectedDishToRemove={(dish: IDish) => setSelectedDishToRemove(dish)}
+                                setSelectedDishToRemove={(dish: ICartItem) => setSelectedDishToRemove(dish)}
                             />
                         ))}
                     </div>
@@ -112,7 +111,7 @@ const CartList = () => {
                 selectedDishToRemove && (
                     <Modal handleClick={() => setSelectedDishToRemove(null)}>
                         <ConfirmModal
-                            dish={selectedDishToRemove as IDish}
+                            dish={selectedDishToRemove as ICartItem}
                             setShowConfirmModal={() => setSelectedDishToRemove(null)}
                             removeFromCart={handleRemove}
                         />

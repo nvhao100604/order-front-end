@@ -13,12 +13,24 @@ export interface IDish {
     price: number,
     categoryId?: number,
     imgUrl: string,
-    describe: string,
-    quantity?: number,
-    checked?: boolean
+    describe: string
+}
+
+export interface ICartItem extends IDish {
+    quantity: number,
+    checked: boolean
 }
 
 export const tempDish: IDish = {
+    id: 0,
+    name: "",
+    price: 0,
+    categoryId: 0,
+    imgUrl: "",
+    describe: ""
+}
+
+export const tempCartItem: ICartItem = {
     id: 0,
     name: "",
     price: 0,
@@ -49,12 +61,36 @@ export interface IOrderDetailResponse extends IOrderDetailBase {
     dish: IDish;
 }
 
+export interface IOrder {
+    staffID: number;
+    customerID: number;
+    tableID?: number | null;
+    totalPrice?: Total;
+    notes?: string | null;
+    details: ICartItem[]
+}
+
 export interface IOrderCreate {
     staffID: number;
     customerID: number;
     tableID?: number | null;
-    totalPrice: number;
+    totalPrice?: Total;
     notes?: string | null;
+    details: IOrderDetailBase[]
+}
+
+export interface Total {
+    subtotal: number,
+    tax: number,
+    delivery: number,
+    total: number
+}
+
+
+export const tempOrder: IOrder = {
+    staffID: 0,
+    customerID: 0,
+    details: []
 }
 
 export interface IOrderResponse {

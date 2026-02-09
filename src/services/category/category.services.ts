@@ -1,7 +1,6 @@
 import { CATEGORY_KEY } from "@/config"
 import api from "@/config/api/axios"
 import { useFetchSWR } from "@/hooks"
-import { mutate } from "swr"
 
 const getCategories = async (page: number, limit: number, config?: object) => {
     const response = await api.get(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, config)
@@ -39,14 +38,15 @@ const getCategoryByID = async (categoryID: number, config?: object) => {
 //     return response.data
 // }
 
-const mutateGetCategories = (config?: object) => mutate(`${CATEGORY_KEY}`, config)
+// const mutateGetCategories = (config?: object) => mutate(`${CATEGORY_KEY}`, config)
 
-export {
+const categories_services = {
     getCategories,
     getCategoriesSWR,
     getCategoryByID,
     // createCategory,
     // updateCategory,
     // deleteCategory,
-    mutateGetCategories
+    // mutateGetCategories
 }
+export default categories_services

@@ -1,7 +1,7 @@
 import { DISH_KEY } from "@/config"
 import api from "@/config/api/axios"
 import { useFetchSWR } from "@/hooks"
-import { IDish, Query } from "@/interfaces"
+import { Query } from "@/interfaces"
 import { convertToParams } from "@/utils"
 
 const getDishesSWR = (query: Query, config?: object) => {
@@ -43,7 +43,7 @@ const getDishes = async (query: Query, config?: object) => {
 
 // const mutateDishes = () => mutate(`${DISH_KEY}`)
 
-export {
+export const dishes_services = {
     getDishesSWR,
     getDishes,
     // getDishSearch,

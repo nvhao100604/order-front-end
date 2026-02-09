@@ -1,6 +1,6 @@
 'use client'
 import { useAddToCart } from "@/hooks"
-import { IDish } from "@/interfaces"
+import { ICartItem, IDish } from "@/interfaces"
 import { useEffect, useState } from "react"
 import DishModal from "./menu.dish_modal"
 import { Modal } from "../app"
@@ -46,7 +46,11 @@ const MenuList = (
                                  flex flex-col
                                  animate-appear"
                             >
-                                <DishItem dish={dish} onClick={handleClick} addToCart={() => handleAdd(dish)} />
+                                <DishItem dish={dish} onClick={handleClick} addToCart={() => handleAdd({
+                                    ...(dish as ICartItem),
+                                    quantity: 1,
+                                    checked: false
+                                })} />
                             </div>
                         ))}
                     </div>
@@ -56,9 +60,9 @@ const MenuList = (
                 <>
                     <Modal handleClick={handleClose}>
                         <DishModal
-                            dish={selectedDish as IDish}
+                            dish={selectedDish as ICartItem}
                             onClose={handleClose}
-                            addToCart={() => handleAdd(selectedDish as IDish)}
+                            addToCart={() => handleAdd(selectedDish as ICartItem)}
                         />
                     </Modal>
                 </>

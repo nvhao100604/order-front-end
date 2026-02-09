@@ -1,15 +1,15 @@
 'use client'
 import { useState } from "react";
 import { ICategory, IDish } from "@/interfaces";
-import { getCategoriesSWR } from "@/services/category/category.service";
 import { CategoriesSidebar, StaffMenuList } from "./staff.components";
 import CartList from "../cart/cart.cart_list";
 import CartDetail from "../cart/cart.cart_detail";
 import CartHeader from "../cart/cart.cart_header";
+import categories_services from './../../services/category/category.services';
 
 const StaffPage = () => {
     // const [activeCategory, setActiveCategory] = useState<Category>('appetizers');
-    const { data, isLoading, error } = getCategoriesSWR(1, 100)
+    const { data, isLoading, error } = categories_services.getCategoriesSWR(1, 100)
     const [showOrderModal, setShowOrderModal] = useState(false);
     console.log("check data: ", data)
     // const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);

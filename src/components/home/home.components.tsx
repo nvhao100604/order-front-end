@@ -5,11 +5,11 @@ import Marquee from "../animata/container/marquee"
 import { defaultQuery, IDish, Query } from "@/interfaces"
 import { formatter } from "@/utils"
 import { FaCartPlus, FaConciergeBell, FaCrown, FaHeart, FaUtensils } from "react-icons/fa"
-import { MouseEvent, useEffect, useRef, useState } from "react"
-import { getDishesSWR } from "@/services"
+import { MouseEvent, useRef, useState } from "react"
 import { useCounter, useIntersectionObserver } from "@/hooks"
 import { IconType } from "react-icons/lib"
 import { Skeleton } from "../ui/skeleton"
+import { dishes_services } from './../../services/dish/dish.services';
 
 const Title = ({ title }: { title: string }) => {
     return (
@@ -185,7 +185,7 @@ const MarqueeSkeleton = () => {
 
 const MarqueeContainer = () => {
     const query: Query = defaultQuery
-    const { data, isLoading, error } = getDishesSWR(query)
+    const { data, isLoading, error } = dishes_services.getDishesSWR(query)
     const dishes = data?.data
     const marqueeRef = useRef<HTMLElement | null>(null)
     const { isVisible } = useIntersectionObserver({ ref: marqueeRef })

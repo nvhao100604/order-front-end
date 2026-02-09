@@ -1,8 +1,7 @@
-import { IDish } from "@/interfaces"
+import { ICartItem, IDish } from "@/interfaces"
 
 const ConfirmModal = ({ dish, setShowConfirmModal, removeFromCart }:
-    { dish: IDish, setShowConfirmModal: () => void, removeFromCart: () => void }) => {
-
+    { dish: ICartItem, setShowConfirmModal: () => void, removeFromCart: () => void }) => {
     return (
         <div className="flex-1 items-center">
             <h3 className="text-lg font-semibold mb-4">Remove Item</h3>

@@ -1,18 +1,25 @@
-import { IDish } from "@/interfaces"
-import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+'use client'
+import { useAppSelector } from "@/redux/hooks"
 import formatter from './../../utils/formatter';
-interface Total {
-    subtotal: number,
-    tax: number,
-    delivery: number,
-    total: number
+import { useSubmitOrder } from "@/hooks";
+import { useState } from "react";
+import { ICartItem, IOrder, IOrderCreate, IOrderDetailBase, tempOrder, Total } from "@/interfaces";
+
+const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
+    return {
+        dishID: item.id,
+        quantity: item.quantity,
+        price: item.price
+    }
 }
 
 const CartDetail = () => {
+    // const [order, setOrder] = useState<IOrder>(tempOrder)
     const taxNumber = 8.5;
     const cartList = useAppSelector(state => state.cart)
     const cart = cartList.currentCart.dishes
     const cartLength = cart.reduce((length, dish) => length += dish.checked ? 1 : 0, 0)
+    const placeOrder = useSubmitOrder()
     const calculateTotal = (): Total => {
         const subtotal = cart.reduce((subtotal, dish) => subtotal += dish.checked ? dish.price * dish.quantity! : 0, 0)
         const tax = taxNumber * subtotal / 100
@@ -25,9 +32,18 @@ const CartDetail = () => {
         }
         return total
     }
-    const onCheckout = () => {
 
-    }
+    const filtered_dish = cart.filter(item => item.checked == true)
+    const details = filtered_dish.map(convertItemToDetail)
+
+    const onCheckout = () => placeOrder({
+        staffID: 1,
+        customerID: 1,
+        notes: "tình cha",
+        details: details,
+        totalPrice: calculateTotal()
+    })
+
     return (
         <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between">
