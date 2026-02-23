@@ -82,12 +82,12 @@ const StaffDishCard = ({ dish }: { dish: IDish }) => {
 }
 const StaffMenuList = () => {
     const { data, isLoading, error } = dishes_services.getDishesSWR({ limit: 10, offset: 0 })
-    const dishes = data as IDish[]
+    // const dishes = data as IDish[]
     if (error) return <div>Error</div>
     if (isLoading) return <div>Loading...</div>
     return (
         <>
-            {dishes &&
+            {/* {dishes &&
                 (dishes.length == 0) ?
                 <div>No dishes</div>
                 :
@@ -96,7 +96,7 @@ const StaffMenuList = () => {
                         <StaffDishCard key={`dish-${dish.id}`} dish={dish} />
                     ))}
                 </div>
-            }
+            } */}
         </>
     )
 }
