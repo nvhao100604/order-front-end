@@ -40,7 +40,7 @@ const metadata: Metadata = {
 
 function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} 
         ${varelaRound.variable} ${nunito.variable} antialiased`}

@@ -1,16 +1,17 @@
 import { DISH_KEY } from "@/config"
 import api from "@/config/api/axios"
 import { useFetchSWR } from "@/hooks"
-import { Query } from "@/interfaces"
+import { IDish, IResponse, Query } from "@/interfaces"
 import { convertToParams } from "@/utils"
+import { SWRResponse } from "swr"
 
-const getDishesSWR = (query: Query, config?: object) => {
-    const { data, isLoading, error } = useFetchSWR(`${DISH_KEY}`, query, config)
+const getDishesSWR = (query: Query, config?: object): SWRResponse<IResponse<IDish[]>> => {
+    const { data, ...rest } = useFetchSWR(`${DISH_KEY}`, query, config)
 
-    return { data, isLoading, error }
+    return { data: data as IResponse<IDish[]>, ...rest }
 }
 
-const getDishes = async (query: Query, config?: object) => {
+const getDishes = async (query: Query, config?: object): Promise<IResponse<IDish[]>> => {
     const params = convertToParams(query)
     const response = await api.get(`${DISH_KEY}?${params}`, config)
 

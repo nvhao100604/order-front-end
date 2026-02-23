@@ -8,7 +8,7 @@ const useFetchSWR = (path: string, query?: Query, config?: object) => {
     const queryString = convertToParams(query)
     // console.log(queryString)
     const pathString = query ? `${path}?${queryString}` : `${path}`
-    const { data, error, isLoading } = useSWR(
+    const { data, ...rest } = useSWR(
         pathString,
         {
             revalidateIfStale: false,
@@ -20,7 +20,7 @@ const useFetchSWR = (path: string, query?: Query, config?: object) => {
         }
     )
     // console.log("check data: ", data)
-    return { data, error, isLoading }
+    return { data, ...rest }
 }
 
 export default useFetchSWR

@@ -1,5 +1,5 @@
 'use client'
-import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch } from "@/components"
+import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch, Pagination } from "@/components"
 import useQuery from "@/hooks/useQuery"
 import { IDish } from "@/interfaces"
 import { defaultQuery } from "@/interfaces/query/query.interface"
@@ -13,13 +13,14 @@ const Menu = () => {
         {
             ...defaultQuery,
             page: 1,
-            limit: 9,
+            limit: 8,
             categoryID: -1,
             name: ""
         }
     )
     const { data, isLoading } = dishes_services.getDishesSWR(query)
     const dishes = data?.data
+    const meta = data?.meta
 
     useEffect(() => {
         console.log("Active Category changed:", query.categoryID)
@@ -32,7 +33,7 @@ const Menu = () => {
                     <div className={`bg-white rounded-xl shadow-lg border border-gray-100
                         transition-all duration-300 ease-in-out
                         overflow-hidden
-                        fixed inset-0 z-50
+                        fixed inset-0 z-52
                         lg:z-auto lg:h-auto lg:sticky lg:top-4
                         ${isCartOpen ?
                             "translate-x-0 opacity-100 lg:w-96 lg:translate-x-0 lg:mr-8"
@@ -47,7 +48,7 @@ const Menu = () => {
                             </div>
                         )}
                     </div>
-                    <div className={"flex-1 w-full min-w-0 transition-all duration-300"}>
+                    <div className={"flex-1 w-full min-w-0 transition-all duration-300 p-2"}>
                         <div className="space-y-6 mb-8">
                             <MenuHeader />
                             <MenuSearch
@@ -61,6 +62,11 @@ const Menu = () => {
                         <MenuList
                             dishes={(dishes as IDish[])}
                             isLoading={isLoading}
+                        />
+                        <Pagination
+                            totalPages={meta?.total ? Math.ceil(meta.total / (query.limit ?? 1)) : 1}
+                            currentPage={query.page ?? 1}
+                            onPageChange={(page) => updateQuery({ ...query, page })}
                         />
                     </div>
                 </div>

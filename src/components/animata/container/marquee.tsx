@@ -56,16 +56,14 @@ function Marquee({
         <div
             {...props}
             className={`
-             group relative flex h-full w-full p-4 ${vertical ? "flex-col" : "flex-row"} ${className ? className : ""}`}
-            style={{ '--duration': '0s', '--gap': '1rem', gap: 'var(--gap)' } as CSSProperties}
+            group relative flex h-full w-full ${vertical ? "flex-col" : "flex-row"} ${className ? className : ""}`}
+            style={{ '--duration': '0s', '--gap': '0.75rem', gap: 'var(--gap)' } as CSSProperties}
         >
             <div
-                className={`
-            flex shrink-0 gap-[var(--gap)] py-18
-            ${vertical ? 'flex-col animate-marquee-vertical' : 'flex-row animate-marquee-horizontal'}
-            ${pauseOnHover ? 'group-hover:[animation-play-state:paused]' : ''}
-            ${reverse ? '[animation-direction:reverse]' : ''}
-          `}
+                className={`flex shrink-0 gap-[var(--gap)] py-2 md:py-4
+                ${vertical ? 'flex-col animate-marquee-vertical' : 'flex-row animate-marquee-horizontal'}
+                ${pauseOnHover ? 'group-hover:[animation-play-state:paused]' : ''}
+                ${reverse ? '[animation-direction:reverse]' : ''}`}
                 style={{ gap: 'var(--gap)' }}
             >
                 {

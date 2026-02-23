@@ -28,7 +28,7 @@ const MenuList = (
     return (
         <>
             {isLoading ?
-                <div className="w-full h-screen">
+                <div className="w-full h-screen flex justify-center items-center">
                     <LoadingBox />
                 </div>
                 :
@@ -37,36 +37,44 @@ const MenuList = (
                         <p className="text-gray-500 text-lg">No dishes found matching your criteria</p>
                     </div>
                 ) : (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8 justify-items-center">
                         {dishes && (dishes as IDish[]).map(dish => (
                             <div
                                 key={dish.id}
-                                className="bg-white rounded-lg shadow-md overflow-hidden
-                                 hover:shadow-lg transition-shadow duration-300 cursor-pointer 
-                                 flex flex-col
-                                 animate-appear"
+                                className="w-full h-full animate-appear"
                             >
-                                <DishItem dish={dish} onClick={handleClick} addToCart={() => handleAdd({
-                                    ...(dish as ICartItem),
-                                    quantity: 1,
-                                    checked: false
-                                })} />
+                                <DishItem
+                                    dish={dish}
+                                    onClick={handleClick}
+                                    addToCart={() => handleAdd({
+                                        ...(dish as ICartItem),
+                                        quantity: 1,
+                                        checked: false
+                                    })}
+                                />
                             </div>
                         ))}
                     </div>
                 )
                 )}
+
             {selectedDish &&
                 <>
                     <Modal handleClick={handleClose}>
                         <DishModal
                             dish={selectedDish as ICartItem}
                             onClose={handleClose}
-                            addToCart={() => handleAdd(selectedDish as ICartItem)}
+                            addToCart={(quantity = 1) => {
+                                handleAdd({
+                                    ...(selectedDish as ICartItem),
+                                    quantity: quantity,
+                                    checked: false
+                                });
+                                handleClose();
+                            }}
                         />
                     </Modal>
                 </>
-
             }
         </>
     )
