@@ -53,7 +53,7 @@ const CartHeader = () => {
 
             {isConfirmed &&
                 <Modal handleClick={() => setIsConfirmed(false)}>
-                    <div className="flex flex-col items-center text-center p-4">
+                    <div className="flex flex-col items-center text-center p-4 bg-white rounded-2xl">
                         <div className="w-12 h-12 rounded-full bg-red-100 text-red-500 flex justify-center items-center mb-4">
                             <FiX size={24} />
                         </div>
