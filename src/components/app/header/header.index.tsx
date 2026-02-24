@@ -55,9 +55,15 @@ const Navigation = () => {
     )
 }
 
-const ReservationButton = () => {
+const ReservationButton = ({
+    handleClick
+}: {
+    handleClick?: () => void
+}
+) => {
     return (
         <button
+            onClick={handleClick}
             className="text-white font-medium text-lg px-3 py-2 bg-orange-600 rounded-md 
                     shadow-neutral-800 shadow-lg transition-transform transform-all duration-300 ease-in-out 
                     hover:bg-orange-700 hover:scale-110"

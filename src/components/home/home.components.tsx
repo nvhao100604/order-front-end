@@ -3,7 +3,7 @@ import { BACKGROUND_URL, RESTAURANT_1, RESTAURANT_2, RESTAURANT_3, RESTAURANT_4 
 import Link from "next/link"
 import Marquee from "../animata/container/marquee"
 import { defaultQuery, ICartItem, IDish, Query } from "@/interfaces"
-import { formatter } from "@/utils"
+import { formatter, onMouseDownHandler, onMouseLeaveHandler, onMouseMoveHandler, onMouseUpHandler } from "@/utils"
 import { FaCartPlus, FaConciergeBell, FaCrown, FaHeart, FaShoppingCart, FaStar, FaUtensils } from "react-icons/fa"
 import { MouseEvent, useRef, useState } from "react"
 import { useAddToCart, useCounter, useIntersectionObserver } from "@/hooks"
@@ -151,70 +151,84 @@ const MarqueeCard = ({ dish }: { dish: ICartItem }) => {
 }
 
 const MarqueeBox = ({ dishes }: { dishes: ICartItem[] }) => {
+    // 1. Thay toàn bộ useState bằng useRef để triệt tiêu re-render khi kéo
     const sliderRef = useRef<HTMLDivElement>(null)
-    const [isDown, setIsDown] = useState(false)
-    const [startX, setStartX] = useState(0)
-    const [scrollLeft, setScrollLeft] = useState(0)
+    const isDragging = useRef(false)
+    const startX = useRef(0)
+    const scrollLeft = useRef(0)
 
-    const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-        if (!sliderRef.current) return
-        setIsDown(true)
-        setStartX(e.pageX - sliderRef.current.offsetLeft)
-        setScrollLeft(sliderRef.current.scrollLeft)
-    }
-
-    const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-        if (!isDown || !sliderRef.current) return;
-        e.preventDefault()
-        const x = e.pageX - sliderRef.current.offsetLeft
-        const walk = (x - startX) * 1.5
-        sliderRef.current.scrollLeft = scrollLeft - walk
+    // Đóng gói các ref lại để truyền vào hàm xử lý
+    const dragRefs = {
+        scrollRef: sliderRef,
+        isDragging,
+        startX,
+        scrollLeft
     }
 
     return (
-        <Marquee
-            onMouseDown={(e: MouseEvent<HTMLDivElement>) => handleMouseDown(e)}
-            onMouseUp={() => setIsDown(false)}
-            onMouseLeave={() => setIsDown(false)}
-            onMouseMove={(e: MouseEvent<HTMLDivElement>) => handleMouseMove(e)}
-            ref={sliderRef}
-            pauseOnHover
-            className="bg-transparent px-0 py-2 lg:px-2 lg:py-4 flex cursor-grab overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-        >
-            {dishes && (dishes as ICartItem[]).map(dish => (
-                <MarqueeCard
-                    key={`dish-${dish.id}`}
-                    dish={dish}
+        <div className="relative w-full overflow-hidden group">
+            {/* LỚP MÀN TRẮNG (Gradient) 
+               - Phải nằm NGOÀI component Marquee
+               - Phải có pointer-events-none để không cản trở việc kéo chuột
+            */}
+            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none hidden lg:block" />
+            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none hidden lg:block" />
 
-                />
-            ))}
-        </Marquee >
+            <Marquee
+                // 2. Ép các sự kiện chuột chạy qua hàm utils để không re-render
+                onMouseDown={(e: any) => onMouseDownHandler(e, dragRefs)}
+                onMouseUp={() => onMouseUpHandler(dragRefs)}
+                onMouseLeave={() => onMouseLeaveHandler(dragRefs)}
+                onMouseMove={(e: any) => onMouseMoveHandler(e, dragRefs)}
+                ref={sliderRef}
+                pauseOnHover
+                // select-none cực kỳ quan trọng để không bị bôi xanh ảnh/chữ khi kéo
+                className="bg-transparent px-0 py-2 lg:px-2 lg:py-4 flex cursor-grab select-none overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+                {dishes && dishes.map(dish => (
+                    <MarqueeCard
+                        key={`dish-${dish.id}`}
+                        dish={dish}
+                    />
+                ))}
+            </Marquee>
+        </div>
     )
 }
 
 const MarqueeSkeletonCard = () => {
     return (
-        <div className="max-w-sm w-72 bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-3xl transition-all duration-400 hover:scale-110">
-            <div className="relative h-48 overflow-hidden">
-                <div className="h-full w-full object-cover overflow-hidden">
-                    <Skeleton className="h-full w-full" />
-                </div>
-                <div className="absolute top-4 left-4 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
-                    <span className="h-8"><Skeleton className="h-full w-full" /></span>
-                </div>
-            </div>
-            <div className="p-4 relative flex flex-col justify-center place-items-center">
-                <div className="h-6 mb-2 w-3/5">
-                    <Skeleton className="h-full w-full" />
-                </div>
-                <div className="h-6 mb-6 rounded-sm w-4/5">
-                    <Skeleton className="h-full w-full" />
+        <div className="max-w-sm w-48 lg:w-72 my-4 bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col shadow-orange-900/5">
+            <div className="relative h-24 lg:h-48 overflow-hidden bg-gray-100">
+                <Skeleton className="h-full w-full" />
+
+                <div className="absolute top-2 left-2 lg:top-4 lg:left-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm">
+                    <Skeleton className="h-4 w-12 lg:w-16" />
                 </div>
 
-                <div className="w-full justify-center place-items-center flex">
-                    <button className="w-4/5 bg-gradient-to-r from-orange-400 to-red-500 text-white font-semibold py-2 px-5 rounded-xl hover:from-orange-700 hover:to-red-800 transition-all duration-300 transform shadow-lg hover:shadow-xl">
-                        Add to Cart
-                    </button>
+                <div className="absolute top-2 right-2 lg:top-4 lg:right-4 p-2">
+                    <Skeleton className="h-6 w-6 lg:h-8 lg:w-8 rounded-full" />
+                </div>
+            </div>
+
+            <div className="p-4 lg:p-6 flex flex-col flex-1 relative">
+                <div className="mb-2">
+                    <Skeleton className="h-5 lg:h-7 w-3/4 rounded-md" />
+                </div>
+
+                <div className="h-6 mb-6 bg-gray-50 rounded-lg items-center px-2 hidden md:flex">
+                    <Skeleton className="h-3 w-full rounded-full" />
+                </div>
+
+                <div className="flex justify-center md:justify-start items-center gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <Skeleton key={s} className="h-3 w-3 rounded-full" />
+                    ))}
+                    <Skeleton className="ml-2 h-3 w-8" />
+                </div>
+
+                <div className="w-full mt-auto pt-2">
+                    <Skeleton className="h-12 w-full rounded-xl" />
                 </div>
             </div>
         </div>
@@ -222,17 +236,13 @@ const MarqueeSkeletonCard = () => {
 }
 
 const MarqueeSkeleton = () => {
-    const spawn = () => {
-        const list = []
-        for (let i = 0; i < 8; i++) {
-            list.push(
-                <MarqueeSkeletonCard key={`card-${i}`} />)
-        }
-        return list
-    }
     return (
-        <Marquee pauseOnHover className="bg-transparent px-4 py-12">
-            {spawn()}
+        <Marquee pauseOnHover className="bg-transparent px-0 py-2 lg:px-2 lg:py-4">
+            {[...Array(8)].map((_, i) => (
+                <div key={`skeleton-${i}`} className="mx-2 lg:mx-4">
+                    <MarqueeSkeletonCard />
+                </div>
+            ))}
         </Marquee>
     )
 }

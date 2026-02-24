@@ -76,7 +76,7 @@ const CartDetail = () => {
             </div>
             {showConfirmModal &&
                 <Modal handleClick={() => setShowConfirmModal(false)}>
-                    <div className="flex-1 items-center">
+                    <div className="flex-1 items-center bg-white rounded-2xl p-4">
                         <h3 className="text-lg font-semibold mb-4">Confirm checkout</h3>
                         <p className="mb-6">Are you sure you want to place this order?</p>
                         <div className="mb-4 rounded-b-md border-2 border-t-0 p-2">

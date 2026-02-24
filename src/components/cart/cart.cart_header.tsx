@@ -35,6 +35,7 @@ const CartHeader = () => {
                     <input
                         type="checkbox"
                         checked={isSelected}
+                        disabled={cart.currentCart.dishes.length === 0}
                         onChange={handleToggleAll}
                         className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
                     />

@@ -9,7 +9,7 @@ const Header = () => {
     const toggleMenu = () => setIsOpen(!isOpen)
     return (
         <header className="sticky top-0 z-[1000] w-full bg-black/30 px-4 md:px-8">
-            <div className="flex h-16 items-center justify-between">
+            <div className="flex h-[10dvh] items-center justify-between">
                 <div className="flex-shrink-0">
                     <Logo />
                 </div>
@@ -18,8 +18,6 @@ const Header = () => {
                 </div>
                 <div className="flex items-center gap-4">
                     <HeaderUser />
-
-                    {/* Đưa hiệu ứng xoay ra ngoài button để nó xoay mượt cả khi mở lẫn khi đóng */}
                     <button
                         className={`block lg:hidden text-white hover:text-orange-500 text-2xl focus:outline-none transition-transform duration-300 active:scale-90 ${isOpen ? "rotate-90" : "rotate-0"}`}
                         onClick={toggleMenu}
@@ -28,10 +26,6 @@ const Header = () => {
                     </button>
                 </div>
             </div>
-
-            {/* 1. Giữ nguyên bg-gray-800/30 backdrop-blur-sm "chân ái" của bạn.
-                2. Gỡ bỏ cái "border-t border-gray-800" gây lằn đen.
-            */}
             <nav className={`absolute left-0 top-full w-full bg-gray-800/30 backdrop-blur-sm lg:hidden transition-all duration-500 ease-in-out overflow-hidden shadow-2xl origin-top
                 justify-center items-center flex flex-col
                 ${isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}
@@ -45,7 +39,7 @@ const Header = () => {
                     )}
                 </ul>
                 <div className="p-4 mb-4">
-                    <ReservationButton />
+                    <ReservationButton handleClick={() => setIsOpen(false)} />
                 </div>
             </nav>
         </header>

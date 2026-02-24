@@ -3,7 +3,7 @@ import { ICartItem, IDish } from "@/interfaces"
 const ConfirmModal = ({ dish, setShowConfirmModal, removeFromCart }:
     { dish: ICartItem, setShowConfirmModal: () => void, removeFromCart: () => void }) => {
     return (
-        <div className="flex-1 items-center">
+        <div className="flex-1 items-center bg-white rounded-lg p-6 shadow-lg">
             <h3 className="text-lg font-semibold mb-4">Remove Item</h3>
             <div className="place-items-center">
                 <img
