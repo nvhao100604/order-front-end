@@ -5,9 +5,17 @@
 ---
 
 ## Preview
-*(Insert your best screenshots here to grab recruiters' attention)*
-![Home page](images/home_page.png)
-![Main menu](images/main_menu.png)
+<div classname="text-center">
+    <img src="images/home_page.png" alt="Home page screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+    <p><i>Figure 1: Home Page interface showcasing a modern, user-centric, and fully responsive layout.</i></p>
+</div>
+
+<br/>
+
+<div classname="text-center">
+    <img src="images/main_menu.png" alt="Main menu screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+    <p><i>Figure 2: Menu interface integrated with intuitive drag-to-scroll navigation and real-time smart search functionality.</i></p>
+</div>
 
 ---
 
