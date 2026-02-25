@@ -1,80 +1,83 @@
-# 🍔 Food Ordering Platform – Modern Full-stack Architecture
+# Food Ordering Platform – Modern Full-stack Architecture
 
-> **A high-performance, responsive food ordering solution built with Next.js 15, leveraging modern state management and real-time data fetching.**
-
----
-
-## 📸 Preview
-*(Dán hình ảnh giao diện đẹp nhất của bạn vào đây để tạo ấn tượng ngay lập tức)*
-![Project Hero Image](https://via.placeholder.com/800x400?text=Insert+Your+Project+Screenshot+Here)
+> **A high-performance and responsive food ordering system developed with Next.js 15, utilizing modern state management and real-time data fetching mechanisms.**
 
 ---
 
-## 📝 Abstract
-Dự án này là một phần trong hệ thống quản lý đặt hàng toàn diện, tập trung vào việc tối ưu hóa trải nghiệm người dùng (UX) và hiệu suất xử lý dữ liệu. Với tư duy của một sinh viên **Hệ thống thông tin (IS)** tại **Đại học Sài Gòn (SGU)**, tôi tập trung vào việc xây dựng một kiến trúc Frontend bền vững, có khả năng mở rộng cao và tích hợp mượt mà với hệ thống **FastAPI Backend**.
+## Preview
+*(Insert your best screenshots here to grab recruiters' attention)*
+![Home page](images/home_page.png)
+![Main menu](images/main_menu.png)
 
 ---
 
-## 🚀 Key Features
-* **Modern UI/UX:** Giao diện tinh tế sử dụng **shadcn/ui** và **Tailwind CSS**, tích hợp tính năng **drag-to-scroll** mượt mà cho danh mục thực đơn.
-* **Real-time Data Fetching:** Sử dụng **SWR** (Stale-While-Revalidate) để đảm bảo dữ liệu thực đơn luôn mới nhất mà không làm gián đoạn trải nghiệm người dùng.
-* **Global State Management:** Quản lý logic giỏ hàng và luồng dữ liệu ứng dụng một cách chuyên nghiệp với **Redux Toolkit**.
-* **Responsive Design:** Tối ưu hóa hiển thị hoàn hảo trên mọi thiết bị, từ di động đến máy tính để bàn.
-* **Smart Search:** Thành phần **MenuSearch** tích hợp bộ lọc thông minh, cho phép truy vấn món ăn theo thời gian thực với hiệu suất cao.
+## Abstract
+This project is a core component of a comprehensive order management system, specifically designed to optimize **User Experience (UX)** and data processing efficiency. As an **Information Systems (IS)** student at **Sai Gon University (SGU)**, I focused on building a sustainable and scalable frontend architecture that integrates seamlessly with a **FastAPI** backend.
+
+---
+
+## Key Features
+* **Modern UI/UX**: Features a sleek interface built with **Tailwind CSS**, including smooth **drag-to-scroll** functionality for menu categories.
+* **Real-time Data Fetching**: Utilizes **SWR** (Stale-While-Revalidate) to ensure menu data is always up-to-date without interrupting the user experience.
+* **Global State Management**: Professionally manages cart logic and application data flow using **Redux Toolkit**.
+* **Responsive Design**: Optimized for perfect display across all devices, from mobile phones to desktops.
+* **Smart Search**: Includes a **MenuSearch** component with intelligent filtering for high-performance, real-time dish queries.
 
 ---
 
 ## 🛠 Tech Stack
 
 ### **Core Framework & Language**
-* **Next.js (15.3.5):** Tận dụng App Router để tối ưu hóa hiệu suất load trang.
-* **TypeScript:** Đảm bảo tính chặt chẽ của mã nguồn và tính toàn vẹn của dữ liệu trong quá trình phát triển.
+* **Next.js (15.3.5)**: Leveraging the App Router for optimized page load performance and SEO.
+* **TypeScript**: Ensures code robustness and data integrity throughout the development lifecycle.
 
 ### **State & Data Handling**
-* **Redux Toolkit:** Quản lý trạng thái giỏ hàng và luồng nghiệp vụ phức tạp.
-* **SWR & Axios:** Xử lý các truy vấn API bất đồng bộ và cơ chế caching thông minh.
+* **Redux Toolkit**: Centralized state management for complex cart workflows and global application state.
+* **SWR & Axios**: Handling asynchronous API requests with smart caching and revalidation mechanisms.
 
 ### **Styling & Components**
-* **Tailwind CSS:** Xây dựng giao diện với kiến trúc Utility-first nhanh chóng và linh hoạt.
-* **shadcn/ui:** Hệ thống component chất lượng cao giúp chuẩn hóa giao diện người dùng.
+* **Tailwind CSS**: Rapid UI development with a utility-first architecture and seamless responsiveness.
 
 ---
 
 ## 🏗 System Architecture
-Hệ thống được thiết kế theo mô hình tách biệt Frontend và Backend để tối đa hóa khả năng bảo trì:
-* **Frontend (Project này):** Next.js triển khai trên nền tảng Vercel.
-* **Backend Repository:** [👉 Xem mã nguồn FastAPI tại đây](https://github.com/nvhao100604/order_fast_api).
+
+The system follows a decoupled architecture for maximum maintainability:
+* **Frontend (This project)**: Next.js deployed on the Vercel platform.
+* **Backend Repository**: [👉 View FastAPI Source Code](https://github.com/nvhao100604/order_fast_api).
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
-### **1. Clone dự án**
+### **1. Clone the repository**
 ```bash
-git clone [https://github.com/nvhao100604/order-front-end.git](https://github.com/nvhao100604/order-front-end.git)
+git clone https://github.com/nvhao100604/order-front-end.git
 cd order-front-end
 ```
 
-- Sao chép file mẫu: 
+### **2. Setup Environment Variables**
+
+- Copy the example file: 
 ```bash
 cp .env.example .env
 ```
-- Mở file .env và điều chỉnh các giá trị phù hợp với môi trường chạy thực tế của bạn (ví dụ: đổi NEXT_PUBLIC_API_BASE_URL thành link deploy Backend nếu có).
+- Open .env and adjust the values to match your local or production environment (e.g., update NEXT_PUBLIC_API_BASE_URL to your deployed backend link).
 
-### **2. Cài đặt môi trường**
+### **3. Install Dependencies**
 ```bash
 npm install
 ```
 
-### **3. Chạy môi trường Development**
+### **4. Run Development Server**
 ```bash
 npm run dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000) để trải nghiệm sản phẩm.
+Open [http://localhost:3000](http://localhost:3000) to view the result in your browser.
 
 ## 🌐 Live Demo
-👉 [Trải nghiệm thực tế sản phẩm tại đây](https://order-vh.vercel.app)
+👉 [Experience the live application here](https://order-vh.vercel.app)
 
 ## Contact
 - Author: Nguyễn Văn Hào
