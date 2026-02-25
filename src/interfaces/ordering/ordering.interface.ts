@@ -14,6 +14,7 @@ export interface IDish {
     categoryId?: number,
     imgUrl: string,
     describe: string
+    category: ICategory
 }
 
 export interface ICartItem extends IDish {
@@ -27,7 +28,11 @@ export const tempDish: IDish = {
     price: 0,
     categoryId: 0,
     imgUrl: "",
-    describe: ""
+    describe: "",
+    category: {
+        id: 0,
+        name: ""
+    }
 }
 
 export const tempCartItem: ICartItem = {
@@ -37,6 +42,10 @@ export const tempCartItem: ICartItem = {
     categoryId: 0,
     imgUrl: "",
     describe: "",
+    category: {
+        id: 0,
+        name: ""
+    },
     quantity: 0,
     checked: false
 }

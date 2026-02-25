@@ -40,7 +40,7 @@ const DishModal = ({ dish, onClose, addToCart }:
                     {dish.name}
                 </h2>
                 <p className="text-sm text-gray-500 font-medium mb-3">
-                    Dessert • Vietnamese
+                    {dish.category.name}
                 </p>
 
                 <div className="flex items-center gap-1 text-sm text-yellow-400 mb-4">

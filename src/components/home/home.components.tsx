@@ -151,13 +151,11 @@ const MarqueeCard = ({ dish }: { dish: ICartItem }) => {
 }
 
 const MarqueeBox = ({ dishes }: { dishes: ICartItem[] }) => {
-    // 1. Thay toàn bộ useState bằng useRef để triệt tiêu re-render khi kéo
     const sliderRef = useRef<HTMLDivElement>(null)
     const isDragging = useRef(false)
     const startX = useRef(0)
     const scrollLeft = useRef(0)
 
-    // Đóng gói các ref lại để truyền vào hàm xử lý
     const dragRefs = {
         scrollRef: sliderRef,
         isDragging,
@@ -167,22 +165,13 @@ const MarqueeBox = ({ dishes }: { dishes: ICartItem[] }) => {
 
     return (
         <div className="relative w-full overflow-hidden group">
-            {/* LỚP MÀN TRẮNG (Gradient) 
-               - Phải nằm NGOÀI component Marquee
-               - Phải có pointer-events-none để không cản trở việc kéo chuột
-            */}
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none hidden lg:block" />
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none hidden lg:block" />
-
             <Marquee
-                // 2. Ép các sự kiện chuột chạy qua hàm utils để không re-render
                 onMouseDown={(e: any) => onMouseDownHandler(e, dragRefs)}
                 onMouseUp={() => onMouseUpHandler(dragRefs)}
                 onMouseLeave={() => onMouseLeaveHandler(dragRefs)}
                 onMouseMove={(e: any) => onMouseMoveHandler(e, dragRefs)}
                 ref={sliderRef}
                 pauseOnHover
-                // select-none cực kỳ quan trọng để không bị bôi xanh ảnh/chữ khi kéo
                 className="bg-transparent px-0 py-2 lg:px-2 lg:py-4 flex cursor-grab select-none overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
                 {dishes && dishes.map(dish => (
@@ -308,7 +297,7 @@ const IntroCard = ({
 
 const IntroContainer = () => {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mt-10 px-4 md:px-8 lg:px-0">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 lg:px-0">
             <IntroCard
                 title="Chef’s Special"
                 subTitle="Signature dishes crafted by our experienced chefs with unique flavors"

@@ -7,16 +7,16 @@ export default function Home() {
                 <div className="h-[50vh] md:h-screen">
                     <BackgroundContainer />
                 </div>
-                <div className="mt-10 md:mt-16">
+                <div className="mt-[10dvh]">
                     <IntroContainer />
                 </div>
-                <div>
+                <div className="mt-[10dvh]">
                     <AboutContainer />
                 </div>
                 <div>
                     <MarqueeContainer />
                 </div>
-                <div className="w-full h-full mt-10 md:mt-16">
+                <div className="w-full h-full mt-[10dvh]">
                     <div className="">Chefs Container</div>
                 </div>
             </div>
