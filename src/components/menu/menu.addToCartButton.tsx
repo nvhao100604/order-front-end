@@ -13,10 +13,10 @@ const AddToCart = ({ addToCart }: { addToCart: () => void }) => {
             text-white text-sm md:text-base font-bold rounded-xl shadow-md hover:shadow-lg 
             transition-all duration-300 active:scale-95 transform"
         >
-            <FiShoppingCart className="text-lg md:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0" />
-            <span className="md:hidden">Add</span>
+            <FiShoppingCart className="text-lg lg:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0" />
+            <span className="lg:hidden">Add</span>
             {!isOpen && (
-                <span className="hidden md:block whitespace-nowrap">
+                <span className="hidden lg:block whitespace-nowrap">
                     Add to Cart
                 </span>
             )}

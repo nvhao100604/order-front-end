@@ -72,17 +72,5 @@ const ReservationButton = ({
         </button>
     )
 }
-const HeaderUser = () => {
-    return (
-        <>
-            <div className="hidden lg:flex space-x-6 justify-between w-full">
-                <ReservationButton />
-                <button className="text-2xl text-gray-100 hover:text-orange-600 transition-colors transform hover:scale-110">
-                    <Link href={'/login'}><FaUser /></Link>
-                </button>
-            </div>
-        </>
-    )
-}
 
-export { Logo, NavigationItem, Navigation, HeaderUser, ReservationButton }
+export { Logo, NavigationItem, Navigation, ReservationButton }

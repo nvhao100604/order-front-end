@@ -5,14 +5,14 @@
 ---
 
 ## Preview
-<div classname="text-center">
+<div>
     <img src="images/home_page.png" alt="Home page screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
     <p><i>Figure 1: Home Page interface showcasing a modern, user-centric, and fully responsive layout.</i></p>
 </div>
 
 <br/>
 
-<div classname="text-center">
+<div>
     <img src="images/main_menu.png" alt="Main menu screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
     <p><i>Figure 2: Menu interface integrated with intuitive drag-to-scroll navigation and real-time smart search functionality.</i></p>
 </div>
@@ -52,7 +52,7 @@ This project is a core component of a comprehensive order management system, spe
 
 The system follows a decoupled architecture for maximum maintainability:
 * **Frontend (This project)**: Next.js deployed on the Vercel platform.
-* **Backend Repository**: [👉 View FastAPI Source Code](https://github.com/nvhao100604/order_fast_api).
+* **Backend Repository**: 👉[View FastAPI Source Code](https://github.com/nvhao100604/order_fast_api).
 
 ---
 
@@ -88,7 +88,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the result in your b
 👉 [Experience the live application here](https://order-vh.vercel.app)
 
 ## Contact
-- Author: Nguyễn Văn Hào
+- Author: Nguyễn Vũ Hào
 
 - Position: Final-year Information Systems Student at Sai Gon University
 

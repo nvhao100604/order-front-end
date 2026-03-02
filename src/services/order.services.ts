@@ -1,6 +1,6 @@
 import { ORDER_KEY } from "@/config"
 import { useFetchSWR } from "@/hooks"
-import { Query } from '../../interfaces/query/query.interface';
+import { Query } from '../interfaces/query/query.interface';
 import { IOrderCreate } from "@/interfaces";
 import api from "@/config/api/axios";
 

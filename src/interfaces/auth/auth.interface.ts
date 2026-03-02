@@ -1,3 +1,5 @@
+import { UserCreate } from "./user.interface"
+
 export interface User {
     id: string
     email: string
@@ -20,14 +22,10 @@ export interface LoginCredentials {
     password: string
 }
 
-export interface RegisterData {
-    name: string
-    email: string
-    password: string
-}
+export interface RegisterPayload extends UserCreate { }
 
 export interface AuthResponse {
-    username: string | User
+    user: User
     accessToken: string
-    expriseIn: number
+    token_type: string
 }

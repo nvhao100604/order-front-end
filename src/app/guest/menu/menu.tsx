@@ -5,7 +5,7 @@ import { IDish } from "@/interfaces"
 import { defaultQuery } from "@/interfaces/query/query.interface"
 import { useAppSelector } from "@/redux/hooks"
 import { useEffect, useState } from "react"
-import { dishes_services } from './../../../services/dish/dish.services';
+import { dishes_services } from '../../../services/dish.services';
 
 const Menu = () => {
     const { isOpen: isCartOpen } = useAppSelector(state => state.cart)

@@ -9,7 +9,7 @@ import { MouseEvent, useRef, useState } from "react"
 import { useAddToCart, useCounter, useIntersectionObserver } from "@/hooks"
 import { IconType } from "react-icons/lib"
 import { Skeleton } from "../ui/skeleton"
-import { dishes_services } from './../../services/dish/dish.services';
+import { dishes_services } from '../../services/dish.services';
 import { useRouter } from "next/navigation"
 import DishModal from "../menu/menu.dish_modal"
 import { Modal } from "../app"
@@ -297,7 +297,7 @@ const IntroCard = ({
 
 const IntroContainer = () => {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 lg:px-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 lg:px-0">
             <IntroCard
                 title="Chef’s Special"
                 subTitle="Signature dishes crafted by our experienced chefs with unique flavors"

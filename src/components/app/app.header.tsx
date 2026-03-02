@@ -1,7 +1,8 @@
 'use client'
-import { FaBars, FaTimes } from "react-icons/fa";
-import { HeaderUser, links, Logo, Navigation, NavigationItem, ReservationButton } from "./header/header.index";
+import { FaBars, FaTimes, FaUser } from "react-icons/fa";
+import { links, Logo, Navigation, NavigationItem, ReservationButton } from "./header/header.index";
 import { useState } from "react";
+import Link from "next/link";
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,14 @@ const Header = () => {
                     <Navigation />
                 </div>
                 <div className="flex items-center gap-4">
-                    <HeaderUser />
+                    <div className="hidden lg:flex items-center space-x-6">
+                        <ReservationButton />
+                    </div>
+
+                    <button className="text-2xl text-gray-100 hover:text-orange-600 transition-colors transform hover:scale-110">
+                        <Link href={'/login'}><FaUser /></Link>
+                    </button>
+
                     <button
                         className={`block lg:hidden text-white hover:text-orange-500 text-2xl focus:outline-none transition-transform duration-300 active:scale-90 ${isOpen ? "rotate-90" : "rotate-0"}`}
                         onClick={toggleMenu}

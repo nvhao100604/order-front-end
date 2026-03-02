@@ -1,13 +1,16 @@
-import { StaffPage } from "@/components"
+"use client";
 
-export const metadata = {
-    title: 'Staff | Foodie Restaurant'
-}
+import { useAppSelector } from "@/redux/hooks";
+import { DashboardTab, ManageTab, OrderTab } from "@/components/staff/staff.components";
 
-const TestPage = () => {
+export default function StaffPage() {
+    const { activeTab } = useAppSelector((state) => state.staff);
+
     return (
-        <StaffPage />
-    )
+        <div className="h-[calc(100dvh-64px)] overflow-hidden">
+            {activeTab === 'dashboard' && <DashboardTab />}
+            {activeTab === 'order' && <OrderTab />}
+            {activeTab === 'manage' && <ManageTab />}
+        </div>
+    );
 }
-
-export default TestPage

@@ -58,6 +58,12 @@ export interface ITable {
     status: TableStatus;
 }
 
+export interface ITableResponse {
+    id: number;
+    status: TableStatus;
+    currentOrder: IOrderResponse | null;
+}
+
 export interface IOrderDetailBase {
     dishID: number;
     quantity: number;
@@ -109,6 +115,7 @@ export interface IOrderResponse {
     totalPrice: number;
     notes: string | null;
     details: IOrderDetailResponse[];
+    table: ITableResponse | null;
 }
 
 export interface IOrderFilter {

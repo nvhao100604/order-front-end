@@ -31,5 +31,10 @@ export { default as SWRProvider } from './providers/SWRProvider'
 ///Protected Route
 export { default as ProtectedRoute } from './ProtectedRoute'
 ///test
-export { default as StaffPage } from './staff/staff.page'
+export { default as StaffShell } from './staff/StaffShell'
+export {
+    DashboardTab,
+    OrderTab,
+    ManageTab
+} from './staff/staff.components'
 ///Animata
