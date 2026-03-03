@@ -7,7 +7,7 @@ import { SWRResponse } from "swr"
 
 const getDishesSWR = (query: Query, config?: object): SWRResponse<IResponse<IDish[]>> => {
     const { data, ...rest } = useFetchSWR(`${DISH_KEY}`, query, config)
-
+    // console.log("data: ", data)
     return { data: data as IResponse<IDish[]>, ...rest }
 }
 

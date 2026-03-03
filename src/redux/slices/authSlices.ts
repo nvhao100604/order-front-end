@@ -1,10 +1,8 @@
 import { USER_STORAGE_KEY } from "@/config"
-import { AuthResponse, AuthState, LoginCredentials, RegisterPayload, TokenResponse } from "@/interfaces"
-import { UserResponse, UserUpdate } from "@/interfaces/user.interface"
+import { AuthResponse, AuthState, LoginCredentials, RegisterPayload, TokenResponse, UserResponse, UserUpdate } from "@/interfaces"
 import { user_services } from "@/services"
 import { auth_services } from "@/services/auth.services"
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { UserResponse } from '../../interfaces/user.interface';
 
 // Async thunks
 const loginUser = createAsyncThunk<

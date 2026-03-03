@@ -2,9 +2,10 @@
 import axios from 'axios';
 import { store } from '@/redux/store';
 import { refreshToken, logout } from '@/redux/slices/authSlices';
+import { BASE_SERVER_URL } from '@/config/constants';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL: BASE_SERVER_URL,
     withCredentials: true,
 });
 
@@ -26,19 +27,24 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        const isRefreshUrl = originalRequest.url?.includes('/refresh-token');
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isRefreshUrl) {
             originalRequest._retry = true;
 
             try {
                 const result = await store.dispatch(refreshToken()).unwrap();
 
-                originalRequest.headers.Authorization = `Bearer ${result.accessToken}`;
-                return api(originalRequest);
+                if (result.access_token) {
+                    originalRequest.headers.Authorization = `Bearer ${result.access_token}`;
+                    return api(originalRequest);
+                }
             } catch (refreshError) {
                 store.dispatch(logout());
                 return Promise.reject(refreshError);
             }
         }
+
         return Promise.reject(error);
     }
 );

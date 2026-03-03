@@ -8,14 +8,14 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
     const { refresh, initialize } = useEnhancedAuth()
     const router = useRouter()
     useEffect(() => {
-        // 1. Lấy user từ localStorage hiện lên UI trước cho đỡ trống
-        initialize()
+        const wasLoggedIn = localStorage.getItem("isAuthenticated") === "true";
 
-        // 2. Chạy ngầm để lấy Access Token mới vào bộ nhớ
-        refresh().catch(() => {
-            console.log("Session expired")
-            router.push("/unauthorized")
-        })
+        if (wasLoggedIn) {
+            refresh().catch(() => {
+                localStorage.removeItem("isAuthenticated");
+                console.log("Phiên làm việc hết hạn");
+            });
+        }
     }, []);
 
     return <>{children}</>;

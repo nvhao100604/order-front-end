@@ -174,7 +174,7 @@ const ManageTab = () => {
                             )}
                             {order.status === "COMPLETED" && (
                                 <button
-                                    onClick={() => finalizeCheckout(order.table?.id || 0)}
+                                    onClick={() => finalizeCheckout(order.tableID || 0)}
                                     className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow-lg"
                                 >
                                     💰 Process Payment

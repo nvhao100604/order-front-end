@@ -1,4 +1,5 @@
-import { StaffShell } from "@/components";
+import { ProtectedRoute, StaffShell } from "@/components";
+import { PERMISSIONS } from "@/config/constants/auth";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <StaffShell>{children}</StaffShell>
+            <ProtectedRoute requiredRoles={[...PERMISSIONS.STAFF_AND_ADMIN]}>
+                <StaffShell>{children}</StaffShell>
+            </ProtectedRoute>
         </>
     );
 }

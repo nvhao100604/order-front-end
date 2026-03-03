@@ -1,12 +1,12 @@
 'use client'
 import useSWR, { SWRConfiguration } from "swr"
-import { useAuth } from "./useAuth"
+import { useEnhancedAuth } from "./redux_custom_hooks/authSlice.hooks"
 
 const useSWRWithAuth = <T>(
     key: string | null,
     options?: SWRConfiguration<T>
 ) => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated } = useEnhancedAuth()
 
     return useSWR<T>(
         isAuthenticated ? key : null,

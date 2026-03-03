@@ -87,19 +87,20 @@ const MenuSearch = ({ activeCategory, setActiveCategory, searchQuery, setSearchQ
                         </div>
                     )}
 
-                    {!isLoading && !error && categories.map((category: ICategory) => (
-                        <button
-                            key={category.id}
-                            onClick={() => setActiveCategory(category.id)}
-                            className={`px-4 py-2 md:px-5 md:py-2.5 rounded-full whitespace-nowrap text-sm md:text-base font-medium transition-all duration-300 active:scale-95 shrink-0
+                    {!isLoading && !error && categories.length > 1 &&
+                        categories.map((category: ICategory) => (
+                            <button
+                                key={category.id}
+                                onClick={() => setActiveCategory(category.id)}
+                                className={`px-4 py-2 md:px-5 md:py-2.5 rounded-full whitespace-nowrap text-sm md:text-base font-medium transition-all duration-300 active:scale-95 shrink-0
                                 ${activeCategory === category.id
-                                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
-                                    : "bg-white text-gray-600 border border-gray-100 shadow-sm hover:bg-orange-50 hover:text-orange-500 hover:border-orange-200"
-                                }`}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
+                                        ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
+                                        : "bg-white text-gray-600 border border-gray-100 shadow-sm hover:bg-orange-50 hover:text-orange-500 hover:border-orange-200"
+                                    }`}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
                 </div>
 
                 {canScrollRight && (

@@ -6,8 +6,9 @@ import useSWR from "swr";
 
 const useFetchSWR = (path: string, query?: Query, config?: object) => {
     const queryString = convertToParams(query)
-    // console.log(queryString)
     const pathString = query ? `${path}?${queryString}` : `${path}`
+    // console.log(pathString)
+
     const { data, ...rest } = useSWR(
         pathString,
         {

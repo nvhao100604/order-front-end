@@ -1,16 +1,7 @@
 'use client'
 
 import { AdminData } from "@/interfaces"
-import ProtectedRoute from "../ProtectedRoute"
 import { useSWRWithAuth } from "@/hooks"
-
-const AdminPage = () => {
-    return (
-        <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-            <AdminContent />
-        </ProtectedRoute>
-    )
-}
 
 const AdminContent = () => {
     const { data: adminData, error, isLoading } = useSWRWithAuth<AdminData>('/admin/stats')
@@ -46,4 +37,4 @@ const AdminContent = () => {
     )
 }
 
-export default AdminPage
+export default AdminContent

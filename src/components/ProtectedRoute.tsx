@@ -1,12 +1,14 @@
 'use client'
 
-import { useAuth } from '@/hooks/useAuth'
+import { useEnhancedAuth } from '@/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect, ReactNode } from 'react'
+import LoadingBox from './ui/loading'
+import { ROUTES } from '@/config/constants/route'
 
 interface ProtectedRouteProps {
     children: ReactNode
-    requiredRoles?: string[]
+    requiredRoles?: number[]
     fallback?: ReactNode
 }
 
@@ -14,17 +16,15 @@ const ProtectedRoute = ({
     children,
     requiredRoles,
     fallback = (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
+        <LoadingBox />
     ),
 }: ProtectedRouteProps) => {
-    const { isAuthenticated, user, isLoading } = useAuth()
+    const { isAuthenticated, user, isLoading } = useEnhancedAuth()
     const router = useRouter()
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push('/login')
+            router.push(ROUTES.LOGIN)
             return
         }
 
@@ -33,9 +33,10 @@ const ProtectedRoute = ({
             isAuthenticated &&
             requiredRoles &&
             user &&
-            !requiredRoles.includes(user.role)
+            user.roleID !== undefined &&
+            !requiredRoles.includes(user.roleID)
         ) {
-            router.push('/unauthorized')
+            router.push(ROUTES.UNAUTHORIZED)
             return
         }
     }, [isAuthenticated, user, isLoading, router, requiredRoles])
@@ -48,7 +49,7 @@ const ProtectedRoute = ({
         return null
     }
 
-    if (requiredRoles && user && !requiredRoles.includes(user.role)) {
+    if (requiredRoles && user && user.roleID !== undefined && !requiredRoles.includes(user.roleID)) {
         return null
     }
 

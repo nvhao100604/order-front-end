@@ -70,7 +70,7 @@ const DashboardContent = () => {
                     <div className="space-y-2">
                         <p><span className="font-medium">Name:</span> {user?.name}</p>
                         <p><span className="font-medium">Email:</span> {user?.email}</p>
-                        <p><span className="font-medium">Role:</span> {user?.role}</p>
+                        <p><span className="font-medium">Role:</span> {user?.roleID}</p>
                         <p><span className="font-medium">ID:</span> {user?.id}</p>
                     </div>
                 </div>
