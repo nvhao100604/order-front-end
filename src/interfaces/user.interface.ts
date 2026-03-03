@@ -1,7 +1,4 @@
-export enum Status {
-    ACTIVE = "active",
-    INACTIVE = "inactive"
-}
+import { Status } from "./enum"
 
 export interface UserBase {
     username: string

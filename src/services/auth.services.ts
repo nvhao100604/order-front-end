@@ -1,17 +1,19 @@
+import { AUTH_KEY } from "@/config"
 import api from "@/config/api/axios"
 import {
-    AuthResponse,
+    IResponse,
     LoginCredentials,
-    RegisterPayload
+    RegisterPayload,
+    TokenResponse
 } from "@/interfaces"
 
 // Login
 const authLogin = async (
     credentials: LoginCredentials,
     options?: object
-): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>(
-        "/auth/login",
+): Promise<IResponse<TokenResponse>> => {
+    const response = await api.post<IResponse<TokenResponse>>(
+        `${AUTH_KEY}/login`,
         credentials,
         options
     )
@@ -22,9 +24,9 @@ const authLogin = async (
 const authRegister = async (
     payload: RegisterPayload,
     options?: object
-): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>(
-        "/auth/register",
+): Promise<IResponse<TokenResponse>> => {
+    const response = await api.post<IResponse<TokenResponse>>(
+        `${AUTH_KEY}/register`,
         payload,
         options
     )
@@ -32,9 +34,11 @@ const authRegister = async (
 }
 
 // Logout
-const authLogout = async (options?: object) => {
-    const response = await api.post(
-        "/auth/logout",
+const authLogout = async (
+    options?: object
+): Promise<IResponse<null>> => {
+    const response = await api.post<IResponse<null>>(
+        `${AUTH_KEY}/logout`,
         {},
         options
     )
@@ -44,9 +48,9 @@ const authLogout = async (options?: object) => {
 // Refresh token
 const authRefreshToken = async (
     options?: object
-): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>(
-        "/auth/refresh-token",
+): Promise<IResponse<TokenResponse>> => {
+    const response = await api.post<IResponse<TokenResponse>>(
+        `${AUTH_KEY}/refresh-token`,
         {},
         options
     )
@@ -54,16 +58,18 @@ const authRefreshToken = async (
 }
 
 // Revoke all tokens
-const authRevokeAll = async (options?: object) => {
-    const response = await api.post(
-        "/auth/revoke-all-tokens",
+const authRevokeAll = async (
+    options?: object
+): Promise<IResponse<null>> => {
+    const response = await api.post<IResponse<null>>(
+        `${AUTH_KEY}/revoke-all-tokens`,
         {},
         options
     )
     return response.data
 }
 
-export const authServices = {
+export const auth_services = {
     authLogin,
     authRegister,
     authLogout,

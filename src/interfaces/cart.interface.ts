@@ -1,4 +1,4 @@
-import { ICartItem } from "../ordering/ordering.interface"
+import { ICartItem } from "./ordering.interface"
 
 export interface ICart {
     dishes: ICartItem[],

@@ -2,7 +2,7 @@
 import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch, Pagination } from "@/components"
 import useQuery from "@/hooks/useQuery"
 import { IDish } from "@/interfaces"
-import { defaultQuery } from "@/interfaces/query/query.interface"
+import { defaultQuery } from "@/interfaces/query.interface"
 import { useAppSelector } from "@/redux/hooks"
 import { useEffect, useState } from "react"
 import { dishes_services } from '../../../services/dish.services';

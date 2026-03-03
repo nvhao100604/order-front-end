@@ -28,6 +28,7 @@ export { default as LoginPage } from './login/login.page'
 ///Provider
 export { default as StoreProvider } from './providers/StoreProvider'
 export { default as SWRProvider } from './providers/SWRProvider'
+export { default as AuthInitializer } from './providers/AuthInitializer'
 ///Protected Route
 export { default as ProtectedRoute } from './ProtectedRoute'
 ///test

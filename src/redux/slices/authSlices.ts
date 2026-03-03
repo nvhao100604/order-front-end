@@ -1,7 +1,10 @@
-import api from "@/config/api/axios"
-import { AuthResponse, AuthState, LoginCredentials, RegisterData, User } from "@/interfaces"
-import { authServices } from "@/services/auth/auth.services"
+import { USER_STORAGE_KEY } from "@/config"
+import { AuthResponse, AuthState, LoginCredentials, RegisterPayload, TokenResponse } from "@/interfaces"
+import { UserResponse, UserUpdate } from "@/interfaces/user.interface"
+import { user_services } from "@/services"
+import { auth_services } from "@/services/auth.services"
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { UserResponse } from '../../interfaces/user.interface';
 
 // Async thunks
 const loginUser = createAsyncThunk<
@@ -9,88 +12,148 @@ const loginUser = createAsyncThunk<
     LoginCredentials,
     { rejectValue: string }
 >('auth/loginUser',
-    async (credentials, { rejectWithValue }) => {
+    async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
-            // 1. Lấy token từ API Login
-            const response = await authServices.authLogin(credentials);
-            const token = response.accessToken;
+            const response = await auth_services.authLogin(credentials)
+            if (!response.success || !response.data) {
+                return rejectWithValue(response.message || 'Login failed')
+            }
+            const token: TokenResponse = response.data
 
-            // 2. Gọi API /me bằng cách truyền token vào Header thủ công
-            // Vì lúc này token chưa có trong state hay localStorage để Interceptor tự lấy
-            const userResponse = await api.get<User>('/auth/me', {
+            const userResponse = await user_services.getCurrentUser({
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `${token.token_type} ${token.access_token}`
                 }
-            });
+            })
 
-            // 3. Trả về cả 2 để extraReducers cập nhật vào biến (state)
+            if (!userResponse.success || !userResponse.data) {
+                return rejectWithValue(response.message || 'User Not Found')
+            }
+
             return {
-                accessToken: token,
+                access_token: token.access_token,
+                token_type: token.token_type,
                 user: userResponse.data
-            };
+            }
         } catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || 'Login failed');
+            return rejectWithValue(error.response?.message || 'Login failed')
         }
     })
 
-const fetchCurrentUser = createAsyncThunk<User, void, { rejectValue: string }>(
-    'auth/fetchCurrentUser',
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await api.get<User>('/user/me');
-            return response.data;
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
-        }
-    }
-);
+// const fetchCurrentUser = createAsyncThunk<
+//     UserResponse,
+//     void,
+//     { rejectValue: string }
+// >(
+//     'auth/fetchCurrentUser',
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             const response = await user_services.getCurrentUser()
+
+//             if (!response.success || !response.data) {
+//                 return rejectWithValue(response.message || 'Failed to fetch user')
+//             }
+
+//             return response.data
+//         } catch (error: any) {
+//             return rejectWithValue(error.response?.message || 'Failed to fetch user')
+//         }
+//     }
+// )
 
 const registerUser = createAsyncThunk<
     AuthResponse,
-    RegisterData,
+    RegisterPayload,
     { rejectValue: string }
->('auth/registerUser', async (userData, { rejectWithValue }) => {
-    try {
-        const response = await api.post<AuthResponse>('/auth/register', userData)
-        // localStorage.setItem('token', response.data.accessToken)
-        // localStorage.setItem('user', JSON.stringify(response.data))
-        return response.data
-    } catch (error: any) {
-        return rejectWithValue(
-            error.response?.data?.message || 'Registration failed'
-        )
+>(
+    'auth/registerUser',
+    async (userData: RegisterPayload, { rejectWithValue }) => {
+        try {
+            const response = await auth_services.authRegister(userData)
+
+            if (!response.success || !response.data) {
+                return rejectWithValue(response.message || 'Registration failed')
+            }
+
+            const token: TokenResponse = response.data
+
+            const userResponse = await user_services.getCurrentUser({
+                headers: {
+                    Authorization: `${token.token_type} ${token.access_token}`
+                }
+            })
+
+            if (!userResponse.success || !userResponse.data) {
+                return rejectWithValue(userResponse.message || 'User profile not found')
+            }
+
+            return {
+                access_token: token.access_token,
+                token_type: token.token_type,
+                user: userResponse.data
+            };
+        } catch (error: any) {
+            return rejectWithValue(error.response?.message || 'Registration failed')
+        }
     }
-})
+)
 
 const refreshToken = createAsyncThunk<
     AuthResponse,
     void,
     { rejectValue: string }
->('auth/refreshToken', async (_, { rejectWithValue }) => {
-    try {
-        const response = await api.post<AuthResponse>('/auth/refresh')
-        // localStorage.setItem('token', response.data.accessToken)
-        return response.data
-    } catch (error: any) {
-        return rejectWithValue('Token refresh failed')
-    }
-})
+>(
+    'auth/refreshToken',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await auth_services.authRefreshToken()
+
+            if (!response.success || !response.data) {
+                return rejectWithValue(response.message || 'Token refresh failed')
+            }
+
+            const token: TokenResponse = response.data;
+
+            // Sau khi refresh token, lấy lại profile mới nhất (để đồng bộ quyền hạn/role)
+            const userResponse = await user_services.getCurrentUser({
+                headers: {
+                    Authorization: `${token.token_type} ${token.access_token}`
+                }
+            });
+
+            if (!userResponse.success || !userResponse.data) {
+                return rejectWithValue(userResponse.message || 'Failed to sync user')
+            }
+
+            return {
+                access_token: token.access_token,
+                token_type: token.token_type,
+                user: userResponse.data
+            };
+        } catch (error: any) {
+            return rejectWithValue(error.response?.message || 'Token refresh failed')
+        }
+    });
 
 const updateProfile = createAsyncThunk<
-    User,
-    Partial<User>,
+    UserResponse,
+    UserUpdate,
     { rejectValue: string }
->('auth/updateProfile', async (userData, { rejectWithValue }) => {
-    try {
-        const response = await api.put<{ user: User }>('/auth/profile', userData)
-        // localStorage.setItem('user', JSON.stringify(response.data.user))
-        return response.data.user
-    } catch (error: any) {
-        return rejectWithValue(
-            error.response?.data?.message || 'Profile update failed'
-        )
-    }
-})
+>(
+    'auth/updateProfile',
+    async (userData, { rejectWithValue }) => {
+        try {
+            const response = await user_services.updateProfile(userData)
+
+            if (!response.success || !response.data) {
+                return rejectWithValue(response.message || 'Profile update failed')
+            }
+
+            return response.data
+        } catch (error: any) {
+            return rejectWithValue(error.response?.message || 'Profile update failed')
+        }
+    });
 
 const initialState: AuthState = {
     user: null,
@@ -109,26 +172,33 @@ const authSlice = createSlice({
             state.token = null
             state.isAuthenticated = false
             state.error = null
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
+            localStorage.removeItem(USER_STORAGE_KEY)
         },
         clearError: (state) => {
             state.error = null
         },
         initializeAuth: (state) => {
-            // Không đọc token từ localStorage nữa
-            // Chúng ta chỉ load thông tin user cơ bản (nếu muốn hiện UI nhanh)
-            const userStr = localStorage.getItem('user');
+            const userStr = localStorage.getItem(USER_STORAGE_KEY)
             if (userStr) {
-                state.user = JSON.parse(userStr);
+                state.user = JSON.parse(userStr)
             }
-            // isLoading vẫn để true để chờ kết quả từ Silent Refresh
         },
         setToken: (state, action: PayloadAction<string>) => {
-            state.token = action.payload;
-            state.isAuthenticated = true;
-            state.isLoading = false;
+            state.token = action.payload
+            state.isAuthenticated = true
+            state.isLoading = false
         },
+        setUser: (state, action: PayloadAction<UserResponse | null>) => {
+            state.user = action.payload
+
+            if (action.payload) {
+                state.isAuthenticated = true;
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload));
+            } else {
+                state.isAuthenticated = false;
+                localStorage.removeItem(USER_STORAGE_KEY);
+            }
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -138,11 +208,11 @@ const authSlice = createSlice({
                 state.error = null
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.isAuthenticated = true;
-                state.user = action.payload.user;
-                state.token = action.payload.accessToken;
-                localStorage.setItem('user', JSON.stringify(action.payload.user));
+                state.isLoading = false
+                state.isAuthenticated = true
+                state.user = action.payload.user
+                state.token = action.payload.access_token
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false
@@ -156,10 +226,11 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.isLoading = false
-                // state.user = action.payload.user
-                state.token = action.payload.accessToken
                 state.isAuthenticated = true
+                state.token = action.payload.access_token
+                state.user = action.payload.user
                 state.error = null
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false
@@ -167,18 +238,21 @@ const authSlice = createSlice({
             })
             // Refresh token
             .addCase(refreshToken.fulfilled, (state, action) => {
-                state.token = action.payload.accessToken;
-                state.isAuthenticated = true;
-                state.isLoading = false;
+                state.token = action.payload.access_token
+                state.user = action.payload.user
+                state.isAuthenticated = true
+                state.isLoading = false
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(refreshToken.rejected, (state) => {
-                state.token = null;
-                state.isAuthenticated = false;
-                state.isLoading = false;
+                state.token = null
+                state.isAuthenticated = false
+                state.isLoading = false
             })
             // Update profile
             .addCase(updateProfile.fulfilled, (state, action) => {
                 state.user = action.payload
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload))
             })
             .addCase(updateProfile.rejected, (state, action) => {
                 state.error = action.payload || 'Profile update failed'
@@ -186,6 +260,6 @@ const authSlice = createSlice({
     },
 })
 
-export { loginUser, fetchCurrentUser, registerUser, refreshToken, updateProfile }
-export const { logout, clearError, initializeAuth } = authSlice.actions
+export { loginUser, registerUser, refreshToken, updateProfile }
+export const { logout, clearError, initializeAuth, setUser } = authSlice.actions
 export default authSlice.reducer

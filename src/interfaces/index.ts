@@ -1,13 +1,15 @@
 //auth
-export * from './auth/auth.interface'
-export * from './auth/admin.interface'
+export * from './user.interface'
+export * from './auth.interface'
 //cart
-export * from './cart/cart.interface'
+export * from './cart.interface'
 //dashboard
-export * from './dashboard/dashboard.interface'
+export * from './dashboard.interface'
 //ordering
-export * from './ordering/ordering.interface'
+export * from './ordering.interface'
 //query
-export * from './query/query.interface'
+export * from './query.interface'
 //response
-export * from './response/response.interface'
+export * from './response.interface'
+//enum
+export * from './enum'

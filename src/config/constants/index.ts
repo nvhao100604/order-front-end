@@ -1,4 +1,6 @@
 ///API
-export * from './api/index'
+export * from './api'
 ///Public
-export * from './public/index'
+export * from './public'
+///Storage
+export * from './storage'

@@ -5,12 +5,6 @@ export interface IResponse<T> {
     meta?: IMeta;
 }
 
-export interface SWRResponse<T> {
-    data?: T;
-    isLoading: boolean;
-    error?: any;
-}
-
 export interface IMeta {
     total: number;
     page: number;

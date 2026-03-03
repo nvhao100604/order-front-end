@@ -1,5 +1,5 @@
 const envCheck = (value: string | undefined, fallback_value: string): string => {
-    console.log("value check: " + value)
+    // console.log("value check: " + value)
     if (!value) {
         if (fallback_value) {
             console.warn(`⚠️ [ENV WARNING] Missing "${value}". Using: "${fallback_value}"`)
@@ -41,3 +41,5 @@ export const REFRESH_INTERVAL = Number(envCheck(
 export const DISH_KEY = "dishes"
 export const CATEGORY_KEY = "categories"
 export const ORDER_KEY = "orders"
+export const AUTH_KEY = "auth"
+export const USER_KEY = "users"

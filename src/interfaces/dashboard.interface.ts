@@ -1,4 +1,3 @@
-
 export interface DashboardData {
     totalUsers: number
     totalOrders: number

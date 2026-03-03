@@ -18,11 +18,6 @@ const getDishes = async (query: Query, config?: object): Promise<IResponse<IDish
     return response.data
 }
 
-// const getDishSearch = (query: Query, config?: object) => {
-//     const { data, isLoading, error } = useFetchSWR(`${DISH_KEY}/${SEARCH}`, query, config)
-
-//     return { data, isLoading, error }
-// }
 
 // const createDish = async (dish: IDish, config?: object) => {
 //     const response = await api.post(`${DISH_KEY}/${ADD}`, dish, config)

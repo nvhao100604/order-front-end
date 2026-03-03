@@ -1,12 +1,12 @@
+import { OrderStatus, TableStatus } from "./enum"
 
-export type TableStatus = "FREE" | "OCCUPIED" | "RESERVED";
-export type OrderStatus = "PENDING" | "CONFIRMED" | "PREPARING" | "COMPLETED" | "CANCELLED";
-
+// CATEGORY
 export interface ICategory {
     id: number,
     name: string
 }
 
+// DISH
 export interface IDish {
     id: number,
     name: string,
@@ -35,6 +35,7 @@ export const tempDish: IDish = {
     }
 }
 
+// DISH-CART
 export const tempCartItem: ICartItem = {
     id: 0,
     name: "",
@@ -50,18 +51,40 @@ export const tempCartItem: ICartItem = {
     checked: false
 }
 
-// export type DishAPIResponse = { dishes: IDish[], isLoading: boolean, error: any } | null
-
-
+// TABLE
 export interface ITable {
     id: number;
+    number: number;
+    minCapacity: number;
+    maxCapacity: number;
     status: TableStatus;
 }
 
-export interface ITableResponse {
+// ORDER
+export interface IOrder {
+    staffID: number;
+    customerID: number;
+    tableID?: number | null;
+    totalPrice?: Total;
+    notes?: string | null;
+    details: ICartItem[]
+}
+
+export interface IOrderResponse {
     id: number;
-    status: TableStatus;
-    currentOrder: IOrderResponse | null;
+    status: OrderStatus;
+    subtotal: number;
+    tax: number;
+    delivery: number;
+    totalPrice: number;
+    notes: string | null;
+    staffID: number;
+    customerID: number;
+    tableID: number | null;
+    discountID: number | null;
+    details: IOrderDetailResponse[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface IOrderDetailBase {
@@ -74,15 +97,6 @@ export interface IOrderDetailResponse extends IOrderDetailBase {
     id: number;
     orderID: number;
     dish: IDish;
-}
-
-export interface IOrder {
-    staffID: number;
-    customerID: number;
-    tableID?: number | null;
-    totalPrice?: Total;
-    notes?: string | null;
-    details: ICartItem[]
 }
 
 export interface IOrderCreate {
@@ -101,23 +115,6 @@ export interface Total {
     total: number
 }
 
-
-export const tempOrder: IOrder = {
-    staffID: 0,
-    customerID: 0,
-    details: []
-}
-
-export interface IOrderResponse {
-    id: number;
-    dateOrder: string;
-    status: OrderStatus;
-    totalPrice: number;
-    notes: string | null;
-    details: IOrderDetailResponse[];
-    table: ITableResponse | null;
-}
-
 export interface IOrderFilter {
     dateOrder?: string;
     status?: OrderStatus;
@@ -126,4 +123,10 @@ export interface IOrderFilter {
     staffID?: number;
     customerID?: number;
     tableID?: number;
+}
+
+export const tempOrder: IOrder = {
+    staffID: 0,
+    customerID: 0,
+    details: []
 }
