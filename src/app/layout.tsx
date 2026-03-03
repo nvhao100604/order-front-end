@@ -1,8 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito, Pacifico, Varela_Round } from "next/font/google";
-import { Footer, Header } from "@/components/app";
-import { StoreProvider, SWRProvider } from "@/components";
+import { StoreProvider, SWRProvider, ToastProvider } from "@/components";
 
 const varelaRound = Varela_Round({
   weight: "400",
@@ -47,7 +46,9 @@ function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
       >
         <SWRProvider>
           <StoreProvider>
-            {children}
+            <ToastProvider>
+              {children}
+            </ToastProvider>
           </StoreProvider>
         </SWRProvider>
       </body>

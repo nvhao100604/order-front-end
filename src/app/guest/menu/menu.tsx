@@ -1,13 +1,15 @@
 'use client'
-import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch, Pagination } from "@/components"
+import { CartSection, CartToggle, MenuHeader, MenuList, MenuSearch, Modal, Pagination } from "@/components"
 import useQuery from "@/hooks/useQuery"
 import { IDish } from "@/interfaces"
 import { defaultQuery, Query } from "@/interfaces/query.interface"
 import { useAppSelector } from "@/redux/hooks"
 import { useEffect, useState } from "react"
 import { dishes_services } from '../../../services/dish.services';
+import LoginModal from "@/components/login/login.modal"
 
 const Menu = () => {
+    const [isOpen, setIsOpen] = useState(false)
     const { isOpen: isCartOpen } = useAppSelector(state => state.cart)
     const [query, updateQuery, resetQuery] = useQuery(
         {

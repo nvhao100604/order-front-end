@@ -3,6 +3,7 @@ import counterReducer from '@/redux/slices/counterSlices'
 import cartReducer from './slices/cartSlices'
 import authReducer from './slices/authSlices'
 import staffReducer from './slices/staffSlice'
+import { rtkQueryErrorLogger } from './middlewares/errorLogging'
 
 export const store = configureStore({
     reducer: {
@@ -12,11 +13,7 @@ export const store = configureStore({
         staff: staffReducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: ['persist/PERSIST'],
-            },
-        }),
+        getDefaultMiddleware().concat(rtkQueryErrorLogger),
 })
 
 export type RootState = ReturnType<typeof store.getState>
