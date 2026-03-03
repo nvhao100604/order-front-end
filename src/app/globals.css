@@ -74,6 +74,18 @@
     }
   }
 
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @keyframes flip-vertical {
     0% {
       transform: perspective(400px) rotateX(0deg) scaleX(1);

@@ -5,6 +5,7 @@ import { useSubmitOrder } from "@/hooks";
 import { useState } from "react";
 import { ICartItem, IOrderDetailBase, Total } from "@/interfaces";
 import { Modal } from "../app";
+import LoginModal from "../login/login.modal";
 
 const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
     return {
@@ -16,11 +17,17 @@ const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
 
 const CartDetail = () => {
     // const [order, setOrder] = useState<IOrder>(tempOrder)
+    const [isOpen, setIsOpen] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const taxNumber = 8.5;
+
+    const auth = useAppSelector(state => state.auth)
+
     const cartList = useAppSelector(state => state.cart)
     const cart = cartList.currentCart.dishes
+
     const cartLength = cart.reduce((length, dish) => length += dish.checked ? 1 : 0, 0)
+
     const placeOrder = useSubmitOrder()
     const calculateTotal = (): Total => {
         const subtotal = cart.reduce((subtotal, dish) => subtotal += dish.checked ? dish.price * dish.quantity! : 0, 0)
@@ -38,13 +45,19 @@ const CartDetail = () => {
     const filtered_dish = cart.filter(item => item.checked == true)
     const details = filtered_dish.map(convertItemToDetail)
 
-    const onCheckout = () => placeOrder({
-        staffID: 1,
-        customerID: 1,
-        notes: "tình cha",
-        details: details,
-        totalPrice: calculateTotal()
-    })
+    const onCheckout = () => {
+        if (auth.isAuthenticated) {
+            placeOrder({
+                staffID: 1,
+                customerID: 1,
+                notes: "tình cha",
+                details: details,
+                totalPrice: calculateTotal()
+            })
+        } else {
+            setIsOpen(true)
+        }
+    }
 
     return (
         <>
@@ -112,6 +125,12 @@ const CartDetail = () => {
                             </button>
                         </div>
                     </div>
+                </Modal>
+            }
+
+            {isOpen && !auth.isAuthenticated &&
+                <Modal handleClick={() => setIsOpen(false)}>
+                    <LoginModal handleClose={() => setIsOpen(false)} />
                 </Modal>
             }
         </>
