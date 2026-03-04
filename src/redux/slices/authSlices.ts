@@ -17,12 +17,15 @@ const loginUser = createAsyncThunk<
                 return rejectWithValue(response.message || 'Login failed')
             }
             const token: TokenResponse = response.data
-
+            console.log(token)
+            console.log(`Bearer ${token.access_token}`)
+            const accessToken = token.access_token.trim()
             const userResponse = await user_services.getCurrentUser({
                 headers: {
-                    Authorization: `${token.token_type} ${token.access_token}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             })
+            console.log("user: ", userResponse)
 
             if (!userResponse.success || !userResponse.data) {
                 return rejectWithValue(response.message || 'User Not Found')
@@ -34,7 +37,7 @@ const loginUser = createAsyncThunk<
                 user: userResponse.data
             }
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Login failed')
+            return rejectWithValue(error.response?.data?.detail || 'Login failed')
         }
     })
 
@@ -54,7 +57,7 @@ const loginUser = createAsyncThunk<
 
 //             return response.data
 //         } catch (error: any) {
-//             return rejectWithValue(error.response?.message || 'Failed to fetch user')
+//             return rejectWithValue(error.response?.data?.detail || 'Failed to fetch user')
 //         }
 //     }
 // )
@@ -91,7 +94,7 @@ const registerUser = createAsyncThunk<
                 user: userResponse.data
             };
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Registration failed')
+            return rejectWithValue(error.response?.data?.detail || 'Registration failed')
         }
     }
 )
@@ -129,7 +132,7 @@ const refreshToken = createAsyncThunk<
                 user: userResponse.data
             };
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Token refresh failed')
+            return rejectWithValue(error.response?.data?.detail || 'Token refresh failed')
         }
     });
 
@@ -149,7 +152,7 @@ const updateProfile = createAsyncThunk<
 
             return response.data
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Profile update failed')
+            return rejectWithValue(error.response?.data?.detail || 'Profile update failed')
         }
     });
 

@@ -3,11 +3,12 @@ import api from "@/config/api/axios"
 import { useFetchSWR } from "@/hooks"
 import { IResponse } from "@/interfaces"
 import { UserResponse } from "@/interfaces/user.interface"
+import { AxiosRequestConfig } from "axios"
 import { SWRResponse } from "swr"
 
 // Get current user
 const getCurrentUser = async (
-    options?: object
+    options?: AxiosRequestConfig
 ): Promise<IResponse<UserResponse>> => {
     const response = await api.get<IResponse<UserResponse>>(
         `${USER_KEY}/me`,
@@ -17,7 +18,7 @@ const getCurrentUser = async (
 }
 
 const getCurrentUserSWR = (
-    config?: object
+    config?: AxiosRequestConfig
 ): SWRResponse<IResponse<UserResponse>> => {
     const { data, ...rest } = useFetchSWR(
         `${USER_KEY}/me`,
