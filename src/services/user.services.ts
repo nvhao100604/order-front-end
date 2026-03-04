@@ -18,12 +18,12 @@ const getCurrentUser = async (
 }
 
 const getCurrentUserSWR = (
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig | null
 ): SWRResponse<IResponse<UserResponse>> => {
     const { data, ...rest } = useFetchSWR(
-        `${USER_KEY}/me`,
+        config === null ? null : `${USER_KEY}/me`,
         undefined,
-        config
+        config ?? undefined
     )
 
     return {
