@@ -4,10 +4,11 @@ import { Query } from "@/interfaces";
 import { convertToParams } from "@/utils";
 import useSWR from "swr";
 
-const useFetchSWR = (path: string, query?: Query, config?: object) => {
+const useFetchSWR = (path: string | null, query?: Query, config?: object) => {
     const queryString = convertToParams(query)
-    const pathString = query ? `${path}?${queryString}` : `${path}`
-    // console.log(pathString)
+    const pathString = path
+        ? (query ? `${path}?${queryString}` : path)
+        : null
 
     const { data, ...rest } = useSWR(
         pathString,
@@ -19,7 +20,6 @@ const useFetchSWR = (path: string, query?: Query, config?: object) => {
             ...config
         }
     )
-    // console.log("check data: ", data)
     return { data, ...rest }
 }
 

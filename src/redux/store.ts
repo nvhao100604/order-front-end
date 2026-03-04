@@ -16,5 +16,9 @@ export const store = configureStore({
         getDefaultMiddleware().concat(rtkQueryErrorLogger),
 })
 
+store.subscribe(() => {
+    console.log("🔔 Store action, auth state:", store.getState().auth.isAuthenticated)
+})
+
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

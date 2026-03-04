@@ -6,16 +6,22 @@ import {
     RegisterPayload,
     TokenResponse
 } from "@/interfaces"
+import { AxiosRequestConfig } from "axios"
 
 // Login
 const authLogin = async (
     credentials: LoginCredentials,
-    options?: object
-): Promise<IResponse<TokenResponse>> => {
-    const response = await api.post<IResponse<TokenResponse>>(
+    options?: AxiosRequestConfig
+): Promise<TokenResponse> => {
+    const response = await api.post<TokenResponse>(
         `${AUTH_KEY}/login`,
         credentials,
-        options
+        {
+            ...options,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }
     )
     return response.data
 }

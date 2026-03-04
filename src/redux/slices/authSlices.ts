@@ -1,4 +1,4 @@
-import { USER_STORAGE_KEY } from "@/config"
+import { IS_AUTHENTICATED_KEY, USER_STORAGE_KEY } from "@/config"
 import { AuthResponse, AuthState, LoginCredentials, RegisterPayload, TokenResponse, UserResponse, UserUpdate } from "@/interfaces"
 import { user_services } from "@/services"
 import { auth_services } from "@/services/auth.services"
@@ -9,34 +9,37 @@ const loginUser = createAsyncThunk<
     AuthResponse,
     LoginCredentials,
     { rejectValue: string }
->('auth/loginUser',
+>(
+    'auth/loginUser',
     async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
+            console.log("credentials: ", credentials)
             const response = await auth_services.authLogin(credentials)
-            if (!response.success || !response.data) {
-                return rejectWithValue(response.message || 'Login failed')
+            console.log("token", response)
+            if (!response || !response.access_token) {
+                return rejectWithValue('No token')
             }
-            const token: TokenResponse = response.data
 
+            const accessToken = response.access_token.trim()
             const userResponse = await user_services.getCurrentUser({
-                headers: {
-                    Authorization: `${token.token_type} ${token.access_token}`
-                }
+                headers: { Authorization: `Bearer ${accessToken}` }
             })
 
             if (!userResponse.success || !userResponse.data) {
-                return rejectWithValue(response.message || 'User Not Found')
+                return rejectWithValue(userResponse.message || 'User Not Found')
             }
 
             return {
-                access_token: token.access_token,
-                token_type: token.token_type,
+                access_token: accessToken,
+                token_type: response.token_type,
                 user: userResponse.data
             }
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Login failed')
+            console.log("❌ CATCH ERROR:", error)
+            return rejectWithValue(error.response?.data?.detail || 'Login failed')
         }
-    })
+    }
+)
 
 // const fetchCurrentUser = createAsyncThunk<
 //     UserResponse,
@@ -54,7 +57,7 @@ const loginUser = createAsyncThunk<
 
 //             return response.data
 //         } catch (error: any) {
-//             return rejectWithValue(error.response?.message || 'Failed to fetch user')
+//             return rejectWithValue(error.response?.data?.detail || 'Failed to fetch user')
 //         }
 //     }
 // )
@@ -91,7 +94,7 @@ const registerUser = createAsyncThunk<
                 user: userResponse.data
             };
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Registration failed')
+            return rejectWithValue(error.response?.data?.detail || 'Registration failed')
         }
     }
 )
@@ -105,22 +108,18 @@ const refreshToken = createAsyncThunk<
     async (_, { rejectWithValue }) => {
         try {
             const response = await auth_services.authRefreshToken()
-
-            if (!response.success || !response.data) {
-                return rejectWithValue(response.message || 'Token refresh failed')
+            if (!response.data) {
+                return rejectWithValue("No token")
             }
-
-            const token: TokenResponse = response.data;
-
-            // Sau khi refresh token, lấy lại profile mới nhất (để đồng bộ quyền hạn/role)
+            const accessToken = response.data?.access_token.trim()
             const userResponse = await user_services.getCurrentUser({
-                headers: {
-                    Authorization: `${token.token_type} ${token.access_token}`
-                }
-            });
+                headers: { Authorization: `Bearer ${accessToken}` }
+            })
+
+            const token = response.data
 
             if (!userResponse.success || !userResponse.data) {
-                return rejectWithValue(userResponse.message || 'Failed to sync user')
+                return rejectWithValue(userResponse.message || 'User Not Found')
             }
 
             return {
@@ -129,7 +128,7 @@ const refreshToken = createAsyncThunk<
                 user: userResponse.data
             };
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Token refresh failed')
+            return rejectWithValue(error.response?.data?.detail || 'Token refresh failed')
         }
     });
 
@@ -149,7 +148,7 @@ const updateProfile = createAsyncThunk<
 
             return response.data
         } catch (error: any) {
-            return rejectWithValue(error.response?.message || 'Profile update failed')
+            return rejectWithValue(error.response?.data?.detail || 'Profile update failed')
         }
     });
 
@@ -171,6 +170,7 @@ const authSlice = createSlice({
             state.isAuthenticated = false
             state.error = null
             localStorage.removeItem(USER_STORAGE_KEY)
+            localStorage.removeItem(IS_AUTHENTICATED_KEY)
         },
         clearError: (state) => {
             state.error = null
@@ -191,10 +191,12 @@ const authSlice = createSlice({
 
             if (action.payload) {
                 state.isAuthenticated = true;
-                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload));
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload))
+                localStorage.setItem(IS_AUTHENTICATED_KEY, "true")
             } else {
-                state.isAuthenticated = false;
-                localStorage.removeItem(USER_STORAGE_KEY);
+                state.isAuthenticated = false
+                localStorage.removeItem(USER_STORAGE_KEY)
+                localStorage.removeItem(IS_AUTHENTICATED_KEY)
             }
         }
     },
@@ -210,6 +212,7 @@ const authSlice = createSlice({
                 state.isAuthenticated = true
                 state.user = action.payload.user
                 state.token = action.payload.access_token
+                localStorage.setItem(IS_AUTHENTICATED_KEY, "true")
                 localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(loginUser.rejected, (state, action) => {
@@ -228,6 +231,8 @@ const authSlice = createSlice({
                 state.token = action.payload.access_token
                 state.user = action.payload.user
                 state.error = null
+
+                localStorage.setItem(IS_AUTHENTICATED_KEY, "true")
                 localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(registerUser.rejected, (state, action) => {
@@ -240,6 +245,8 @@ const authSlice = createSlice({
                 state.user = action.payload.user
                 state.isAuthenticated = true
                 state.isLoading = false
+
+                localStorage.setItem(IS_AUTHENTICATED_KEY, "true")
                 localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(action.payload.user))
             })
             .addCase(refreshToken.rejected, (state) => {

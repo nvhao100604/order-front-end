@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useEnhancedAuth } from '@/hooks'
+import { useAuth } from '@/hooks'
 import { ROUTES } from '@/config'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const { login, logout, isLoading, error, isAuthenticated } = useEnhancedAuth()
+    const { login, isLoading, error, isAuthenticated } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
@@ -17,10 +17,11 @@ const LoginPage = () => {
         }
     }, [isAuthenticated, router])
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault()
         const success = await login({ username: email, password })
-        if (success) {
+        console.log("✅ Login result:", success)
+        if (success.access_token) {
             router.push(ROUTES.GUEST.HOME)
         }
     }
