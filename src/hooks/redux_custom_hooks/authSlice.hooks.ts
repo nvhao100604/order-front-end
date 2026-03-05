@@ -10,8 +10,6 @@ const useAuth = () => {
     const dispatch = useAppDispatch()
     const authState = useAppSelector(state => state.auth)
 
-    console.log("useAuth state:", authState)
-
     const login = (credentials: LoginCredentials) => dispatch(loginUser(credentials)).unwrap()
     const register = (payload: RegisterPayload) => dispatch(registerUser(payload)).unwrap()
     const logoutAction = () => dispatch(logout())
@@ -38,9 +36,9 @@ const useEnhancedAuth = (config?: object) => {
         token ? config : null
     )
 
-    useEffect(() => {
-        console.log("Is Auth: ", isAuthenticated)
-    }, [isAuthenticated])
+    // useEffect(() => {
+    //     console.log("Is Auth: ", isAuthenticated)
+    // }, [isAuthenticated])
 
     useEffect(() => {
         if (swrData?.success && swrData.data) {

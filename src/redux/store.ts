@@ -17,7 +17,7 @@ export const store = configureStore({
 })
 
 store.subscribe(() => {
-    console.log("🔔 Store action, auth state:", store.getState().auth.isAuthenticated)
+    // console.log("🔔 Store action, auth state:", store.getState().auth.isAuthenticated)
 })
 
 export type RootState = ReturnType<typeof store.getState>

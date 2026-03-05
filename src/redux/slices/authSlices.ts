@@ -13,9 +13,9 @@ const loginUser = createAsyncThunk<
     'auth/loginUser',
     async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
-            console.log("credentials: ", credentials)
+            // console.log("credentials: ", credentials)
             const response = await auth_services.authLogin(credentials)
-            console.log("token", response)
+            // console.log("token", response)
             if (!response || !response.access_token) {
                 return rejectWithValue('No token')
             }
@@ -35,7 +35,7 @@ const loginUser = createAsyncThunk<
                 user: userResponse.data
             }
         } catch (error: any) {
-            console.log("❌ CATCH ERROR:", error)
+            // console.log("CATCH ERROR:", error)
             return rejectWithValue(error.response?.data?.detail || 'Login failed')
         }
     }

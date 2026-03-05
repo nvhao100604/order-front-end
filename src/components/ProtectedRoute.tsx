@@ -24,7 +24,7 @@ const ProtectedRoute = ({
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push(ROUTES.LOGIN)
+            router.push(ROUTES.AUTH.LOGIN)
             return
         }
 

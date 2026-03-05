@@ -1,6 +1,6 @@
 "use client";
 
-import { IS_AUTHENTICATED_KEY } from "@/config";
+import { IS_AUTHENTICATED_KEY, ROUTES } from "@/config";
 import { useAuth, useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -16,6 +16,7 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
             refresh().catch(() => {
                 // localStorage.removeItem(IS_AUTHENTICATED_KEY);
                 console.log("Session expired");
+                // router.push(ROUTES)
             });
         }
     }, []);

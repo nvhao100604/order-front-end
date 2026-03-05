@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
 
     if (isProtected && !token) {
         // Nếu vào route bảo vệ mà không có token, chuyển hướng về login
-        return NextResponse.redirect(new URL(ROUTES.LOGIN, request.url))
+        return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
     }
 
     return NextResponse.next()

@@ -12,10 +12,9 @@ export default function LoginModal(
                 background: "rgba(74,53,37,0.45)",
                 backdropFilter: "blur(4px)", fontFamily: "Georgia,serif"
             }}>
-            <div className="w-full max-w-sm rounded-2xl overflow-hidden"
+            <div className="w-full max-w-sm rounded-2xl overflow-hidden animate-slide-up"
                 style={{
                     background: "white", boxShadow: "0 16px 48px rgba(74,53,37,0.2)",
-                    animation: "slideUp 0.3s ease both"
                 }}>
 
                 <div style={{ height: "4px", background: "linear-gradient(90deg,#8b6b4a,#e85d1a)" }} />
@@ -34,7 +33,7 @@ export default function LoginModal(
                     </p>
 
                     <div className="flex flex-col gap-3">
-                        <Link href={ROUTES.LOGIN}>
+                        <Link href={ROUTES.AUTH.LOGIN}>
                             <button
                                 className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90" style={{ background: "#e85d1a" }}>
                                 Log In

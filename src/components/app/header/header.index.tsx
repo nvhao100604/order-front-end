@@ -152,7 +152,7 @@ const UserMenu = () => {
                             </button>
                         ) : (
                             <Link
-                                href="/login"
+                                href={ROUTES.AUTH.LOGIN}
                                 className="flex items-center gap-3 px-4 py-3 text-sm text-green-400 hover:bg-green-500/20 rounded-lg transition-colors font-medium"
                                 onClick={() => setIsDropdownOpen(false)}
                             >
