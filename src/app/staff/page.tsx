@@ -1,16 +1,21 @@
 "use client";
 
+import LoadingBox from "@/components/ui/loading";
 import { useAppSelector } from "@/redux/hooks";
-import { DashboardTab, ManageTab, OrderTab } from "@/components/staff/staff.components";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function StaffPage() {
     const { activeTab } = useAppSelector((state) => state.staff);
+    const router = useRouter();
+
+    useEffect(() => {
+        router.replace(`/staff/${activeTab}`);
+    }, [activeTab, router]);
 
     return (
-        <div className="h-[calc(100dvh-64px)] overflow-hidden">
-            {activeTab === 'dashboard' && <DashboardTab />}
-            {activeTab === 'order' && <OrderTab />}
-            {activeTab === 'manage' && <ManageTab />}
+        <div className="flex items-center justify-center h-full bg-[#f0e6d3]">
+            {/* <LoadingBox /> */}
         </div>
     );
 }

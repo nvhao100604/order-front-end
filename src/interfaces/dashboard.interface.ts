@@ -1,11 +1,28 @@
+export interface TopDish {
+    name: string
+    count: number
+}
+
 export interface DashboardData {
-    totalUsers: number
-    totalOrders: number
-    revenue: number
-    // recentActivity: Array<{
-    //     id: string
-    //     type: string
-    //     description: string
-    //     timestamp: string
-    // }>
+    // Guests
+    todayGuests: number
+    todayReservations: number
+
+    // Orders
+    todayOrders: number
+    pendingOrders: number
+    monthlyOrders: number
+
+    // Revenue
+    todayRevenue: number
+    revenueGrowth: number
+    monthlyRevenue: number
+
+    // Tables
+    availableTables: number
+    occupiedTables: number
+    reservedTables: number
+
+    // Top dishes
+    topDishes: TopDish[]
 }

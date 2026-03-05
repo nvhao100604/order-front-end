@@ -17,7 +17,7 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (isAuthenticated && user && user.roleID) {
-            console.log("Role id: " + user.roleID)
+            // console.log("Role id: " + user.roleID)
             checkRole(user.roleID, router)
         }
     }, [isAuthenticated, router])
@@ -25,10 +25,10 @@ const LoginPage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         const success = await login({ username: email, password })
-        if (success.access_token && user && user.roleID) {
-            console.log("Role id: " + user.roleID)
-            checkRole(user.roleID, router)
-        }
+        // if (success.access_token && user && user.roleID) {
+        //     // console.log("Role id: " + user.roleID)
+        //     checkRole(user.roleID, router)
+        // }
     }
 
     if (isAuthenticated) return null

@@ -19,8 +19,6 @@ export { default as CartList } from './cart/cart.cart_list'
 export { default as CartDetail } from './cart/cart.cart_detail'
 export { default as CartConfirmModal } from './cart/cart.confirm_modal'
 export { default as CartToggle } from './cart/cart.cart_toggle'
-///Dashboard
-export { default as DashboardContent } from './dashboard/dashboard.page'
 ///Home
 export * from './home/home.components'
 ///Login
@@ -35,9 +33,9 @@ export { default as ToastProvider } from './providers/ToastProvider'
 export { default as ProtectedRoute } from './ProtectedRoute'
 ///test
 export { default as StaffShell } from './staff/StaffShell'
-export {
-    DashboardTab,
-    OrderTab,
-    ManageTab
-} from './staff/staff.components'
+// export {
+//     DashboardTab,
+//     OrderTab,
+//     ManageTab
+// } from './staff/staff.components'
 ///Animata

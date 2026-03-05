@@ -1,5 +1,4 @@
 import { ProtectedRoute, StaffShell } from "@/components";
-import LoadingBox from "@/components/ui/loading";
 import { PERMISSIONS } from "@/config/constants/auth";
 import type { Metadata } from "next";
 
@@ -12,7 +11,6 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     return (
         <>
             <ProtectedRoute requiredRoles={[...PERMISSIONS.STAFF_AND_ADMIN]}
-                fallback={<LoadingBox />}
             >
                 <StaffShell>{children}</StaffShell>
             </ProtectedRoute>

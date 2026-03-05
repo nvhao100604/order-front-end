@@ -12,7 +12,8 @@ export const ROUTES = {
     },
     STAFF: {
         DASHBOARD: "/staff/dashboard",
-        ORDERS: "/staff/orders",
+        ORDER: "/staff/order",
+        MANAGE: "/staff/manage",
     },
     ADMIN: "/admin",
     CONTACT: "#footer",
