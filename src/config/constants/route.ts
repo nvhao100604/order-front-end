@@ -14,6 +14,7 @@ export const ROUTES = {
         DASHBOARD: "/staff/dashboard",
         ORDERS: "/staff/orders",
     },
+    ADMIN: "/admin",
     CONTACT: "#footer",
     UNAUTHORIZED: "/unauthorized",
 } as const

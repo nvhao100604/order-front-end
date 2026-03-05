@@ -3,26 +3,31 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks'
-import { LOGO_URL, ROUTES } from '@/config'
+import { LOGO_URL, ROLES, ROUTES } from '@/config'
 import Link from 'next/link'
+import { useAppSelector } from '@/redux/hooks'
+import { checkRole } from '@/utils'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const { login, isLoading, error, isAuthenticated } = useAuth()
+    const user = useAppSelector(state => state.auth.user)
     const router = useRouter()
 
     useEffect(() => {
-        if (isAuthenticated) {
-            router.push(ROUTES.GUEST.HOME)
+        if (isAuthenticated && user && user.roleID) {
+            console.log("Role id: " + user.roleID)
+            checkRole(user.roleID, router)
         }
     }, [isAuthenticated, router])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         const success = await login({ username: email, password })
-        if (success.access_token) {
-            router.push(ROUTES.GUEST.HOME)
+        if (success.access_token && user && user.roleID) {
+            console.log("Role id: " + user.roleID)
+            checkRole(user.roleID, router)
         }
     }
 
