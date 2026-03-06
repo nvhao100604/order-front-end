@@ -100,10 +100,14 @@ export interface IOrderDetailResponse extends IOrderDetailBase {
 }
 
 export interface IOrderCreate {
-    staffID: number;
+    staffID?: number;
     customerID: number;
     tableID?: number | null;
-    totalPrice?: Total;
+    discountID?: number | null;
+    subtotal: number,
+    tax: number,
+    delivery: number,
+    totalPrice: number;
     notes?: string | null;
     details: IOrderDetailBase[]
 }

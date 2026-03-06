@@ -46,13 +46,15 @@ const CartDetail = () => {
     const details = filtered_dish.map(convertItemToDetail)
 
     const onCheckout = () => {
-        if (auth.isAuthenticated) {
+        if (auth.isAuthenticated && auth.user) {
             placeOrder({
-                staffID: 1,
-                customerID: 1,
+                customerID: auth.user.id,
                 notes: "tình cha",
                 details: details,
-                totalPrice: calculateTotal()
+                totalPrice: calculateTotal().total,
+                subtotal: calculateTotal().subtotal,
+                delivery: calculateTotal().delivery,
+                tax: calculateTotal().tax
             })
         } else {
             setIsOpen(true)

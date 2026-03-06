@@ -1,5 +1,6 @@
 "use client";
 
+import { formatter } from "@/utils";
 import { useState } from "react";
 
 const mockUser = {
@@ -21,34 +22,10 @@ const mockUser = {
 };
 
 const orderHistory = [
-    {
-        id: "#ORD-2841",
-        date: "Feb 28, 2026",
-        items: ["Beef Teriyaki", "Miso Ramen", "Green Tea"],
-        total: 485000,
-        status: "Completed",
-    },
-    {
-        id: "#ORD-2790",
-        date: "Feb 14, 2026",
-        items: ["Sashimi Set", "Tempura Udon", "Sake"],
-        total: 720000,
-        status: "Completed",
-    },
-    {
-        id: "#ORD-2755",
-        date: "Jan 30, 2026",
-        items: ["Chef's Special Bento", "Matcha Latte"],
-        total: 310000,
-        status: "Completed",
-    },
-    {
-        id: "#ORD-2701",
-        date: "Jan 12, 2026",
-        items: ["Wagyu Steak", "Truffle Ramen", "Yuzu Dessert"],
-        total: 1250000,
-        status: "Completed",
-    },
+    { id: "#ORD-2841", date: "Feb 28, 2026", items: ["Beef Teriyaki", "Miso Ramen", "Green Tea"], total: 485000, status: "Completed" },
+    { id: "#ORD-2790", date: "Feb 14, 2026", items: ["Sashimi Set", "Tempura Udon", "Sake"], total: 720000, status: "Completed" },
+    { id: "#ORD-2755", date: "Jan 30, 2026", items: ["Chef's Special Bento", "Matcha Latte"], total: 310000, status: "Completed" },
+    { id: "#ORD-2701", date: "Jan 12, 2026", items: ["Wagyu Steak", "Truffle Ramen", "Yuzu Dessert"], total: 1250000, status: "Completed" },
 ];
 
 const favoriteItems = [
@@ -71,9 +48,6 @@ export default function ProfilePage() {
         { id: "settings", label: "Settings", icon: "◉" },
     ];
 
-    const formatVND = (amount: number) =>
-        new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
-
     return (
         <div
             className="min-h-screen"
@@ -82,45 +56,13 @@ export default function ProfilePage() {
                 fontFamily: "'Georgia', 'Times New Roman', serif",
             }}
         >
+            {/* Noise overlay */}
             <div
                 className="fixed inset-0 pointer-events-none opacity-30"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
                 }}
             />
-
-            <nav
-                className="sticky top-0 z-50 flex items-center justify-between px-8 py-4"
-                style={{
-                    background: "rgba(139, 107, 74, 0.95)",
-                    backdropFilter: "blur(12px)",
-                    borderBottom: "1px solid rgba(212, 175, 120, 0.3)",
-                }}
-            >
-                <div className="flex items-center gap-3">
-                    <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                        style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
-                    >
-                        FR
-                    </div>
-                    <span className="text-white font-bold text-lg tracking-wide" style={{ fontFamily: "Georgia, serif" }}>
-                        Foodie Restaurant
-                    </span>
-                </div>
-                <div className="hidden md:flex items-center gap-8 text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    <a href="#" className="hover:text-white transition-colors">HOME</a>
-                    <a href="#" className="hover:text-white transition-colors">MENU</a>
-                    <a href="#" className="hover:text-white transition-colors">ABOUT US</a>
-                    <a href="#" className="hover:text-white transition-colors">CONTACT</a>
-                </div>
-                <button
-                    className="px-5 py-2 rounded-sm text-white text-sm font-semibold tracking-wide transition-all hover:scale-105"
-                    style={{ background: "#e85d1a", boxShadow: "0 2px 12px rgba(232,93,26,0.4)" }}
-                >
-                    Make a Reservation
-                </button>
-            </nav>
 
             <div className="max-w-6xl mx-auto px-4 py-10 relative">
 
@@ -132,15 +74,15 @@ export default function ProfilePage() {
                         boxShadow: "0 20px 60px rgba(74,53,37,0.35)",
                     }}
                 >
+                    {/* Diagonal pattern */}
                     <div
                         className="absolute inset-0 opacity-10"
-                        style={{
-                            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,175,120,0.5) 20px, rgba(212,175,120,0.5) 21px)`,
-                        }}
+                        style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,175,120,0.5) 20px, rgba(212,175,120,0.5) 21px)" }}
                     />
 
                     <div className="relative p-8 md:p-12">
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
+                            {/* Avatar */}
                             <div className="relative flex-shrink-0">
                                 <div
                                     className="w-28 h-28 rounded-full overflow-hidden"
@@ -156,37 +98,50 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
+                            {/* Info */}
                             <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <h1 className="text-3xl md:text-4xl font-bold" style={{ color: "#faf0e0", letterSpacing: "-0.5px" }}>
+                                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                                    <h1
+                                        className="text-3xl md:text-4xl font-bold"
+                                        style={{ color: "#faf0e0", letterSpacing: "-0.5px" }}
+                                    >
                                         {mockUser.name}
                                     </h1>
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wider" style={{ background: "#d4af37", color: "#4a3525" }}>
+                                    <span
+                                        className="px-3 py-1 rounded-full text-xs font-bold tracking-wider"
+                                        style={{ background: "#d4af37", color: "#4a3525" }}
+                                    >
                                         {mockUser.memberTier.toUpperCase()}
                                     </span>
                                 </div>
-                                <p className="text-sm mb-4" style={{ color: "rgba(212,175,120,0.8)" }}>Member since {mockUser.joinDate}</p>
+                                <p className="text-sm mb-4" style={{ color: "rgba(212,175,120,0.8)" }}>
+                                    Member since {mockUser.joinDate}
+                                </p>
                                 <div className="flex flex-wrap gap-6">
-                                    <div>
-                                        <p className="text-2xl font-bold" style={{ color: "#d4af37" }}>{mockUser.points.toLocaleString()}</p>
-                                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Loyalty Points</p>
-                                    </div>
-                                    <div style={{ borderLeft: "1px solid rgba(212,175,120,0.3)", paddingLeft: "24px" }}>
-                                        <p className="text-2xl font-bold" style={{ color: "#d4af37" }}>{mockUser.totalOrders}</p>
-                                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Total Orders</p>
-                                    </div>
-                                    <div style={{ borderLeft: "1px solid rgba(212,175,120,0.3)", paddingLeft: "24px" }}>
-                                        <p className="text-2xl font-bold" style={{ color: "#d4af37" }}>4.9</p>
-                                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Avg Rating</p>
-                                    </div>
+                                    {[
+                                        { val: mockUser.points.toLocaleString(), label: "Loyalty Points" },
+                                        { val: mockUser.totalOrders, label: "Total Orders" },
+                                        { val: "4.9", label: "Avg Rating" },
+                                    ].map((s, i) => (
+                                        <div key={s.label} className="flex gap-6">
+                                            {i > 0 && <div style={{ borderLeft: "1px solid rgba(212,175,120,0.3)" }} />}
+                                            <div className={i > 0 ? "pl-6" : ""}>
+                                                <p className="text-2xl font-bold" style={{ color: "#d4af37" }}>{s.val}</p>
+                                                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
+                            {/* Reservation card */}
                             <div
                                 className="flex-shrink-0 rounded-xl p-5 min-w-52"
                                 style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(212,175,120,0.25)", backdropFilter: "blur(8px)" }}
                             >
-                                <p className="text-xs font-semibold tracking-widest mb-3" style={{ color: "#d4af37" }}>UPCOMING RESERVATION</p>
+                                <p className="text-xs font-semibold tracking-widest mb-3" style={{ color: "#d4af37" }}>
+                                    UPCOMING RESERVATION
+                                </p>
                                 <p className="text-white font-semibold">{mockUser.upcomingReservation.date}</p>
                                 <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
                                     {mockUser.upcomingReservation.time} · {mockUser.upcomingReservation.guests} Guests
@@ -228,13 +183,19 @@ export default function ProfilePage() {
                 {/* OVERVIEW */}
                 {activeTab === "overview" && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-                        <div className="md:col-span-2 rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
+                        <div
+                            className="md:col-span-2 rounded-2xl p-6"
+                            style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}
+                        >
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-bold" style={{ color: "#4a3525" }}>Personal Information</h2>
                                 <button
                                     onClick={() => setEditMode(!editMode)}
                                     className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:scale-105"
-                                    style={{ background: editMode ? "#e85d1a" : "#f5ede0", color: editMode ? "white" : "#6b4e35" }}
+                                    style={{
+                                        background: editMode ? "#e85d1a" : "#f5ede0",
+                                        color: editMode ? "white" : "#6b4e35",
+                                    }}
                                 >
                                     {editMode ? "Save Changes" : "Edit Profile"}
                                 </button>
@@ -267,11 +228,14 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="flex flex-col gap-6">
+                            {/* Points card */}
                             <div
                                 className="rounded-2xl p-6 text-center"
                                 style={{ background: "linear-gradient(135deg, #d4af37 0%, #b8941e 100%)", boxShadow: "0 8px 32px rgba(212,175,55,0.3)" }}
                             >
-                                <p className="text-sm font-semibold tracking-widest mb-3" style={{ color: "rgba(74,53,37,0.7)" }}>GOLD TIER POINTS</p>
+                                <p className="text-sm font-semibold tracking-widest mb-3" style={{ color: "rgba(74,53,37,0.7)" }}>
+                                    GOLD TIER POINTS
+                                </p>
                                 <p className="text-5xl font-bold mb-1" style={{ color: "#4a3525" }}>{mockUser.points.toLocaleString()}</p>
                                 <p className="text-sm mb-4" style={{ color: "rgba(74,53,37,0.6)" }}>160 pts to Platinum</p>
                                 <div className="w-full h-2 rounded-full mb-4" style={{ background: "rgba(74,53,37,0.2)" }}>
@@ -285,6 +249,7 @@ export default function ProfilePage() {
                                 </button>
                             </div>
 
+                            {/* This month */}
                             <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
                                 <h3 className="font-bold mb-4" style={{ color: "#4a3525" }}>This Month</h3>
                                 {[
@@ -292,11 +257,20 @@ export default function ProfilePage() {
                                     { label: "Amount Spent", value: "₫1.5M", change: "+12%" },
                                     { label: "Points Earned", value: "340", change: "+18%" },
                                 ].map((stat) => (
-                                    <div key={stat.label} className="flex justify-between items-center py-2" style={{ borderBottom: "1px solid #f5ede0" }}>
+                                    <div
+                                        key={stat.label}
+                                        className="flex justify-between items-center py-2"
+                                        style={{ borderBottom: "1px solid #f5ede0" }}
+                                    >
                                         <span className="text-sm" style={{ color: "rgba(107,78,53,0.6)" }}>{stat.label}</span>
                                         <div className="flex items-center gap-2">
                                             <span className="font-bold text-sm" style={{ color: "#4a3525" }}>{stat.value}</span>
-                                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#f0faf0", color: "#2d7a2d" }}>{stat.change}</span>
+                                            <span
+                                                className="text-xs px-2 py-0.5 rounded-full"
+                                                style={{ background: "#f0faf0", color: "#2d7a2d" }}
+                                            >
+                                                {stat.change}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}
@@ -314,18 +288,27 @@ export default function ProfilePage() {
                                 <span className="text-sm" style={{ color: "rgba(107,78,53,0.5)" }}>{orderHistory.length} orders</span>
                             </div>
                             {orderHistory.map((order) => (
-                                <div key={order.id} className="p-6 hover:bg-amber-50 transition-colors group" style={{ borderBottom: "1px solid #f5ede0" }}>
+                                <div
+                                    key={order.id}
+                                    className="p-6 transition-colors group hover:bg-amber-50"
+                                    style={{ borderBottom: "1px solid #f5ede0" }}
+                                >
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <span className="font-bold" style={{ color: "#4a3525" }}>{order.id}</span>
-                                                <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: "#f0faf0", color: "#2d7a2d" }}>{order.status}</span>
+                                                <span
+                                                    className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                                    style={{ background: "#f0faf0", color: "#2d7a2d" }}
+                                                >
+                                                    {order.status}
+                                                </span>
                                             </div>
                                             <p className="text-sm mb-1" style={{ color: "rgba(107,78,53,0.5)" }}>{order.date}</p>
                                             <p className="text-sm" style={{ color: "#6b4e35" }}>{order.items.join(" · ")}</p>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            <p className="text-lg font-bold" style={{ color: "#4a3525" }}>{formatVND(order.total)}</p>
+                                            <p className="text-lg font-bold" style={{ color: "#4a3525" }}>{formatter.format(order.total)}</p>
                                             <button
                                                 className="opacity-0 group-hover:opacity-100 text-xs px-3 py-2 rounded-lg transition-all font-semibold"
                                                 style={{ background: "#f5ede0", color: "#6b4e35" }}
@@ -349,13 +332,16 @@ export default function ProfilePage() {
                                 className="flex items-center gap-5 p-5 rounded-2xl group hover:scale-[1.02] transition-all cursor-pointer"
                                 style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}
                             >
-                                <div className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: "#faf0e0" }}>
+                                <div
+                                    className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl flex-shrink-0"
+                                    style={{ background: "#faf0e0" }}
+                                >
                                     {item.emoji}
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="font-bold" style={{ color: "#4a3525" }}>{item.name}</h3>
                                     <p className="text-xs mt-0.5" style={{ color: "rgba(107,78,53,0.5)" }}>{item.category}</p>
-                                    <p className="text-sm font-semibold mt-1" style={{ color: "#d4af37" }}>{formatVND(item.price)}</p>
+                                    <p className="text-sm font-semibold mt-1" style={{ color: "#d4af37" }}>{formatter.format(item.price)}</p>
                                 </div>
                                 <button
                                     className="opacity-0 group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
@@ -371,6 +357,7 @@ export default function ProfilePage() {
                 {/* SETTINGS */}
                 {activeTab === "settings" && (
                     <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Notifications */}
                         <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
                             <h2 className="text-xl font-bold mb-6" style={{ color: "#4a3525" }}>Notifications</h2>
                             {[
@@ -379,22 +366,31 @@ export default function ProfilePage() {
                                 { label: "New Menu Items", desc: "Be first to know about seasonal dishes", enabled: false },
                                 { label: "Points Updates", desc: "Alerts when you earn or redeem points", enabled: true },
                             ].map((item) => (
-                                <div key={item.label} className="flex items-center justify-between py-4" style={{ borderBottom: "1px solid #f5ede0" }}>
+                                <div
+                                    key={item.label}
+                                    className="flex items-center justify-between py-4"
+                                    style={{ borderBottom: "1px solid #f5ede0" }}
+                                >
                                     <div>
                                         <p className="font-semibold text-sm" style={{ color: "#4a3525" }}>{item.label}</p>
                                         <p className="text-xs" style={{ color: "rgba(107,78,53,0.5)" }}>{item.desc}</p>
                                     </div>
                                     <div
                                         className="w-12 h-6 rounded-full flex items-center cursor-pointer"
-                                        style={{ background: item.enabled ? "#d4af37" : "#e0d5c8", padding: "2px", justifyContent: item.enabled ? "flex-end" : "flex-start" }}
+                                        style={{
+                                            background: item.enabled ? "#d4af37" : "#e0d5c8",
+                                            padding: "2px",
+                                            justifyContent: item.enabled ? "flex-end" : "flex-start",
+                                        }}
                                     >
-                                        <div className="w-5 h-5 rounded-full bg-white" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+                                        <div className="w-5 h-5 rounded-full bg-white shadow" />
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         <div className="flex flex-col gap-6">
+                            {/* Dietary */}
                             <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
                                 <h2 className="text-xl font-bold mb-4" style={{ color: "#4a3525" }}>Dietary Preferences</h2>
                                 <div className="flex flex-wrap gap-2">
@@ -415,16 +411,26 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
+                            {/* Account actions */}
                             <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
                                 <h2 className="text-xl font-bold mb-4" style={{ color: "#4a3525" }}>Account Actions</h2>
                                 <div className="flex flex-col gap-3">
-                                    <button className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105" style={{ background: "#f5ede0", color: "#6b4e35" }}>
+                                    <button
+                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+                                        style={{ background: "#f5ede0", color: "#6b4e35" }}
+                                    >
                                         Change Password
                                     </button>
-                                    <button className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105" style={{ background: "#e85d1a", color: "white" }}>
+                                    <button
+                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+                                        style={{ background: "#e85d1a", color: "white" }}
+                                    >
                                         Sign Out
                                     </button>
-                                    <button className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105" style={{ background: "#fff0f0", color: "#c0392b" }}>
+                                    <button
+                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+                                        style={{ background: "#fff0f0", color: "#c0392b" }}
+                                    >
                                         Delete Account
                                     </button>
                                 </div>
@@ -433,14 +439,6 @@ export default function ProfilePage() {
                     </div>
                 )}
             </div>
-
-            <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fadeIn 0.4s ease both; }
-      `}</style>
         </div>
     );
 }
