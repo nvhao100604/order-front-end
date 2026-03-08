@@ -1,105 +1,132 @@
 'use client'
-import { useTableCheckout, useUpdateStaffOrder } from "@/hooks";
-import { useAppSelector } from "@/redux/hooks";
-import { formatter } from "@/utils";
-
-const statusConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    PENDING: { label: "Pending", color: "#fbbf24", bg: "rgba(251,191,36,0.1)", border: "rgba(251,191,36,0.25)" },
-    PREPARING: { label: "Preparing", color: "#60a5fa", bg: "rgba(96,165,250,0.1)", border: "rgba(96,165,250,0.25)" },
-    COMPLETED: { label: "Completed", color: "#34d399", bg: "rgba(52,211,153,0.1)", border: "rgba(52,211,153,0.25)" },
-}
+import { useQuery, useRefresh, useTableCheckout, useUpdateStaffOrder } from "@/hooks";
+import { defaultQuery, IOrderFilter, OrderStatus } from "@/interfaces";
+import { orders_services } from "@/services";
+import { useState, useRef, useEffect } from "react";
+import { FilterPanel, OrderItem } from "./manage.component";
+import { ORDER_KEY } from "@/config";
 
 const StaffManagePage = () => {
-    const { orders } = useAppSelector((state) => state.staff);
-    const updateStatus = useUpdateStaffOrder();
-    const finalizeCheckout = useTableCheckout();
+    const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
+    const finalizeCheckout = useTableCheckout()
+    const refresh = useRefresh()
+    const { data } = orders_services.getOrdersSWR(query)
+    const orders = data?.data || []
+
+    const [showFilter, setShowFilter] = useState(false)
+    const panelRef = useRef<HTMLDivElement>(null)
+
+    const filterKeys: (keyof IOrderFilter)[] = ["status", "min_price", "max_price", "staffID", "customerID", "tableID", "start_date", "end_date"]
+    const activeFilterCount = filterKeys.filter(k => query[k] !== undefined && query[k] !== "").length
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (panelRef.current && !panelRef.current.contains(e.target as Node))
+                setShowFilter(false)
+        }
+        if (showFilter) document.addEventListener("mousedown", handler)
+        return () => document.removeEventListener("mousedown", handler)
+    }, [showFilter])
+
+    const updateStatus = async (orderID: number, status: OrderStatus) => {
+        // console.log("Id:", orderID)
+        // console.log("status: ", status)
+        try {
+            const response = await orders_services.updateOrderStatus(orderID, status)
+            if (response.success) {
+                // console.log("New status: ", response.data?.status)
+                //mutate chỗ này
+                refresh(ORDER_KEY)
+            } else {
+                console.error(response.message)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
 
     return (
-        <main className="p-6 max-w-5xl mx-auto" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
-            <div className="mb-6">
-                <h1 className="text-xl font-bold text-white">Order Management</h1>
-                <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
-                </p>
+        <main className="max-w-5xl w-full" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+            {/* Header row */}
+            <div className="flex items-start justify-between mb-6 gap-4">
+                <div>
+                    <h1 className="text-xl font-bold" style={{ color: "#3d2b1a" }}>Order Management</h1>
+                    <p className="text-sm mt-0.5" style={{ color: "#a08060" }}>
+                        {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
+                        {activeFilterCount > 0 && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold"
+                                style={{ background: "#fef3e2", color: "#92600a", border: "1px solid #f5c842" }}>
+                                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+                            </span>
+                        )}
+                    </p>
+                </div>
+
+                {/* Filter trigger */}
+                <div className="relative flex-shrink-0" ref={panelRef}>
+                    <button
+                        onClick={() => setShowFilter(v => !v)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                        style={{
+                            background: showFilter ? "#4a3525" : activeFilterCount > 0 ? "#e85d1a" : "white",
+                            color: showFilter || activeFilterCount > 0 ? "white" : "#4a3525",
+                            border: "1.5px solid",
+                            borderColor: showFilter ? "#4a3525" : activeFilterCount > 0 ? "#e85d1a" : "#dcc9b0",
+                            boxShadow: "0 2px 8px rgba(139,107,74,0.12)",
+                        }}
+                    >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                        </svg>
+                        Advanced Filter
+                        {activeFilterCount > 0 && (
+                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black"
+                                style={{ background: "rgba(255,255,255,0.3)" }}>
+                                {activeFilterCount}
+                            </span>
+                        )}
+                    </button>
+
+                    {showFilter && (
+                        <FilterPanel
+                            query={query}
+                            updateQuery={updateQuery}
+                            resetQuery={resetQuery}
+                            onClose={() => setShowFilter(false)}
+                        />
+                    )}
+                </div>
             </div>
 
+            {/* Order list */}
             <div className="space-y-3">
-                {orders.map((order) => {
-                    const cfg = statusConfig[order.status] ?? statusConfig.PENDING
-                    return (
-                        <div
-                            key={order.id}
-                            className="rounded-2xl p-5 transition-all"
-                            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <span className="font-bold text-white text-sm">Order #{order.id}</span>
-                                    <span
-                                        className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                                        style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}
-                                    >
-                                        {cfg.label}
-                                    </span>
-                                </div>
-                                <span className="font-bold text-sm" style={{ color: "#fb923c" }}>
-                                    {formatter.format(order.totalPrice)}
-                                </span>
-                            </div>
-
-                            <div className="flex gap-2 flex-wrap">
-                                {order.status === "PENDING" && (
-                                    <button
-                                        onClick={() => updateStatus(order.id, "PREPARING")}
-                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
-                                        style={{ background: "rgba(96,165,250,0.15)", color: "#60a5fa", border: "1px solid rgba(96,165,250,0.3)" }}
-                                    >
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                            <polygon points="5 3 19 12 5 21 5 3" />
-                                        </svg>
-                                        Start Preparing
-                                    </button>
-                                )}
-                                {order.status === "PREPARING" && (
-                                    <button
-                                        onClick={() => updateStatus(order.id, "COMPLETED")}
-                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
-                                        style={{ background: "rgba(52,211,153,0.15)", color: "#34d399", border: "1px solid rgba(52,211,153,0.3)" }}
-                                    >
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        Mark as Completed
-                                    </button>
-                                )}
-                                {order.status === "COMPLETED" && (
-                                    <button
-                                        onClick={() => finalizeCheckout(order.tableID || 0)}
-                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
-                                        style={{ background: "#fb923c", color: "white" }}
-                                    >
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                        </svg>
-                                        Process Payment
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )
-                })}
+                {orders.map((order) => (
+                    <OrderItem
+                        key={order.id}
+                        order={order}
+                        updateStatus={updateStatus}
+                        finalizeCheckout={finalizeCheckout}
+                    />
+                ))}
 
                 {orders.length === 0 && (
-                    <div
-                        className="rounded-2xl p-12 text-center"
-                        style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.08)" }}
-                    >
-                        <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>No active orders</p>
+                    <div className="rounded-2xl p-12 text-center"
+                        style={{ background: "white", border: "1px dashed rgba(212,175,120,0.4)" }}>
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                            style={{ background: "#faf0e0" }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0622a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                                <rect x="9" y="3" width="6" height="4" rx="1" />
+                            </svg>
+                        </div>
+                        <p className="text-sm font-medium" style={{ color: "#a08060" }}>No active orders</p>
+                        <p className="text-xs mt-1" style={{ color: "#c8b49a" }}>New orders will appear here</p>
                     </div>
                 )}
             </div>
         </main>
-    );
+    )
 }
 
 export default StaffManagePage

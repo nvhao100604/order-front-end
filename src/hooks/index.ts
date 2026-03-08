@@ -1,7 +1,7 @@
 export { default as useQuery } from './useQuery'
 export { default as useFetchSWR } from './useFetchSWR'
-export { default as useGET } from './useGET'
 export { default as useCounter } from './useCounter'
+export { default as useRefresh } from './useRefresh'
 export * from './useIntersectionObserver'
 export * from './useSWRWithAuth'
 export * from './redux_custom_hooks/cartSlice.hooks'

@@ -82,7 +82,7 @@ const DishModal = ({ dish, onClose, addToCart }:
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
                     <div className="w-full sm:w-auto flex justify-between items-center sm:block">
                         <span className="text-2xl md:text-3xl font-bold text-orange-500">
-                            {formatter.format(dish.price * quantity)}
+                            {formatter.currency(dish.price * quantity)}
                         </span>
                     </div>
 

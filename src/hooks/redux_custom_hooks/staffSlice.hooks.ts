@@ -1,23 +1,36 @@
+'use client'
 import { useAppDispatch } from "@/redux/hooks";
 import {
-    setActiveTab,
     setSelectedTableId,
     toggleMergingMode,
     setMergeSourceId,
     setStaffActiveCategory,
     updateLocalOrderStatus,
     clearTableAfterCheckout,
-    StaffTab,
     setTables,
-    setStaffOrders
+    setStaffOrders,
 } from "@/redux/slices/staffSlice";
-import { ITable, IOrderResponse, OrderStatus } from "@/interfaces";
+import { IOrderResponse, OrderStatus, IOrderFilter, ITableResponse } from "@/interfaces";
+import { useEffect } from "react";
 
-const useSetStaffTab = () => {
-    const dispatch = useAppDispatch();
-    const setTab = (tab: StaffTab) => dispatch(setActiveTab(tab));
-    return setTab;
-};
+const useFetchOrders = (filter: IOrderFilter) => {
+    const dispatch = useAppDispatch()
+
+    const getOrders = async (filter: IOrderFilter) => {
+        // try {
+        //     const result = await dispatch(fetchOrders(filter)).unwrap()
+        //     return result
+        // } catch (error) {
+        //     console.log("❌ Fetch orders error:", error)
+        // }
+    }
+
+    useEffect(() => {
+        getOrders(filter)
+    }, [filter])
+
+    return getOrders
+}
 
 const useSelectTable = () => {
     const dispatch = useAppDispatch();
@@ -60,14 +73,14 @@ const useTableCheckout = () => {
 const useSyncStaffData = () => {
     const dispatch = useAppDispatch();
 
-    const syncTables = (tables: ITable[]) => dispatch(setTables(tables));
+    const syncTables = (tables: ITableResponse[]) => dispatch(setTables(tables));
     const syncOrders = (orders: IOrderResponse[]) => dispatch(setStaffOrders(orders));
 
     return { syncTables, syncOrders };
 };
 
 export {
-    useSetStaffTab,
+    useFetchOrders,
     useSelectTable,
     useTableMergeControl,
     useSetStaffCategory,

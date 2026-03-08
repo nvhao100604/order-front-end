@@ -1,4 +1,4 @@
-import { NOT_FOUND_IMAGE } from "@/config"
+import { NOT_FOUND_IMAGE, ROUTES } from "@/config"
 import Link from "next/link"
 import React, { ReactElement } from "react"
 import { FaHome, FaUtensils, FaBookOpen, FaPhoneAlt } from "react-icons/fa"
@@ -65,10 +65,10 @@ const NotFoundPage = () => {
                 <div className="mt-8 text-sm text-gray-500">
                     <h3 className="font-semibold mb-2">Quick Links</h3>
                     <div className="flex flex-wrap justify-center gap-4">
-                        <QuickLink href={'/'} text="About Us" />
-                        <QuickLink href={'/'} text="Special Offers" />
-                        <QuickLink href={'/'} text="Gift Cards" />
-                        <QuickLink href={'/'} text="Locations" />
+                        <QuickLink href={ROUTES.GUEST.ABOUT} text="About Us" />
+                        <QuickLink href={ROUTES.GUEST.BEST_SELLER} text="Special Offers" />
+                        {/* <QuickLink href={R} text="Gift Cards" /> */}
+                        <QuickLink href={ROUTES.GUEST.MENU} text="Menu" />
                     </div>
                 </div>
             </div>

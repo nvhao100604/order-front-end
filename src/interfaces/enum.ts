@@ -17,12 +17,19 @@ export enum Status {
     BANNED = "banned"
 }
 
-export const OrderStatusMap: Record<OrderStatus, string> = {
+export const OrderStatusMap = {
     PENDING: "Pending",
     CONFIRMED: "Confirmed",
     PREPARING: "Preparing",
     SHIPPING: "Out for Delivery",
     COMPLETED: "Completed",
     CANCELLED: "Cancelled",
-    UNPAID: "Pending Payment"
-};
+    UNPAID: "Pending Payment",
+} as const
+
+export type OrderStatusKey = keyof typeof OrderStatusMap
+
+export const OrderStatusOptions = Object.entries(OrderStatusMap).map(([key, value]) => ({
+    key: key,
+    value: value
+}));

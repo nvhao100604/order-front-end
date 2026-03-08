@@ -8,7 +8,8 @@ export const ROUTES = {
         HOME: "/guest",
         MENU: "/guest/menu",
         RESERVATION: "/guest/reservation",
-        ABOUT: "/guest/#about-us"
+        ABOUT: "/guest/#about-us",
+        BEST_SELLER: "/guest/#best-seller"
     },
     STAFF: {
         DASHBOARD: "/staff/dashboard",

@@ -90,7 +90,7 @@ const StaffOrderPage = () => {
                                 >
                                     <span className="text-3xl mb-2">{item.emoji}</span>
                                     <p className="font-medium text-sm text-white leading-snug">{item.name}</p>
-                                    <p className="text-sm font-semibold mt-1" style={{ color: "#fb923c" }}>{formatter.format(item.price)}</p>
+                                    <p className="text-sm font-semibold mt-1" style={{ color: "#fb923c" }}>{formatter.currency(item.price)}</p>
                                     {inCart && (
                                         <span className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white bg-orange-500">
                                             {inCart.quantity}

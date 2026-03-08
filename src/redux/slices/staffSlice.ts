@@ -1,10 +1,11 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ITable, IOrderResponse, OrderStatus } from '@/interfaces';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ITable, IOrderResponse, OrderStatus, IOrderFilter } from '@/interfaces';
 import {
     HiOutlineChartBar,
     HiOutlineClipboardDocumentList,
     HiOutlineCog6Tooth
 } from "react-icons/hi2";
+import { orders_services } from '@/services';
 
 // Định nghĩa các Tab dành cho nhân viên
 export const STAFF_TABS = [
@@ -29,7 +30,6 @@ export const STAFF_TABS = [
 export type StaffTab = typeof STAFF_TABS[number]['id'];
 
 interface IStaffState {
-    activeTab: StaffTab;
     selectedTableId: number | null;
     activeCategory: number | null;
     mergingMode: boolean;
@@ -41,7 +41,6 @@ interface IStaffState {
 }
 
 const initialState: IStaffState = {
-    activeTab: 'dashboard',
     selectedTableId: null,
     activeCategory: null,
     mergingMode: false,
@@ -52,7 +51,24 @@ const initialState: IStaffState = {
     error: ""
 };
 
-
+// const fetchOrders = createAsyncThunk<
+//     IOrderResponse[],
+//     IOrderFilter,
+//     { rejectValue: string }
+// >(
+//     'staff/fetchOrders',
+//     async (filter, { rejectWithValue }) => {
+//         try {
+//             const response = await orders_services.getOrders(filter || {})
+//             if (!response.success || !response.data) {
+//                 return rejectWithValue(response.message || 'Failed to fetch orders')
+//             }
+//             return response.data
+//         } catch (error: any) {
+//             return rejectWithValue(error.response?.data?.detail || 'Failed to fetch orders')
+//         }
+//     }
+// )
 
 export const staffSlice = createSlice({
     name: 'staff',
@@ -109,9 +125,26 @@ export const staffSlice = createSlice({
                 table.status = 'FREE'; // Khớp với TableStatus: "FREE" | "OCCUPIED" | "RESERVED"
             }
         }
+    },
+    extraReducers: (builder) => {
+        //     builder
+        //         .addCase(fetchOrders.pending, (state) => {
+        //             state.isLoading = true
+        //             state.error = ""
+        //         })
+        //         .addCase(fetchOrders.fulfilled, (state, action) => {
+        //             state.isLoading = false
+        //             state.orders = action.payload
+        //             state.error = ""
+        //         })
+        //         .addCase(fetchOrders.rejected, (state, action) => {
+        //             state.isLoading = false
+        //             state.error = action.payload || 'Failed to fetch orders'
+        //         })
     }
 });
 
+// export { fetchOrders }
 export const {
     setActiveTab,
     setTables,

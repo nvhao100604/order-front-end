@@ -9,31 +9,18 @@ import { useEnhancedAuth } from "@/hooks";
 import { formatter } from "@/utils";
 import { HiOutlineBell, HiOutlineXMark } from "react-icons/hi2";
 import { MdOutlineLogout, MdOutlineMenu } from "react-icons/md";
-import { LOGO_URL } from "@/config";
+import { LOGO_URL, ROUTES } from "@/config";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
-  const { orders, activeTab } = useAppSelector((state) => state.staff);
-  const { user, logout } = useEnhancedAuth();
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { orders } = useAppSelector((state) => state.staff)
+  const { user, logout } = useEnhancedAuth()
+  const pathname = usePathname()
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [showNotifPanel, setShowNotifPanel] = useState(false)
 
-  useEffect(() => {
-    STAFF_TABS.forEach((tab) => router.prefetch(`/staff/${tab.id}`));
-  }, [router]);
-
-  useEffect(() => {
-    const tabFromUrl = pathname.split("/").pop();
-    if (tabFromUrl && STAFF_TABS.some(t => t.id === tabFromUrl)) {
-      dispatch(setActiveTab(tabFromUrl as any));
-    }
-    setIsSidebarOpen(false);
-  }, [pathname, dispatch]);
-
-  const newOrderNotifs = orders.filter(o => o.status === "PENDING");
+  const activeTab = pathname.split("/").pop()
+  const newOrderNotifs = orders.filter(o => o.status === "PENDING")
 
   return (
     <div className="flex h-screen text-white font-sans overflow-hidden" style={{ background: "#1c1108" }}>
@@ -63,7 +50,7 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
           className="p-6 flex items-center justify-between"
           style={{ borderBottom: "1px solid rgba(212,175,120,0.1)", background: "rgba(0,0,0,0.15)" }}
         >
-          <Link href="/staff/dashboard" className="flex items-center gap-3 group">
+          <Link href={ROUTES.STAFF.DASHBOARD} className="flex items-center gap-3 group">
             <img
               src={LOGO_URL}
               alt="Logo"
@@ -152,14 +139,14 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
               <span className="font-medium hidden sm:inline" style={{ color: "rgba(255,255,255,0.35)" }}>Staff</span>
               <span className="hidden sm:inline" style={{ color: "rgba(255,255,255,0.15)" }}>/</span>
               <span
-                className="text-xs md:text-sm px-3 py-1.5 rounded-lg font-bold whitespace-nowrap"
+                className="text-xs md:text-sm px-3 py-1.5 rounded-lg font-bold whitespace-nowrap capitalize"
                 style={{
                   background: "rgba(232,93,26,0.15)",
                   color: "#e85d1a",
                   border: "1px solid rgba(232,93,26,0.25)",
                 }}
               >
-                {STAFF_TABS.find(t => t.id === activeTab)?.label || "Dashboard"}
+                {activeTab}
               </span>
             </div>
           </div>
@@ -223,7 +210,7 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
                         >
                           <p className="text-sm font-bold text-white">New Order #{order.id}</p>
                           <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                            {formatter.format(order.totalPrice)} • {order.details.length} items
+                            {formatter.currency(order.totalPrice)} • {order.details.length} items
                           </p>
                         </Link>
                       ))

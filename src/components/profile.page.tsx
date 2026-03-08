@@ -1,50 +1,52 @@
 "use client";
 
+import { defaultQuery, IOrderDetailResponse, OrderStatus, OrderStatusKey, OrderStatusMap } from "@/interfaces";
+import { useAppSelector } from "@/redux/hooks";
+import { orders_services } from "@/services";
 import { formatter } from "@/utils";
 import { useState } from "react";
+import { Header } from "./app";
+import { statusStyle } from "@/app/staff/manage/manage.component";
 
-const mockUser = {
-    name: "Nguyễn Minh Khoa",
-    email: "minhkhoa@email.com",
-    phone: "+84 901 234 567",
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=minhkhoa",
-    joinDate: "March 2022",
-    memberTier: "Gold Member",
-    points: 2840,
-    totalOrders: 47,
-    favoriteTable: "Table 12 – Garden View",
-    upcomingReservation: {
-        date: "Saturday, March 8, 2026",
-        time: "7:00 PM",
-        guests: 4,
-        table: "Garden View",
-    },
+const getStatusStyle = (status: OrderStatusKey) => {
+    return statusStyle[status] ?? statusStyle.PENDING;
 };
 
-const orderHistory = [
-    { id: "#ORD-2841", date: "Feb 28, 2026", items: ["Beef Teriyaki", "Miso Ramen", "Green Tea"], total: 485000, status: "Completed" },
-    { id: "#ORD-2790", date: "Feb 14, 2026", items: ["Sashimi Set", "Tempura Udon", "Sake"], total: 720000, status: "Completed" },
-    { id: "#ORD-2755", date: "Jan 30, 2026", items: ["Chef's Special Bento", "Matcha Latte"], total: 310000, status: "Completed" },
-    { id: "#ORD-2701", date: "Jan 12, 2026", items: ["Wagyu Steak", "Truffle Ramen", "Yuzu Dessert"], total: 1250000, status: "Completed" },
-];
-
-const favoriteItems = [
-    { name: "Wagyu Beef Teriyaki", category: "Main Course", price: 285000, emoji: "🥩" },
-    { name: "Truffle Miso Ramen", category: "Noodles", price: 195000, emoji: "🍜" },
-    { name: "Sashimi Premium Set", category: "Appetizer", price: 320000, emoji: "🐟" },
-    { name: "Matcha Tiramisu", category: "Dessert", price: 85000, emoji: "🍵" },
-];
-
-type Tab = "overview" | "orders" | "favorites" | "settings";
+type Tab = "overview" | "orders" | "settings";
 
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState<Tab>("overview");
     const [editMode, setEditMode] = useState(false);
+    const auth = useAppSelector(state => state.auth.user)
+
+    const { data } = orders_services.getOrdersSWR({
+        ...defaultQuery,
+        customerID: auth?.id,
+    }, { revalidateOnMount: true }) ?? []
+
+    const orderHistory = data?.data || []
+    const mockUser = {
+        name: auth?.name,
+        email: auth?.email,
+        phone: auth?.phoneNumber,
+        avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=minhkhoa",
+        joinDate: formatter.date(auth?.createdAt ?? ""),
+        memberTier: "Gold Member",
+        points: 2840,
+        totalOrders: orderHistory.length,
+        favoriteTable: "Table 12 – Garden View",
+        upcomingReservation: {
+            date: "Saturday, March 8, 2026",
+            time: "7:00 PM",
+            guests: 4,
+            table: "Garden View",
+        },
+    };
 
     const tabs: { id: Tab; label: string; icon: string }[] = [
         { id: "overview", label: "Overview", icon: "◈" },
         { id: "orders", label: "Order History", icon: "◎" },
-        { id: "favorites", label: "Favorites", icon: "◇" },
+        // { id: "favorites", label: "Favorites", icon: "◇" },
         { id: "settings", label: "Settings", icon: "◉" },
     ];
 
@@ -53,7 +55,7 @@ export default function ProfilePage() {
             className="min-h-screen"
             style={{
                 background: "linear-gradient(135deg, #faf6f0 0%, #f5ede0 40%, #ede0cc 100%)",
-                fontFamily: "'Georgia', 'Times New Roman', serif",
+                fontFamily: "'Plus Jakarta Sans'",
             }}
         >
             {/* Noise overlay */}
@@ -64,6 +66,8 @@ export default function ProfilePage() {
                 }}
             />
 
+            {/* Navbar */}
+            <Header />
             <div className="max-w-6xl mx-auto px-4 py-10 relative">
 
                 {/* Profile Hero */}
@@ -299,16 +303,24 @@ export default function ProfilePage() {
                                                 <span className="font-bold" style={{ color: "#4a3525" }}>{order.id}</span>
                                                 <span
                                                     className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                                    style={{ background: "#f0faf0", color: "#2d7a2d" }}
+                                                    style={{
+                                                        background: getStatusStyle(order.status).bg,
+                                                        color: getStatusStyle(order.status).color,
+                                                        border: getStatusStyle(order.status).border
+                                                    }}
                                                 >
                                                     {order.status}
                                                 </span>
                                             </div>
-                                            <p className="text-sm mb-1" style={{ color: "rgba(107,78,53,0.5)" }}>{order.date}</p>
-                                            <p className="text-sm" style={{ color: "#6b4e35" }}>{order.items.join(" · ")}</p>
+                                            <p className="text-sm mb-1" style={{ color: "rgba(107,78,53,0.5)" }}>
+                                                {formatter.time(order.createdAt)}, {formatter.date(order.createdAt)}
+                                            </p>
+                                            <p className="text-sm" style={{ color: "#6b4e35" }}>
+                                                {order.details.map((d: IOrderDetailResponse) => d.dish.name).join(" · ")}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            <p className="text-lg font-bold" style={{ color: "#4a3525" }}>{formatter.format(order.total)}</p>
+                                            <p className="text-lg font-bold" style={{ color: "#4a3525" }}>{formatter.currency(order.totalPrice)}</p>
                                             <button
                                                 className="opacity-0 group-hover:opacity-100 text-xs px-3 py-2 rounded-lg transition-all font-semibold"
                                                 style={{ background: "#f5ede0", color: "#6b4e35" }}
@@ -324,7 +336,7 @@ export default function ProfilePage() {
                 )}
 
                 {/* FAVORITES */}
-                {activeTab === "favorites" && (
+                {/* {activeTab === "favorites" && (
                     <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {favoriteItems.map((item) => (
                             <div
@@ -341,7 +353,7 @@ export default function ProfilePage() {
                                 <div className="flex-1">
                                     <h3 className="font-bold" style={{ color: "#4a3525" }}>{item.name}</h3>
                                     <p className="text-xs mt-0.5" style={{ color: "rgba(107,78,53,0.5)" }}>{item.category}</p>
-                                    <p className="text-sm font-semibold mt-1" style={{ color: "#d4af37" }}>{formatter.format(item.price)}</p>
+                                    <p className="text-sm font-semibold mt-1" style={{ color: "#d4af37" }}>{formatter.currency(item.price)}</p>
                                 </div>
                                 <button
                                     className="opacity-0 group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
@@ -352,7 +364,7 @@ export default function ProfilePage() {
                             </div>
                         ))}
                     </div>
-                )}
+                )} */}
 
                 {/* SETTINGS */}
                 {activeTab === "settings" && (

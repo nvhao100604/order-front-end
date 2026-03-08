@@ -1,11 +1,13 @@
 'use client'
 import { useAppSelector } from "@/redux/hooks"
 import formatter from './../../utils/formatter';
-import { useSubmitOrder } from "@/hooks";
+import { useRefresh, useSubmitOrder } from "@/hooks";
 import { useState } from "react";
 import { ICartItem, IOrderDetailBase, Total } from "@/interfaces";
 import { Modal } from "../app";
 import LoginModal from "../login/login.modal";
+import { ORDER_KEY } from "@/config";
+import { toast } from "react-toastify";
 
 const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
     return {
@@ -45,9 +47,9 @@ const CartDetail = () => {
     const filtered_dish = cart.filter(item => item.checked == true)
     const details = filtered_dish.map(convertItemToDetail)
 
-    const onCheckout = () => {
+    const onCheckout = async () => {
         if (auth.isAuthenticated && auth.user) {
-            placeOrder({
+            await placeOrder({
                 customerID: auth.user.id,
                 notes: "tình cha",
                 details: details,
@@ -56,6 +58,7 @@ const CartDetail = () => {
                 delivery: calculateTotal().delivery,
                 tax: calculateTotal().tax
             })
+            toast.success("Your order has been placed successfully!")
         } else {
             setIsOpen(true)
         }
@@ -66,19 +69,19 @@ const CartDetail = () => {
             <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>{formatter.format(calculateTotal().subtotal)}</span>
+                    <span>{formatter.currency(calculateTotal().subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                     <span>{`Tax (${taxNumber}%)`}</span>
-                    <span>{formatter.format(calculateTotal().tax)}</span>
+                    <span>{formatter.currency(calculateTotal().tax)}</span>
                 </div>
                 <div className="flex justify-between">
                     <span>Delivery</span>
-                    <span>{formatter.format(calculateTotal().delivery)}</span>
+                    <span>{formatter.currency(calculateTotal().delivery)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
                     <span>Total</span>
-                    <span>{formatter.format(calculateTotal().total)}</span>
+                    <span>{formatter.currency(calculateTotal().total)}</span>
                 </div>
                 <button
                     onClick={() => setShowConfirmModal(true)}
@@ -110,7 +113,7 @@ const CartDetail = () => {
                             ))}
                         </div>
                         <div className="text-md font-bold place-items-end mb-4 text-end">
-                            Total: {formatter.format(calculateTotal().total)}
+                            Total: {formatter.currency(calculateTotal().total)}
                         </div>
                         <div className="flex justify-end gap-4">
                             <button

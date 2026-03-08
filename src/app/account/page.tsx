@@ -1,11 +1,12 @@
 import { ProtectedRoute } from "@/components"
+import ProfilePage from "@/components/profile.page"
 import { PERMISSIONS } from "@/config"
 
 const Profile = () => {
     return (
         <>
             <ProtectedRoute requiredRoles={[...PERMISSIONS.AUTHENTICATED]}>
-                <div>My Profile</div>
+                <div><ProfilePage /></div>
             </ProtectedRoute>
         </>
     )

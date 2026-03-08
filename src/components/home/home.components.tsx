@@ -98,7 +98,7 @@ const MarqueeCard = ({ dish }: { dish: ICartItem }) => {
                     <div className="relative h-24 lg:h-48 overflow-hidden">
                         <img className="h-full w-full object-cover overflow-hidden animate-fadeIn" src={dish.imgUrl ?? BACKGROUND_URL} alt="quality-dishes" />
                         <div className="absolute top-2 left-2 lg:top-4 lg:left-4 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
-                            <span className="text-lg font-bold text-orange-600">{formatter.format(dish.price)}</span>
+                            <span className="text-lg font-bold text-orange-600">{formatter.currency(dish.price)}</span>
                         </div>
                         <button
                             onClick={(e) => {

@@ -52,12 +52,27 @@ export const tempCartItem: ICartItem = {
 }
 
 // TABLE
-export interface ITable {
-    id: number;
+export interface ITableBase {
     number: number;
     minCapacity: number;
     maxCapacity: number;
     status: TableStatus;
+}
+
+export interface ITableResponse extends ITableBase {
+    id: number;
+}
+
+export interface ITableUpdate {
+    number?: number;
+    minCapacity?: number;
+    maxCapacity?: number;
+    status?: TableStatus;
+}
+
+export interface ITableFilter extends ITableUpdate {
+    customer_search?: string;
+    staff_search?: string;
 }
 
 // ORDER
@@ -120,13 +135,14 @@ export interface Total {
 }
 
 export interface IOrderFilter {
-    dateOrder?: string;
     status?: OrderStatus;
     min_price?: number;
     max_price?: number;
     staffID?: number;
     customerID?: number;
     tableID?: number;
+    start_date?: string;
+    end_date?: string;
 }
 
 export const tempOrder: IOrder = {

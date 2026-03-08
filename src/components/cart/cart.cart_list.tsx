@@ -46,7 +46,7 @@ const CardItem = ({ item, setSelectedDishToRemove }
             />
             <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-gray-600">{formatter.format(item.price)}</p>
+                <p className="text-gray-600">{formatter.currency(item.price)}</p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
                 <button

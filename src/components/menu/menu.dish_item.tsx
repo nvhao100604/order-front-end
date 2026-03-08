@@ -45,7 +45,7 @@ const DishItem = ({ dish, onClick, addToCart }:
 
                 <div className="flex justify-between items-end mt-auto pt-2 border-t border-gray-100/80">
                     <span className="text-base md:text-lg font-bold text-orange-600 pb-0.5 md:pb-1">
-                        {formatter.format(dish.price)}
+                        {formatter.currency(dish.price)}
                     </span>
 
                     <div
