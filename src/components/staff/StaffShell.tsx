@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { setActiveTab, STAFF_TABS } from "@/redux/slices/staffSlice";
+import { STAFF_TABS } from "@/redux/slices/staffSlice";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEnhancedAuth } from "@/hooks";

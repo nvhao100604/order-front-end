@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ITable, IOrderResponse, OrderStatus, IOrderFilter } from '@/interfaces';
+import { IOrderResponse, OrderStatus, IOrderFilter, ITableResponse } from '@/interfaces';
 import {
     HiOutlineChartBar,
     HiOutlineClipboardDocumentList,
@@ -34,7 +34,7 @@ interface IStaffState {
     activeCategory: number | null;
     mergingMode: boolean;
     mergeSourceId: number | null;
-    tables: ITable[];
+    tables: ITableResponse[];
     orders: IOrderResponse[];
     isLoading: boolean;
     error: string;
@@ -74,13 +74,8 @@ export const staffSlice = createSlice({
     name: 'staff',
     initialState,
     reducers: {
-        // Thay đổi Tab hiện tại trên giao diện nhân viên
-        setActiveTab: (state, action: PayloadAction<StaffTab>) => {
-            state.activeTab = action.payload;
-        },
-
         // Cập nhật danh sách bàn từ API
-        setTables: (state, action: PayloadAction<ITable[]>) => {
+        setTables: (state, action: PayloadAction<ITableResponse[]>) => {
             state.tables = action.payload;
         },
 
@@ -146,7 +141,6 @@ export const staffSlice = createSlice({
 
 // export { fetchOrders }
 export const {
-    setActiveTab,
     setTables,
     setSelectedTableId,
     toggleMergingMode,
