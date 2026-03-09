@@ -3,7 +3,6 @@
 > **A high-performance and responsive food ordering system developed with Next.js 15, utilizing modern state management and real-time data fetching mechanisms.**
 
 ---
-
 ## Preview
 <div>
     <img src="images/home_page.png" alt="Home page screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
@@ -86,7 +85,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the result in your b
 
 ## 🌐 Live Demo
 👉 [Experience the live application here](https://order-vh.vercel.app)
-
+- Live Documentation: [Documentation](https://order-fast-api.vercel.app)
 ## Contact
 - Author: Nguyễn Vũ Hào
 
