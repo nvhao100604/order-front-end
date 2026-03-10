@@ -12,6 +12,8 @@ const StaffManagePage = () => {
     const refresh = useRefresh()
     const { data } = orders_services.getOrdersSWR(query)
     const orders = data?.data || []
+    const currentPage = query.page ?? 1
+    const totalPages = Math.ceil((data?.meta?.total ?? 1) / (data?.meta?.limit ?? 1))
 
     const [showFilter, setShowFilter] = useState(false)
     const panelRef = useRef<HTMLDivElement>(null)
@@ -45,6 +47,12 @@ const StaffManagePage = () => {
         }
     }
 
+    const setPage = (newPage: number) => {
+        updateQuery({
+            ...query,
+            page: newPage
+        })
+    }
 
     return (
         <main className="max-w-5xl w-full" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
@@ -125,7 +133,96 @@ const StaffManagePage = () => {
                     </div>
                 )}
             </div>
-        </main>
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 px-1">
+                    {/* Info */}
+                    <p className="text-xs" style={{ color: "#a08060" }}>
+                        Page <span className="font-semibold" style={{ color: "#4a3525" }}>{currentPage}</span> of{" "}
+                        <span className="font-semibold" style={{ color: "#4a3525" }}>{totalPages}</span>
+                    </p>
+
+                    {/* Controls */}
+                    <div className="flex items-center gap-1">
+                        {/* First */}
+                        <button
+                            onClick={() => setPage(1)}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
+                            style={{ background: "#f5ede0", color: "#6b4e35" }}
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" />
+                            </svg>
+                        </button>
+
+                        {/* Prev */}
+                        <button
+                            onClick={() => setPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
+                            style={{ background: "#f5ede0", color: "#6b4e35" }}
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                        </button>
+
+                        {/* Page numbers */}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                            .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...")
+                                acc.push(p)
+                                return acc
+                            }, [])
+                            .map((p, i) =>
+                                p === "..." ? (
+                                    <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-xs"
+                                        style={{ color: "#a08060" }}>…</span>
+                                ) : (
+                                    <button
+                                        key={p}
+                                        onClick={() => setPage(p as number)}
+                                        className="w-8 h-8 rounded-lg text-xs font-semibold transition-all"
+                                        style={{
+                                            background: currentPage === p ? "#e85d1a" : "#f5ede0",
+                                            color: currentPage === p ? "white" : "#6b4e35",
+                                            boxShadow: currentPage === p ? "0 2px 8px rgba(232,93,26,0.3)" : "none",
+                                        }}
+                                    >
+                                        {p}
+                                    </button>
+                                )
+                            )
+                        }
+
+                        {/* Next */}
+                        <button
+                            onClick={() => setPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
+                            style={{ background: "#f5ede0", color: "#6b4e35" }}
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </button>
+
+                        {/* Last */}
+                        <button
+                            onClick={() => setPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
+                            style={{ background: "#f5ede0", color: "#6b4e35" }}
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
+        </main >
     )
 }
 

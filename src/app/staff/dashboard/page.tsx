@@ -1,29 +1,33 @@
 'use client'
 
-import { useAppSelector } from "@/redux/hooks"
 import { useAuth } from '@/hooks'
 import { formatter } from "@/utils"
+import { dashboard_services } from "@/services/dashboard.services";
 
 const DashboardContent = () => {
     const { user, logout } = useAuth()
-    const { tables, orders } = useAppSelector((state) => state.staff)
+    const tables_data = dashboard_services.getDashboardTablesSWR()
+    const orders_data = dashboard_services.getDashboardOrdersSWR()
 
+    const orders = orders_data.data?.data ?? []
+    const tables = tables_data.data?.data ?? []
     // Derived stats from Redux state
     const totalRevenue = orders
         .filter((o) => o.status === "COMPLETED")
         .reduce((s, o) => s + o.totalPrice, 0)
+
     const todayOrders = orders.length
     const pendingOrders = orders.filter((o) => o.status === "PENDING").length
     const occupiedTables = tables.filter((t) => t.status === "OCCUPIED").length
-    // const availableTables = tables.filter((t) => t.status === "AVAILABLE").length
+    const availableTables = tables.filter((t) => t.status === "EMPTY").length
     const reservedTables = tables.filter((t) => t.status === "RESERVED").length
 
     // Top dishes derived from order items
     const dishCountMap: Record<string, number> = {}
     orders.forEach((o) => {
-        // o.details?.forEach((item: { name: string; quantity: number }) => {
-        //     dishCountMap[item.name] = (dishCountMap[item.name] ?? 0) + item.quantity
-        // })
+        o.details?.forEach(detail => {
+            dishCountMap[detail.dish.name] = (dishCountMap[detail.dish.name] ?? 0) + detail.quantity
+        })
     })
     const topDishes = Object.entries(dishCountMap)
         .sort((a, b) => b[1] - a[1])
@@ -46,7 +50,7 @@ const DashboardContent = () => {
         {
             label: "Tables In Use",
             value: `${occupiedTables}/${tables.length}`,
-            // sub: `${availableTables} available`,
+            sub: `${availableTables} available`,
             icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
@@ -142,7 +146,7 @@ const DashboardContent = () => {
                         <h3 className="text-sm font-bold mb-4" style={{ color: '#4a3525' }}>TABLE STATUS</h3>
                         <div className="space-y-2">
                             {[
-                                // { label: 'Available', value: availableTables, color: '#2d7a2d', bg: '#f0faf0' },
+                                { label: 'Available', value: availableTables, color: '#2d7a2d', bg: '#f0faf0' },
                                 { label: 'Occupied', value: occupiedTables, color: '#c0622a', bg: '#fef3e2' },
                                 { label: 'Reserved', value: reservedTables, color: '#6b4e35', bg: '#faf6f0' },
                             ].map(t => (

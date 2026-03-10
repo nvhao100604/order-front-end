@@ -1,4 +1,4 @@
-export type TableStatus = "FREE" | "OCCUPIED" | "RESERVED" | "DELETED";
+export type TableStatus = "EMPTY" | "OCCUPIED" | "RESERVED" | "DELETED";
 
 export type OrderStatus =
     | "PENDING"

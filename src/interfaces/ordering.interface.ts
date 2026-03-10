@@ -143,6 +143,8 @@ export interface IOrderFilter {
     tableID?: number;
     start_date?: string;
     end_date?: string;
+    customer_name?: string;
+    staff_name?: string;
 }
 
 export const tempOrder: IOrder = {

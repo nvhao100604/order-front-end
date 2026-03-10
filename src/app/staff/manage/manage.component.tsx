@@ -49,14 +49,12 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
                             style={{ background: "#faf0e0", color: "#8b6b4a", border: "1px solid #dcc9b0" }}>
                             Table {order.tableID}
                         </span>
-                    )
-                        :
+                    ) : (
                         <span className="text-xs px-2 py-0.5 rounded-md font-medium text-green-500"
                             style={{ background: "#faf0e0", border: "1px solid #dcc9b0" }}>
                             Online
                         </span>
-                    }
-                    {/* Status badge */}
+                    )}
                     <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
                         style={{ background: sty.bg, color: sty.color, border: `1px solid ${sty.border}` }}>
                         {OrderStatusMap[status]}
@@ -66,6 +64,16 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
                     {formatter.currency(order.totalPrice)}
                 </span>
             </div>
+
+            {/* Date */}
+            {order.createdAt && (
+                <p className="text-xs mb-3" style={{ color: "rgba(107,78,53,0.45)" }}>
+                    🕐 {new Date(order.createdAt).toLocaleString("vi-VN", {
+                        day: "2-digit", month: "2-digit", year: "numeric",
+                        hour: "2-digit", minute: "2-digit",
+                    })}
+                </p>
+            )}
 
             {/* Order items */}
             {order.details && order.details.length > 0 && (
@@ -84,17 +92,14 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
 
             {/* Actions row */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
-                {/* Status selector */}
                 <div className="relative flex-shrink-0">
                     <select
                         value={status}
                         onChange={e => updateStatus(order.id, e.target.value as OrderStatus)}
                         className="appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all hover:opacity-90"
                         style={{
-                            background: sty.bg,
-                            color: sty.color,
-                            border: `1.5px solid ${sty.border}`,
-                            outline: "none",
+                            background: sty.bg, color: sty.color,
+                            border: `1.5px solid ${sty.border}`, outline: "none",
                             fontFamily: "'Inter', system-ui, sans-serif",
                         }}
                     >
@@ -102,18 +107,14 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
                             <option key={key} value={key}>{OrderStatusMap[key]}</option>
                         ))}
                     </select>
-                    {/* Chevron icon */}
-                    <svg
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                    <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
                         width="10" height="10" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                        style={{ color: sty.color }}
-                    >
+                        style={{ color: sty.color }}>
                         <polyline points="6 9 12 15 18 9" />
                     </svg>
                 </div>
 
-                {/* Process payment button (only when COMPLETED) */}
                 {status === "COMPLETED" && (
                     <button onClick={() => finalizeCheckout(order.tableID || 0)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80 text-white"
@@ -177,29 +178,21 @@ const FilterPanel = ({ query, updateQuery, resetQuery, onClose }: FilterPanelPro
                 </div>
             </div>
 
-            {/* Table ID */}
-            {/* <div>
-                <label style={labelStyle}>Table</label>
-                <input type="number" placeholder="Table number" value={query.tableID ?? ""}
-                    onChange={e => updateQuery({ tableID: e.target.value ? Number(e.target.value) : undefined })}
+            {/* Customer name */}
+            <div>
+                <label style={labelStyle}>Customer Name</label>
+                <input type="text" placeholder="Search by customer name" value={query.customer_name ?? ""}
+                    onChange={e => updateQuery({ customer_name: e.target.value || undefined })}
                     style={inputStyle} />
-            </div> */}
+            </div>
 
-            {/* Staff ID */}
-            {/* <div>
-                <label style={labelStyle}>Staff ID</label>
-                <input type="number" placeholder="Staff ID" value={query.staffID ?? ""}
-                    onChange={e => updateQuery({ staffID: e.target.value ? Number(e.target.value) : undefined })}
+            {/* Staff name */}
+            <div>
+                <label style={labelStyle}>Staff Name</label>
+                <input type="text" placeholder="Search by staff name" value={query.staff_name ?? ""}
+                    onChange={e => updateQuery({ staff_name: e.target.value || undefined })}
                     style={inputStyle} />
-            </div> */}
-
-            {/* Customer ID */}
-            {/* <div>
-                <label style={labelStyle}>Customer ID</label>
-                <input type="number" placeholder="Customer ID" value={query.customerID ?? ""}
-                    onChange={e => updateQuery({ customerID: e.target.value ? Number(e.target.value) : undefined })}
-                    style={inputStyle} />
-            </div> */}
+            </div>
 
             {/* Date range */}
             <div>
