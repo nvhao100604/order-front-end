@@ -4,6 +4,8 @@
 
 ---
 
+- Live Documentation: https://order-fast-api.vercel.app/
+
 ## Preview
 <div>
     <img src="images/home_page.png" alt="Home page screenshot" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />

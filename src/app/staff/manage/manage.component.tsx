@@ -178,28 +178,28 @@ const FilterPanel = ({ query, updateQuery, resetQuery, onClose }: FilterPanelPro
             </div>
 
             {/* Table ID */}
-            <div>
+            {/* <div>
                 <label style={labelStyle}>Table</label>
                 <input type="number" placeholder="Table number" value={query.tableID ?? ""}
                     onChange={e => updateQuery({ tableID: e.target.value ? Number(e.target.value) : undefined })}
                     style={inputStyle} />
-            </div>
+            </div> */}
 
             {/* Staff ID */}
-            <div>
+            {/* <div>
                 <label style={labelStyle}>Staff ID</label>
                 <input type="number" placeholder="Staff ID" value={query.staffID ?? ""}
                     onChange={e => updateQuery({ staffID: e.target.value ? Number(e.target.value) : undefined })}
                     style={inputStyle} />
-            </div>
+            </div> */}
 
             {/* Customer ID */}
-            <div>
+            {/* <div>
                 <label style={labelStyle}>Customer ID</label>
                 <input type="number" placeholder="Customer ID" value={query.customerID ?? ""}
                     onChange={e => updateQuery({ customerID: e.target.value ? Number(e.target.value) : undefined })}
                     style={inputStyle} />
-            </div>
+            </div> */}
 
             {/* Date range */}
             <div>

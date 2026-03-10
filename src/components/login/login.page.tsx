@@ -3,32 +3,26 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks'
-import { LOGO_URL, ROLES, ROUTES } from '@/config'
-import Link from 'next/link'
-import { useAppSelector } from '@/redux/hooks'
-import { checkRole } from '@/utils'
+import { LOGO_URL, ROUTES } from '@/config'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const { login, isLoading, error, isAuthenticated } = useAuth()
-    const user = useAppSelector(state => state.auth.user)
     const router = useRouter()
 
     useEffect(() => {
-        if (isAuthenticated && user && user.roleID) {
-            // console.log("Role id: " + user.roleID)
-            checkRole(user.roleID, router)
+        if (isAuthenticated) {
+            router.push(ROUTES.GUEST.HOME)
         }
     }, [isAuthenticated, router])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         const success = await login({ username: email, password })
-        // if (success.access_token && user && user.roleID) {
-        //     // console.log("Role id: " + user.roleID)
-        //     checkRole(user.roleID, router)
-        // }
+        if (success.access_token) {
+            router.push(ROUTES.GUEST.HOME)
+        }
     }
 
     if (isAuthenticated) return null
@@ -50,10 +44,11 @@ const LoginPage = () => {
             />
 
             <div
-                className="relative w-full max-w-md rounded-2xl overflow-hidden animate-slide-up"
+                className="relative w-full max-w-md rounded-2xl overflow-hidden"
                 style={{
                     background: "white",
                     boxShadow: "0 20px 60px rgba(74,53,37,0.18)",
+                    animation: "slideUp 0.4s ease both",
                 }}
             >
                 {/* Top gradient bar */}
@@ -69,7 +64,6 @@ const LoginPage = () => {
                         className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg"
                         style={{ background: "linear-gradient(135deg, #8b6b4a, #6b4e35)" }}
                     />
-
                     <h2 className="text-2xl font-bold mb-1" style={{ color: "#4a3525" }}>
                         Welcome Back
                     </h2>
@@ -91,6 +85,34 @@ const LoginPage = () => {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
+
+                        {/* Test accounts */}
+                        <div
+                            className="rounded-xl p-3"
+                            style={{ background: "#faf6f0", border: "1px solid #e8d5b8" }}
+                        >
+                            <p className="text-xs font-bold tracking-wider mb-2.5" style={{ color: "rgba(107,78,53,0.45)" }}>
+                                🧪 TEST ACCOUNTS
+                            </p>
+                            <div className="flex gap-2">
+                                {[
+                                    { label: "User", username: "nguyenbibi", password: "123456", color: "#e85d1a" },
+                                    { label: "Staff", username: "nguyenvana", password: "123456", color: "#1e4fa3" },
+                                ].map(acc => (
+                                    <button
+                                        key={acc.label}
+                                        type="button"
+                                        onClick={() => { setEmail(acc.username); setPassword(acc.password) }}
+                                        className="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
+                                        style={{ background: acc.color, color: "white" }}
+                                    >
+                                        {acc.label}
+                                        <span className="block font-normal opacity-80 mt-0.5">{acc.username}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Username */}
                         <div>
                             <label
@@ -127,16 +149,12 @@ const LoginPage = () => {
                                 >
                                     PASSWORD
                                 </label>
-                                <Link
-                                    href={ROUTES.AUTH.FORGOT_PASSWORD}
-                                    className="text-xs hover:underline" style={{ color: "#c0622a" }}>
+                                <a href="#" className="text-xs hover:underline" style={{ color: "#c0622a" }}>
                                     Forgot password?
-                                </Link>
+                                </a>
                             </div>
                             <input
                                 type="password"
-                                id="user-password"
-                                name="user-password"
                                 value={password}
                                 autoComplete="current-password"
                                 onChange={(e) => setPassword(e.target.value)}
@@ -177,29 +195,24 @@ const LoginPage = () => {
                                 'Sign In'
                             )}
                         </button>
-                        <Link
-                            href={ROUTES.GUEST.HOME}
-                            className="flex items-center justify-center gap-2 w-full mt-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
-                            style={{ background: '#faf6f0', color: '#6b4e35', border: '1.5px solid #dcc9b0' }}
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                <polyline points="9 22 9 12 15 12 15 22" />
-                            </svg>
-                            Back to Home
-                        </Link>
                     </form>
 
                     {/* Footer */}
                     <p className="text-center text-xs mt-6" style={{ color: "#a08060" }}>
                         Don't have an account?{" "}
-                        <Link href={ROUTES.AUTH.REGISTER}
-                            className="font-semibold hover:underline" style={{ color: "#c0622a" }}>
+                        <a href="#" className="font-semibold hover:underline" style={{ color: "#c0622a" }}>
                             Register here
-                        </Link>
+                        </a>
                     </p>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </div>
     )
 }
