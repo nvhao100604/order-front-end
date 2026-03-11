@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+Yimport { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IOrderResponse, OrderStatus, IOrderFilter, ITableResponse } from '@/interfaces';
 import {
     HiOutlineChartBar,
@@ -117,7 +117,7 @@ export const staffSlice = createSlice({
         clearTableAfterCheckout: (state, action: PayloadAction<number>) => {
             const table = state.tables.find(t => t.id === action.payload);
             if (table) {
-                table.status = 'FREE'; // Khớp với TableStatus: "FREE" | "OCCUPIED" | "RESERVED"
+                table.status = 'EMPTY'; // Khớp với TableStatus: "FREE" | "OCCUPIED" | "RESERVED"
             }
         }
     },
