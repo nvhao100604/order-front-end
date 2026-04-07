@@ -1,5 +1,5 @@
 import { ICart, ICartItem, ICartState, IDish, IOrderCreate, IOrderResponse } from '@/interfaces'
-import { orders_services } from '@/services/order.services'
+import { postOrder } from '@/services/order.services'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
@@ -24,8 +24,9 @@ const placeOrder = createAsyncThunk<
     { rejectValue: string }
 >("order/placeOrder",
     async (order: IOrderCreate, { rejectWithValue }) => {
+
         try {
-            const response = await orders_services.postOrder(order)
+            const response = await postOrder(order)
             console.log("response: ", response)
             if (response.success && response.data) {
                 console.log("Success")
@@ -34,8 +35,11 @@ const placeOrder = createAsyncThunk<
             return rejectWithValue(response.message || "Order' data is incorrect.")
 
         } catch (error: any) {
+            console.error("API Error: ", error.response?.data);
             return rejectWithValue(
-                error.response?.message || "Place Order failed."
+                error.response?.data?.detail ||
+                error.response?.data?.message ||
+                "Place Order failed."
             )
         }
     })
