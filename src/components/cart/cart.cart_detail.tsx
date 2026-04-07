@@ -57,7 +57,7 @@ const CartDetail = () => {
                 delivery: calculateTotal().delivery,
                 tax: calculateTotal().tax
             })
-            toast.success("Your order has been placed successfully!")
+            // toast.success("Your order has been placed successfully!")
         } else {
             setIsOpen(true)
         }

@@ -27,8 +27,8 @@ const getOrder = (id: number, option?: object) => {
     return { data, isLoading, error }
 }
 
-const postOrder = async (order: IOrderCreate, option?: object) => {
-    const response = await api.post(ORDER_KEY, order, option)
+const postOrder = async (order: IOrderCreate, option?: object): Promise<IResponse<IOrderResponse>> => {
+    const response = await api.post<IResponse<IOrderResponse>>(ORDER_KEY, order, option)
 
     return response.data
 }

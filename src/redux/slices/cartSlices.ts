@@ -26,11 +26,12 @@ const placeOrder = createAsyncThunk<
     async (order: IOrderCreate, { rejectWithValue }) => {
         try {
             const response = await orders_services.postOrder(order)
-            console.log(response)
-            if (response.success) {
+            console.log("response: ", response)
+            if (response.success && response.data) {
+                console.log("Success")
                 return response.data
             }
-            return null
+            return rejectWithValue(response.message || "Order' data is incorrect.")
 
         } catch (error: any) {
             return rejectWithValue(
