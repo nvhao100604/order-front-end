@@ -1,4 +1,4 @@
-import { ROUTES } from "@/config";
+import { ROUTES } from "@/config/constants/route";
 import Link from "next/link";
 
 export default function LoginModal(

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { store } from '@/redux/store';
 import { refreshToken, logout } from '@/redux/slices/authSlices';
-import { BASE_SERVER_URL } from '@/config/constants';
+import { BASE_SERVER_URL } from '@/config/constants/api';
 
 const api = axios.create({
     baseURL: BASE_SERVER_URL,

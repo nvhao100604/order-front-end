@@ -1,6 +1,6 @@
 "use client";
 
-import { IS_AUTHENTICATED_KEY, ROUTES } from "@/config";
+import { IS_AUTHENTICATED_KEY } from "@/config/constants/storage";
 import { useAuth, useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

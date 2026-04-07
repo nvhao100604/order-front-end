@@ -1,5 +1,5 @@
-import { AUTH_KEY } from "@/config"
 import api from "@/config/api/axios"
+import { AUTH_KEY } from "@/config/constants/api"
 import {
     IResponse,
     LoginCredentials,

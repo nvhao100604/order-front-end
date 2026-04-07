@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { LOGO_URL, ROUTES } from '@/config'
 import Link from 'next/link'
+import { LOGO_URL } from '@/config/constants/public'
+import { ROUTES } from '@/config/constants/route'
 
 type Step = 'email' | 'otp' | 'reset' | 'done'
 

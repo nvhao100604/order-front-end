@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef } from "react";
 import { useSWRConfig } from "swr";
-import { DASHBOARD_ORDERS_KEY } from "@/config";
+import { DASHBOARD_ORDERS_KEY } from "@/config/constants/api";
 import { toast } from "react-toastify";
 import { store } from "@/redux/store";
 

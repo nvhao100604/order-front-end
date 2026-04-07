@@ -2,11 +2,11 @@
 import { defaultQuery, IOrderFilter, OrderStatus } from "@/interfaces";
 import { useState, useRef, useEffect } from "react";
 import { FilterPanel, OrderItem } from "./manage.component";
-import { ORDER_KEY } from "@/config";
 import useQuery from "@/hooks/useQuery";
 import { useTableCheckout } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
 import useRefresh from "@/hooks/useRefresh";
 import { orders_services } from "@/services/order.services";
+import { ORDER_KEY } from "@/config/constants/api";
 
 const StaffManagePage = () => {
     const [query, updateQuery, resetQuery] = useQuery(defaultQuery)

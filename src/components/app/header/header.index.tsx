@@ -1,5 +1,5 @@
 'use client'
-import { LOGO_URL } from "@/config"
+import { LOGO_URL } from "@/config/constants/public"
 import { ROUTES } from "@/config/constants/route"
 import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks"
 import Link from "next/link"

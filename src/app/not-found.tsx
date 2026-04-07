@@ -1,4 +1,5 @@
-import { NOT_FOUND_IMAGE, ROUTES } from "@/config"
+import { NOT_FOUND_IMAGE } from "@/config/constants/public"
+import { ROUTES } from "@/config/constants/route"
 import Link from "next/link"
 import React, { ReactElement } from "react"
 import { FaHome, FaUtensils, FaBookOpen, FaPhoneAlt } from "react-icons/fa"

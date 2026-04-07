@@ -1,5 +1,5 @@
 'use client'
-import { BACKGROUND_URL, RESTAURANT_1, RESTAURANT_2, RESTAURANT_3, RESTAURANT_4 } from "@/config"
+import { BACKGROUND_URL, RESTAURANT_1, RESTAURANT_2, RESTAURANT_3, RESTAURANT_4 } from "@/config/constants/public"
 import Link from "next/link"
 import Marquee from "../animata/container/marquee"
 import { defaultQuery, ICartItem, IDish, Query } from "@/interfaces"

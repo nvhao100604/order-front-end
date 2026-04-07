@@ -1,4 +1,4 @@
-import { DASHBOARD_KEY } from "@/config";
+import { DASHBOARD_KEY } from "@/config/constants/api";
 import { Query } from '../interfaces/query.interface';
 import { IOrderResponse, ITableResponse, IResponse } from "@/interfaces";
 import api from "@/config/api/axios";

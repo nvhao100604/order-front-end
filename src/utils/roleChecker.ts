@@ -1,4 +1,5 @@
-import { ROLES, ROUTES } from "@/config"
+import { ROLES } from "@/config/constants/auth"
+import { ROUTES } from "@/config/constants/route"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 const checkRole = (roleId: number, router: AppRouterInstance) => {

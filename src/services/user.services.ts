@@ -1,4 +1,4 @@
-import { USER_KEY } from "@/config"
+import { USER_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
 import { IResponse } from "@/interfaces"
 import { UserResponse } from "@/interfaces/user.interface"

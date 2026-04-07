@@ -1,5 +1,5 @@
 
-import { TABLE_KEY } from "@/config"
+import { TABLE_KEY } from "@/config/constants/api"
 import { Query } from '../interfaces/query.interface';
 import { ITableFilter, ITableResponse, IResponse, ITableUpdate, TableStatus } from "@/interfaces";
 import api from "@/config/api/axios";

@@ -1,4 +1,4 @@
-import { DISH_KEY } from "@/config"
+import { DISH_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
 import useFetchSWR from "@/hooks/useFetchSWR"
 import { IDish, IResponse, Query } from "@/interfaces"

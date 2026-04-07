@@ -1,4 +1,4 @@
-import { CATEGORY_KEY } from "@/config"
+import { CATEGORY_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
 import useFetchSWR from "@/hooks/useFetchSWR"
 

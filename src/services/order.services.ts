@@ -1,4 +1,4 @@
-import { ORDER_KEY } from "@/config"
+import { ORDER_KEY } from "@/config/constants/api"
 import { Query } from '../interfaces/query.interface';
 import { IOrderCreate, IOrderFilter, IOrderResponse, IResponse, OrderStatus } from "@/interfaces";
 import api from "@/config/api/axios";

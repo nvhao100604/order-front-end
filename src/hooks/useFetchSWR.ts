@@ -1,5 +1,5 @@
 'use client'
-import { REFRESH_INTERVAL } from "@/config";
+import { REFRESH_INTERVAL } from "@/config/constants/api";
 import { Query } from "@/interfaces";
 import { convertToParams } from "@/utils";
 import useSWR from "swr";
