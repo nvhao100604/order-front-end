@@ -1,15 +1,7 @@
 import { DISH_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
-import useFetchSWR from "@/hooks/useFetchSWR"
 import { IDish, IResponse, Query } from "@/interfaces"
 import { convertToParams } from "@/utils"
-import { SWRResponse } from "swr"
-
-const getDishesSWR = (query: Query, config?: object): SWRResponse<IResponse<IDish[]>> => {
-    const { data, ...rest } = useFetchSWR(`${DISH_KEY}`, query, config)
-    // console.log("data: ", data)
-    return { data: data as IResponse<IDish[]>, ...rest }
-}
 
 const getDishes = async (query: Query, config?: object): Promise<IResponse<IDish[]>> => {
     const params = convertToParams(query)
@@ -40,7 +32,6 @@ const getDishes = async (query: Query, config?: object): Promise<IResponse<IDish
 // const mutateDishes = () => mutate(`${DISH_KEY}`)
 
 export const dishes_services = {
-    getDishesSWR,
     getDishes,
     // getDishSearch,
     // createDish,

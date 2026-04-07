@@ -5,8 +5,7 @@ import { IDish } from "@/interfaces"
 import { defaultQuery, Query } from "@/interfaces/query.interface"
 import { useAppSelector } from "@/redux/hooks"
 import { useEffect, useState } from "react"
-import { dishes_services } from '../../../services/dish.services';
-import LoginModal from "@/components/login/login.modal"
+import { getDishesSWR } from "@/hooks/useDishes"
 
 const Menu = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -19,7 +18,7 @@ const Menu = () => {
             categoryID: -1,
         }
     )
-    const { data, isLoading } = dishes_services.getDishesSWR(query)
+    const { data, isLoading } = getDishesSWR(query)
     const dishes = data?.data
     const meta = data?.meta
 

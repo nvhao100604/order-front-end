@@ -1,12 +1,12 @@
 "use client";
 
-import { defaultQuery, IOrderDetailResponse, OrderStatus, OrderStatusKey, OrderStatusMap } from "@/interfaces";
+import { defaultQuery, IOrderDetailResponse, OrderStatusKey } from "@/interfaces";
 import { useAppSelector } from "@/redux/hooks";
 import { formatter } from "@/utils";
 import { useState } from "react";
 import { Header } from "./app";
 import { statusStyle } from "@/app/staff/manage/manage.component";
-import { orders_services } from "@/services/order.services";
+import { useGetOrders } from "@/hooks/useOrder";
 
 const getStatusStyle = (status: OrderStatusKey) => {
     return statusStyle[status] ?? statusStyle.PENDING;
@@ -19,7 +19,7 @@ export default function ProfilePage() {
     const [editMode, setEditMode] = useState(false);
     const auth = useAppSelector(state => state.auth.user)
 
-    const { data } = orders_services.getOrdersSWR({
+    const { data } = useGetOrders({
         ...defaultQuery,
         customerID: auth?.id,
     }, { revalidateOnMount: true }) ?? []

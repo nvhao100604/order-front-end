@@ -13,11 +13,12 @@ import useOrderWebSocket from "@/hooks/useOrderWebSocket";
 import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { ROUTES } from "@/config/constants/route";
 import { LOGO_URL } from "@/config/constants/public";
+import { getDashboardOrdersSWR } from "@/hooks/useDashboard";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   useOrderWebSocket()
 
-  const orders_data = dashboard_services.getDashboardOrdersSWR()
+  const orders_data = getDashboardOrdersSWR()
   const orders = orders_data.data?.data ?? []
   const { user, logout } = useEnhancedAuth()
   const pathname = usePathname()

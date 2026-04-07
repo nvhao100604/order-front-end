@@ -39,6 +39,7 @@ const placeOrder = createAsyncThunk<
             )
         }
     })
+
 export const cartSlice = createSlice({
     name: 'cart',
     initialState,

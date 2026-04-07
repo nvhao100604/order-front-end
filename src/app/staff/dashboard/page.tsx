@@ -1,13 +1,13 @@
 'use client'
 
 import { formatter } from "@/utils"
-import { dashboard_services } from "@/services/dashboard.services";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
+import { getDashboardOrdersSWR, getDashboardTablesSWR } from "@/hooks/useDashboard";
 
 const DashboardContent = () => {
     const { user, logout } = useAuth()
-    const tables_data = dashboard_services.getDashboardTablesSWR()
-    const orders_data = dashboard_services.getDashboardOrdersSWR()
+    const tables_data = getDashboardTablesSWR()
+    const orders_data = getDashboardOrdersSWR()
 
     const orders = orders_data.data?.data ?? []
     const tables = tables_data.data?.data ?? []

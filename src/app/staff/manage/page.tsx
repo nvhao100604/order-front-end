@@ -7,12 +7,13 @@ import { useTableCheckout } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
 import useRefresh from "@/hooks/useRefresh";
 import { orders_services } from "@/services/order.services";
 import { ORDER_KEY } from "@/config/constants/api";
+import { useGetOrders } from "@/hooks/useOrder";
 
 const StaffManagePage = () => {
     const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
     const finalizeCheckout = useTableCheckout()
     const refresh = useRefresh()
-    const { data } = orders_services.getOrdersSWR(query)
+    const { data } = useGetOrders(query)
     const orders = data?.data || []
     const currentPage = query.page ?? 1
     const totalPages = Math.ceil((data?.meta?.total ?? 1) / (data?.meta?.limit ?? 1))

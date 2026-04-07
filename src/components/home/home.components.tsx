@@ -8,13 +8,13 @@ import { FaCartPlus, FaConciergeBell, FaCrown, FaHeart, FaShoppingCart, FaStar, 
 import { MouseEvent, useRef, useState } from "react"
 import { IconType } from "react-icons/lib"
 import { Skeleton } from "../ui/skeleton"
-import { dishes_services } from '../../services/dish.services';
 import { useRouter } from "next/navigation"
 import DishModal from "../menu/menu.dish_modal"
 import { Modal } from "../app"
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver"
 import { useAddToCart } from "@/hooks/redux_custom_hooks/cartSlice.hooks"
 import useCounter from "@/hooks/useCounter"
+import { getDishesSWR } from "@/hooks/useDishes"
 
 const Title = ({ title }: { title: string }) => {
     return (
@@ -240,7 +240,7 @@ const MarqueeSkeleton = () => {
 
 const MarqueeContainer = () => {
     const query: Query = defaultQuery
-    const { data, isLoading, error } = dishes_services.getDishesSWR(query)
+    const { data, isLoading, error } = getDishesSWR(query)
     const dishes = data?.data
     const marqueeRef = useRef<HTMLElement | null>(null)
     const { isVisible } = useIntersectionObserver({ ref: marqueeRef })

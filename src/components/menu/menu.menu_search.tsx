@@ -3,9 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Skeleton } from "../ui/skeleton";
 import { defaultQuery, ICategory } from "@/interfaces";
-import categories_services from '../../services/category.services';
 import { onMouseDownHandler, onMouseLeaveHandler, onMouseMoveHandler, onMouseUpHandler } from "@/utils";
 import useQuery from "@/hooks/useQuery";
+import { getCategoriesSWR } from "@/hooks/useCategories";
 
 const MenuSearch = ({ activeCategory, setActiveCategory, searchQuery, setSearchQuery }
     :
@@ -17,7 +17,7 @@ const MenuSearch = ({ activeCategory, setActiveCategory, searchQuery, setSearchQ
     }
 ) => {
     const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
-    const { data, error, isLoading } = categories_services.getCategoriesSWR(query.page ?? 1, query.limit ?? 8)
+    const { data, error, isLoading } = getCategoriesSWR(query.page ?? 1, query.limit ?? 8)
 
     const all_category: ICategory = { id: -1, name: "All" }
     const categories = [all_category, ...(data?.data ?? [])]

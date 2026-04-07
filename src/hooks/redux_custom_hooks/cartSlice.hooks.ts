@@ -89,7 +89,6 @@ const useCartControl = () => {
 const useSubmitOrder = () => {
     const dispatch = useAppDispatch()
     const closeCartList = async (order: IOrderCreate) => {
-        console.log(order)
         const response = await dispatch(placeOrder(order))
         console.log("res: ", response)
         dispatch(removeAll())

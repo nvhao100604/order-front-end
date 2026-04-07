@@ -1,17 +1,10 @@
 import { CATEGORY_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
-import useFetchSWR from "@/hooks/useFetchSWR"
 
 const getCategories = async (page: number, limit: number, config?: object) => {
     const response = await api.get(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, config)
 
     return response.data
-}
-
-const getCategoriesSWR = (page: number, limit: number, config?: object) => {
-    const { data, isLoading, error } = useFetchSWR(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, undefined, config)
-
-    return { data, isLoading, error }
 }
 
 const getCategoryByID = async (categoryID: number, config?: object) => {
@@ -42,7 +35,6 @@ const getCategoryByID = async (categoryID: number, config?: object) => {
 
 const categories_services = {
     getCategories,
-    getCategoriesSWR,
     getCategoryByID,
     // createCategory,
     // updateCategory,
