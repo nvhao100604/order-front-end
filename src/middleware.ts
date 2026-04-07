@@ -1,22 +1,18 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { ROUTES } from './config'
+
+const LOGIN_URL = '/auth/login'
 
 export function middleware(request: NextRequest) {
-    const token = request.cookies.get('refresh_token')?.value // Lấy token từ cookie
-    const { pathname } = request.nextUrl
+    const token = request.cookies.get('refresh_token')?.value
 
-    const protectedPaths = ['/admin', '/staff', '/dashboard']
-    const isProtected = protectedPaths.some(path => pathname.startsWith(path))
-
-    if (isProtected && !token) {
-        // Nếu vào route bảo vệ mà không có token, chuyển hướng về login
-        return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
+    if (!token) {
+        return NextResponse.redirect(new URL(LOGIN_URL, request.url))
     }
 
     return NextResponse.next()
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/staff/:path*', '/staff', '/dashboard/:path*'],
+    matcher: ['/admin/:path*', '/staff/:path*', '/dashboard/:path*'],
 }

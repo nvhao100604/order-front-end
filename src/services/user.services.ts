@@ -1,6 +1,5 @@
 import { USER_KEY } from "@/config"
 import api from "@/config/api/axios"
-import { useFetchSWR } from "@/hooks"
 import { IResponse } from "@/interfaces"
 import { UserResponse } from "@/interfaces/user.interface"
 import { AxiosRequestConfig } from "axios"
@@ -17,20 +16,20 @@ const getCurrentUser = async (
     return response.data
 }
 
-const getCurrentUserSWR = (
-    config?: AxiosRequestConfig | null
-): SWRResponse<IResponse<UserResponse>> => {
-    const { data, ...rest } = useFetchSWR(
-        config === null ? null : `${USER_KEY}/me`,
-        undefined,
-        config ?? undefined
-    )
+// const getCurrentUserSWR = (
+//     config?: AxiosRequestConfig | null
+// ): SWRResponse<IResponse<UserResponse>> => {
+//     const { data, ...rest } = useFetchSWR(
+//         config === null ? null : `${USER_KEY}/me`,
+//         undefined,
+//         config ?? undefined
+//     )
 
-    return {
-        data: data as IResponse<UserResponse>,
-        ...rest
-    }
-}
+//     return {
+//         data: data as IResponse<UserResponse>,
+//         ...rest
+//     }
+// }
 
 // Update user profile
 const updateProfile = async (
@@ -46,5 +45,5 @@ const updateProfile = async (
 export const user_services = {
     getCurrentUser,
     updateProfile,
-    getCurrentUserSWR
+    // getCurrentUserSWR
 }

@@ -74,50 +74,35 @@ export const staffSlice = createSlice({
     name: 'staff',
     initialState,
     reducers: {
-        // Cập nhật danh sách bàn từ API
         setTables: (state, action: PayloadAction<ITableResponse[]>) => {
             state.tables = action.payload;
         },
-
-        // Chọn bàn cụ thể để thực hiện Order
         setSelectedTableId: (state, action: PayloadAction<number | null>) => {
             state.selectedTableId = action.payload;
         },
-
-        // Bật/Tắt chế độ gộp bàn
         toggleMergingMode: (state) => {
             state.mergingMode = !state.mergingMode;
             if (!state.mergingMode) state.mergeSourceId = null;
         },
-
-        // Ghi nhớ bàn nguồn khi thực hiện gộp bàn
         setMergeSourceId: (state, action: PayloadAction<number | null>) => {
             state.mergeSourceId = action.payload;
         },
-
-        // Lọc món ăn theo danh mục trong tab Order
         setStaffActiveCategory: (state, action: PayloadAction<number | null>) => {
             state.activeCategory = action.payload;
         },
-
-        // Cập nhật danh sách đơn hàng cho tab Manage
         setStaffOrders: (state, action: PayloadAction<IOrderResponse[]>) => {
             state.orders = action.payload;
         },
-
-        // Cập nhật trạng thái đơn hàng cục bộ (Local Update)
         updateLocalOrderStatus: (state, action: PayloadAction<{ id: number, status: OrderStatus }>) => {
             const order = state.orders.find(o => o.id === action.payload.id);
             if (order) {
                 order.status = action.payload.status;
             }
         },
-
-        // Reset trạng thái bàn về FREE sau khi khách thanh toán
         clearTableAfterCheckout: (state, action: PayloadAction<number>) => {
             const table = state.tables.find(t => t.id === action.payload);
             if (table) {
-                table.status = 'FREE'; // Khớp với TableStatus: "FREE" | "OCCUPIED" | "RESERVED"
+                table.status = 'EMPTY';
             }
         }
     },

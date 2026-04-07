@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { initializeAuth, loginUser, logout, refreshToken, registerUser, setUser, updateProfile } from "@/redux/slices/authSlices";
 import { user_services } from "@/services";
 import { useEffect } from "react";
+import { useCurrentUser } from "../useUser";
 
 const useAuth = () => {
     const dispatch = useAppDispatch()
@@ -32,7 +33,7 @@ const useEnhancedAuth = (config?: object) => {
     const dispatch = useAppDispatch()
     const { user, token, isAuthenticated } = useAppSelector(state => state.auth)
 
-    const { data: swrData, mutate, isValidating, error: swrError } = user_services.getCurrentUserSWR(
+    const { data: swrData, mutate, isValidating, error: swrError } = useCurrentUser(
         token ? config : null
     )
 

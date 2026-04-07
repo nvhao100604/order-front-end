@@ -16,7 +16,9 @@ const ProtectedRoute = ({
     children,
     requiredRoles,
     fallback = (
-        <LoadingBox />
+        <div className='flex m-auto h-screen'>
+            <LoadingBox />
+        </div>
     ),
 }: ProtectedRouteProps) => {
     const { isAuthenticated, user, isLoading } = useEnhancedAuth()

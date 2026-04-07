@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { useState, type ReactNode } from "react";
+import { useAppSelector } from "@/redux/hooks";
 import { STAFF_TABS } from "@/redux/slices/staffSlice";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useEnhancedAuth } from "@/hooks";
-import { formatter } from "@/utils";
-import { HiOutlineBell, HiOutlineXMark } from "react-icons/hi2";
+import { useEnhancedAuth, useOrderWebSocket } from "@/hooks";
+import { HiOutlineXMark } from "react-icons/hi2";
 import { MdOutlineLogout, MdOutlineMenu } from "react-icons/md";
 import { LOGO_URL, ROUTES } from "@/config";
+import { NotifPanel } from "./staff.components";
+import { dashboard_services } from "@/services/dashboard.services";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
-  const { orders } = useAppSelector((state) => state.staff)
+  useOrderWebSocket()
+
+  const orders_data = dashboard_services.getDashboardOrdersSWR()
+  const orders = orders_data.data?.data ?? []
   const { user, logout } = useEnhancedAuth()
   const pathname = usePathname()
 
@@ -20,7 +24,6 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
   const [showNotifPanel, setShowNotifPanel] = useState(false)
 
   const activeTab = pathname.split("/").pop()
-  const newOrderNotifs = orders.filter(o => o.status === "PENDING")
 
   return (
     <div className="flex h-screen text-white font-sans overflow-hidden" style={{ background: "#1c1108" }}>
@@ -152,73 +155,12 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
-            {/* Notification Bell */}
-            <div className="relative">
-              <button
-                onClick={() => setShowNotifPanel(!showNotifPanel)}
-                className="p-2 rounded-xl transition-all"
-                style={{ background: showNotifPanel ? "rgba(255,255,255,0.08)" : "transparent" }}
-              >
-                <HiOutlineBell
-                  size={22}
-                  style={{ color: newOrderNotifs.length > 0 ? "#e85d1a" : "rgba(255,255,255,0.35)" }}
-                />
-                {newOrderNotifs.length > 0 && (
-                  <span
-                    className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 animate-ping"
-                    style={{ background: "#ef4444", borderColor: "#2a1f14" }}
-                  />
-                )}
-              </button>
-
-              {showNotifPanel && (
-                <div
-                  className="absolute right-0 mt-4 w-[280px] md:w-80 rounded-2xl shadow-2xl overflow-hidden"
-                  style={{
-                    background: "#2a1f14",
-                    border: "1px solid rgba(212,175,120,0.15)",
-                  }}
-                >
-                  <div
-                    className="px-4 py-3 flex items-center justify-between"
-                    style={{ borderBottom: "1px solid rgba(212,175,120,0.1)", background: "rgba(0,0,0,0.2)" }}
-                  >
-                    <p className="font-bold text-xs uppercase tracking-widest" style={{ color: "rgba(212,175,120,0.6)" }}>
-                      Notifications
-                    </p>
-                    <HiOutlineXMark
-                      className="cursor-pointer transition-colors"
-                      style={{ color: "rgba(255,255,255,0.3)" }}
-                      onClick={() => setShowNotifPanel(false)}
-                    />
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {newOrderNotifs.length === 0 ? (
-                      <div className="py-8 text-center text-sm italic" style={{ color: "rgba(255,255,255,0.15)" }}>
-                        No new orders
-                      </div>
-                    ) : (
-                      newOrderNotifs.map((order) => (
-                        <Link
-                          key={order.id}
-                          href="/staff/manage"
-                          onClick={() => setShowNotifPanel(false)}
-                          className="block p-4 transition-colors"
-                          style={{ borderBottom: "1px solid rgba(212,175,120,0.06)" }}
-                          onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                        >
-                          <p className="text-sm font-bold text-white">New Order #{order.id}</p>
-                          <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                            {formatter.currency(order.totalPrice)} • {order.details.length} items
-                          </p>
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotifPanel
+              orders={orders}
+              show={showNotifPanel}
+              onToggle={() => setShowNotifPanel(v => !v)}
+              onClose={() => setShowNotifPanel(false)}
+            />
 
             <div className="w-px h-6 hidden sm:block" style={{ background: "rgba(212,175,120,0.12)" }} />
 
