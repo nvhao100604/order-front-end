@@ -1,7 +1,7 @@
 import { ICart, ICartItem, ICartState, IDish, IOrderCreate, IOrderResponse } from '@/interfaces'
+import { orders_services } from '@/services/order.services'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { orders_services } from '@/services'
 
 const initialCart: ICart = {
     dishes: [],

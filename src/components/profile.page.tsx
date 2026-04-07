@@ -2,11 +2,11 @@
 
 import { defaultQuery, IOrderDetailResponse, OrderStatus, OrderStatusKey, OrderStatusMap } from "@/interfaces";
 import { useAppSelector } from "@/redux/hooks";
-import { orders_services } from "@/services";
 import { formatter } from "@/utils";
 import { useState } from "react";
 import { Header } from "./app";
 import { statusStyle } from "@/app/staff/manage/manage.component";
+import { orders_services } from "@/services/order.services";
 
 const getStatusStyle = (status: OrderStatusKey) => {
     return statusStyle[status] ?? statusStyle.PENDING;

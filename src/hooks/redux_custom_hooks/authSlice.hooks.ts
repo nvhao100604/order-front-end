@@ -3,7 +3,6 @@ import { LoginCredentials, RegisterPayload } from "@/interfaces"
 import { UserUpdate } from "@/interfaces/user.interface"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { initializeAuth, loginUser, logout, refreshToken, registerUser, setUser, updateProfile } from "@/redux/slices/authSlices";
-import { user_services } from "@/services";
 import { useEffect } from "react";
 import { useCurrentUser } from "../useUser";
 
