@@ -1,7 +1,7 @@
 'use client'
 
+import { useSWRWithAuth } from "@/hooks/useSWRWithAuth"
 import { AdminData } from "@/interfaces"
-import { useSWRWithAuth } from "@/hooks"
 
 const AdminContent = () => {
     const { data: adminData, error, isLoading } = useSWRWithAuth<AdminData>('/admin/stats')

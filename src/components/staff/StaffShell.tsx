@@ -5,12 +5,13 @@ import { useAppSelector } from "@/redux/hooks";
 import { STAFF_TABS } from "@/redux/slices/staffSlice";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useEnhancedAuth, useOrderWebSocket } from "@/hooks";
 import { HiOutlineXMark } from "react-icons/hi2";
 import { MdOutlineLogout, MdOutlineMenu } from "react-icons/md";
 import { LOGO_URL, ROUTES } from "@/config";
 import { NotifPanel } from "./staff.components";
 import { dashboard_services } from "@/services/dashboard.services";
+import useOrderWebSocket from "@/hooks/useOrderWebSocket";
+import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   useOrderWebSocket()

@@ -1,11 +1,11 @@
 import { ORDER_KEY } from "@/config"
-import { useFetchSWR } from "@/hooks"
 import { Query } from '../interfaces/query.interface';
 import { IOrderCreate, IOrderFilter, IOrderResponse, IResponse, OrderStatus } from "@/interfaces";
 import api from "@/config/api/axios";
 import { SWRConfiguration, SWRResponse } from "swr";
 import { convertToParams } from "@/utils";
 import { AxiosRequestConfig } from "axios";
+import useFetchSWR from "@/hooks/useFetchSWR";
 
 const getOrders = async (query: Query<IOrderFilter>, option?: AxiosRequestConfig)
     : Promise<IResponse<IOrderResponse[]>> => {

@@ -1,7 +1,7 @@
 'use client'
 import { LOGO_URL } from "@/config"
 import { ROUTES } from "@/config/constants/route"
-import { useEnhancedAuth } from "@/hooks"
+import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { FaBars, FaCog, FaSignInAlt, FaSignOutAlt, FaTimes, FaUser, FaUserCircle } from "react-icons/fa"

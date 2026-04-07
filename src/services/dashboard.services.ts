@@ -1,11 +1,11 @@
 import { DASHBOARD_KEY } from "@/config";
-import { useFetchSWR } from "@/hooks";
 import { Query } from '../interfaces/query.interface';
 import { IOrderResponse, ITableResponse, IResponse } from "@/interfaces";
 import api from "@/config/api/axios";
 import { SWRConfiguration, SWRResponse } from "swr";
 import { convertToParams } from "@/utils";
 import { AxiosRequestConfig } from "axios";
+import useFetchSWR from "@/hooks/useFetchSWR";
 
 const DASHBOARD_ORDERS_KEY = `${DASHBOARD_KEY}/orders`;
 const DASHBOARD_TABLES_KEY = `${DASHBOARD_KEY}/tables`;

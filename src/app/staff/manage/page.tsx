@@ -1,10 +1,12 @@
 'use client'
-import { useQuery, useRefresh, useTableCheckout, useUpdateStaffOrder } from "@/hooks";
 import { defaultQuery, IOrderFilter, OrderStatus } from "@/interfaces";
 import { orders_services } from "@/services";
 import { useState, useRef, useEffect } from "react";
 import { FilterPanel, OrderItem } from "./manage.component";
 import { ORDER_KEY } from "@/config";
+import useQuery from "@/hooks/useQuery";
+import { useTableCheckout } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
+import useRefresh from "@/hooks/useRefresh";
 
 const StaffManagePage = () => {
     const [query, updateQuery, resetQuery] = useQuery(defaultQuery)

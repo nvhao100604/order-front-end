@@ -1,5 +1,5 @@
 'use client'
-import { useCartControl } from "@/hooks"
+import { useCartControl } from "@/hooks/redux_custom_hooks/cartSlice.hooks"
 import { useAppSelector } from "@/redux/hooks"
 import { scrollToTop } from "@/utils"
 import { useEffect, useRef, useState } from "react"

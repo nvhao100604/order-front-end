@@ -1,12 +1,12 @@
 'use client'
 import { useAppSelector } from "@/redux/hooks"
 import formatter from './../../utils/formatter';
-import { useSubmitOrder } from "@/hooks";
 import { useState } from "react";
 import { ICartItem, IOrderDetailBase, Total } from "@/interfaces";
 import { Modal } from "../app";
 import LoginModal from "../login/login.modal";
 import { toast } from "react-toastify";
+import { useSubmitOrder } from "@/hooks/redux_custom_hooks/cartSlice.hooks";
 
 const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
     return {

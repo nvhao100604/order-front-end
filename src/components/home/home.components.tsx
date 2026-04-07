@@ -6,13 +6,15 @@ import { defaultQuery, ICartItem, IDish, Query } from "@/interfaces"
 import { formatter, onMouseDownHandler, onMouseLeaveHandler, onMouseMoveHandler, onMouseUpHandler } from "@/utils"
 import { FaCartPlus, FaConciergeBell, FaCrown, FaHeart, FaShoppingCart, FaStar, FaUtensils } from "react-icons/fa"
 import { MouseEvent, useRef, useState } from "react"
-import { useAddToCart, useCounter, useIntersectionObserver } from "@/hooks"
 import { IconType } from "react-icons/lib"
 import { Skeleton } from "../ui/skeleton"
 import { dishes_services } from '../../services/dish.services';
 import { useRouter } from "next/navigation"
 import DishModal from "../menu/menu.dish_modal"
 import { Modal } from "../app"
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver"
+import { useAddToCart } from "@/hooks/redux_custom_hooks/cartSlice.hooks"
+import useCounter from "@/hooks/useCounter"
 
 const Title = ({ title }: { title: string }) => {
     return (

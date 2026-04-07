@@ -1,5 +1,5 @@
 'use client'
-import { useSelectTable, useSetStaffCategory, useTableMergeControl } from "@/hooks";
+import { useSelectTable, useSetStaffCategory, useTableMergeControl } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
 import { useAppSelector } from "@/redux/hooks";
 
 const StaffOrderPage = () => {

@@ -1,6 +1,6 @@
 import { DISH_KEY } from "@/config"
 import api from "@/config/api/axios"
-import { useFetchSWR } from "@/hooks"
+import useFetchSWR from "@/hooks/useFetchSWR"
 import { IDish, IResponse, Query } from "@/interfaces"
 import { convertToParams } from "@/utils"
 import { SWRResponse } from "swr"

@@ -1,9 +1,9 @@
 'use client'
-import { useCloseCart, useRemoveAll, useSelectAll } from "@/hooks"
 import { useAppSelector } from "@/redux/hooks"
 import { useState } from "react"
 import { FiX } from "react-icons/fi"
 import { Modal } from "../app"
+import { useCloseCart, useRemoveAll, useSelectAll } from "@/hooks/redux_custom_hooks/cartSlice.hooks"
 
 const CartHeader = () => {
     const [isSelected, setIsSelected] = useState(false)

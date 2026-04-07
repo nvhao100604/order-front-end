@@ -6,7 +6,7 @@ import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi"
 import ConfirmModal from "./cart.confirm_modal";
 import { Modal } from "../app";
 import { formatter } from "@/utils";
-import { useRemoveFromCart, useSelectItem, useUpdateQuantity } from "@/hooks";
+import { useRemoveFromCart, useSelectItem, useUpdateQuantity } from "@/hooks/redux_custom_hooks/cartSlice.hooks";
 
 const CardItem = ({ item, setSelectedDishToRemove }
     : {

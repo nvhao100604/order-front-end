@@ -1,12 +1,12 @@
 
 import { TABLE_KEY } from "@/config"
-import { useFetchSWR } from "@/hooks"
 import { Query } from '../interfaces/query.interface';
 import { ITableFilter, ITableResponse, IResponse, ITableUpdate, TableStatus } from "@/interfaces";
 import api from "@/config/api/axios";
 import { SWRResponse } from "swr";
 import { convertToParams } from "@/utils";
 import { AxiosRequestConfig } from "axios";
+import useFetchSWR from "@/hooks/useFetchSWR";
 
 const getTables = async (query: Query<ITableFilter>, option?: AxiosRequestConfig)
     : Promise<IResponse<ITableResponse[]>> => {

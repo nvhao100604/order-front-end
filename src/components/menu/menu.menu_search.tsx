@@ -3,9 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Skeleton } from "../ui/skeleton";
 import { defaultQuery, ICategory } from "@/interfaces";
-import { useQuery } from "@/hooks";
 import categories_services from '../../services/category.services';
 import { onMouseDownHandler, onMouseLeaveHandler, onMouseMoveHandler, onMouseUpHandler } from "@/utils";
+import useQuery from "@/hooks/useQuery";
 
 const MenuSearch = ({ activeCategory, setActiveCategory, searchQuery, setSearchQuery }
     :

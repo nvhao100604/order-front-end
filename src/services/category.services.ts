@@ -1,6 +1,6 @@
 import { CATEGORY_KEY } from "@/config"
 import api from "@/config/api/axios"
-import { useFetchSWR } from "@/hooks"
+import useFetchSWR from "@/hooks/useFetchSWR"
 
 const getCategories = async (page: number, limit: number, config?: object) => {
     const response = await api.get(`${CATEGORY_KEY}?page=${page}&limit=${limit}`, config)

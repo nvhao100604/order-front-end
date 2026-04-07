@@ -1,5 +1,4 @@
 'use client'
-import { useAddToCart } from "@/hooks"
 import { ICartItem, IDish } from "@/interfaces"
 import { useEffect, useState } from "react"
 import DishModal from "./menu.dish_modal"
@@ -7,6 +6,7 @@ import { Modal } from "../app"
 import DishItem from "./menu.dish_item"
 import LoadingBox from "../ui/loading"
 import { scrollToTop } from "@/utils"
+import { useAddToCart } from "@/hooks/redux_custom_hooks/cartSlice.hooks"
 
 const MenuList = (
     { dishes, isLoading }:
