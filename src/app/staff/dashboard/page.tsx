@@ -1,8 +1,8 @@
 'use client'
 
-import { useAuth } from '@/hooks'
 import { formatter } from "@/utils"
 import { dashboard_services } from "@/services/dashboard.services";
+import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 
 const DashboardContent = () => {
     const { user, logout } = useAuth()

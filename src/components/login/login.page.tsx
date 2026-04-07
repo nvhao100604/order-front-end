@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks'
 import { LOGO_URL, ROUTES } from '@/config'
 import { useAppSelector } from '@/redux/hooks'
 import { checkRole } from '@/utils'
+import { useAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')

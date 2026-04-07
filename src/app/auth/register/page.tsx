@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks'
 import { LOGO_URL, ROUTES } from '@/config'
 import { Status, UserCreate } from '@/interfaces'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 
 type FormData = Omit<UserCreate, 'status'> & {
     confirmPassword: string

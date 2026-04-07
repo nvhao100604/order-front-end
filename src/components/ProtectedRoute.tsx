@@ -1,10 +1,10 @@
 'use client'
 
-import { useEnhancedAuth } from '@/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect, ReactNode } from 'react'
 import LoadingBox from './ui/loading'
 import { ROUTES } from '@/config/constants/route'
+import { useEnhancedAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 
 interface ProtectedRouteProps {
     children: ReactNode
