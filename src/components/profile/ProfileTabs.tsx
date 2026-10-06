@@ -12,15 +12,15 @@ interface ProfileTabsProps {
 
 export function ProfileTabs({ activeTab, setActiveTab, tabs }: ProfileTabsProps) {
     return (
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#EFECE6] border border-[#E2DDD5]">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#F4EEE7] border border-[#E2D6C8] shadow-xs">
             {tabs.map((tab) => (
                 <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                         activeTab === tab.id
-                            ? 'bg-[#1F1A17] text-white shadow-sm'
-                            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/40'
+                            ? 'bg-[#C4823F] text-white shadow-sm'
+                            : 'text-stone-600 hover:text-stone-900 hover:bg-[#EAE2D7]'
                     }`}
                 >
                     {tab.icon}

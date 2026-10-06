@@ -176,7 +176,7 @@ export function ProfileOverviewTab({
                 </div>
             </div>
 
-            {/* Right 1 Col: VIP Benefits & Quick Menu Banner */}
+            {/* Right 1 Col: VIP Benefits & Warm Terracotta CTA Banner */}
             <div className="space-y-6">
                 <div className="bg-white rounded-2xl p-6 border border-[#EBE6DD] shadow-[0_2px_10px_rgba(0,0,0,0.02)] space-y-4">
                     <h3 className="font-bold text-stone-900 text-base flex items-center gap-2 border-b border-[#F0ECE1] pb-3">
@@ -199,19 +199,19 @@ export function ProfileOverviewTab({
                     </ul>
                 </div>
 
-                <div className="bg-[#1F1A17] rounded-2xl p-6 text-stone-200 border border-[#332A24] space-y-3 shadow-md">
+                <div className="bg-gradient-to-br from-[#9E5723] via-[#7F4115] to-[#5C2E0E] rounded-2xl p-6 text-white border border-[#B3682C]/30 space-y-3 shadow-md">
                     <h3 className="font-bold text-white text-base tracking-tight">
                         Explore Gourmet Menu
                     </h3>
-                    <p className="text-xs text-stone-400 leading-relaxed">
+                    <p className="text-xs text-amber-100/80 leading-relaxed">
                         Discover our handcrafted seasonal dishes available for dine-in and delivery.
                     </p>
                     <Link
                         href={ROUTES.GUEST.MENU}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C4823F] hover:bg-[#B27333] text-white text-xs font-semibold transition-all shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#7F4115] hover:bg-stone-100 text-xs font-bold transition-all shadow-sm"
                     >
                         <span>Browse Menu</span>
-                        <FiArrowRight className="w-3.5 h-3.5" />
+                        <FiArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                     </Link>
                 </div>
             </div>
