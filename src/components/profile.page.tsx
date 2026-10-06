@@ -1,12 +1,15 @@
 "use client";
 
-import { defaultQuery, IOrderDetailResponse, OrderStatusKey } from "@/interfaces";
-import { useAppSelector } from "@/redux/hooks";
+import { defaultQuery, IOrderDetailResponse, OrderStatusKey, IReservationResponse } from "@/interfaces";
 import { formatter } from "@/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "./app";
 import { statusStyle } from "@/app/staff/manage/manage.component";
+import { useGetReservations } from "@/hooks/useReservation";
 import { useGetOrders } from "@/hooks/useOrder";
+import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
+import Link from "next/link";
+import { ROUTES } from "@/config/constants/route";
 
 const getStatusStyle = (status: OrderStatusKey) => {
     return statusStyle[status] ?? statusStyle.PENDING;
@@ -17,30 +20,74 @@ type Tab = "overview" | "orders" | "settings";
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState<Tab>("overview");
     const [editMode, setEditMode] = useState(false);
-    const auth = useAppSelector(state => state.auth.user)
+    const [isSaving, setIsSaving] = useState(false);
+    const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    const { user, updateProfile } = useEnhancedAuth();
+
+    const { data: reservationRes } = useGetReservations(user?.email ? { email: user.email } : undefined);
+    const upcomingReservation = (reservationRes?.data as IReservationResponse[] | undefined)?.find(
+        (r: IReservationResponse) => r.status === 'PENDING' || r.status === 'CONFIRMED'
+    );
+
+    const [form, setForm] = useState({
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: user?.phoneNumber || '',
+        address: user?.address || ''
+    });
+
+    useEffect(() => {
+        if (user) {
+            setForm({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phoneNumber || '',
+                address: user.address || ''
+            });
+        }
+    }, [user]);
+
+    const handleSaveProfile = async () => {
+        if (!editMode) {
+            setEditMode(true);
+            return;
+        }
+
+        setIsSaving(true);
+        setStatusMsg(null);
+        try {
+            await updateProfile({
+                name: form.name,
+                email: form.email,
+                phoneNumber: form.phone,
+                address: form.address
+            });
+            setEditMode(false);
+            setStatusMsg({ type: 'success', text: 'Profile updated successfully!' });
+        } catch (err: any) {
+            setStatusMsg({ type: 'error', text: err?.message || 'Failed to update profile.' });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const { data } = useGetOrders({
         ...defaultQuery,
-        customerID: auth?.id,
+        customerID: user?.id,
     }, { revalidateOnMount: true }) ?? []
 
     const orderHistory = data?.data || []
-    const mockUser = {
-        name: auth?.name,
-        email: auth?.email,
-        phone: auth?.phoneNumber,
-        avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=minhkhoa",
-        joinDate: formatter.date(auth?.createdAt ?? ""),
+    const profileUser = {
+        name: user?.name || "Guest User",
+        email: user?.email || "No email provided",
+        phone: user?.phoneNumber || "No phone provided",
+        address: user?.address || "No address provided",
+        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.username || 'foodie'}`,
+        joinDate: user?.createdAt ? formatter.date(user.createdAt) : "Member",
         memberTier: "Gold Member",
-        points: 2840,
         totalOrders: orderHistory.length,
         favoriteTable: "Table 12 – Garden View",
-        upcomingReservation: {
-            date: "Saturday, March 8, 2026",
-            time: "7:00 PM",
-            guests: 4,
-            table: "Garden View",
-        },
     };
 
     const tabs: { id: Tab; label: string; icon: string }[] = [
@@ -92,7 +139,7 @@ export default function ProfilePage() {
                                     className="w-28 h-28 rounded-full overflow-hidden"
                                     style={{ border: "3px solid rgba(212,175,120,0.7)", boxShadow: "0 0 0 6px rgba(212,175,120,0.15)" }}
                                 >
-                                    <img src={mockUser.avatar} alt={mockUser.name} className="w-full h-full object-cover" />
+                                    <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
                                 </div>
                                 <div
                                     className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center text-xs"
@@ -109,23 +156,22 @@ export default function ProfilePage() {
                                         className="text-3xl md:text-4xl font-bold"
                                         style={{ color: "#faf0e0", letterSpacing: "-0.5px" }}
                                     >
-                                        {mockUser.name}
+                                        {profileUser.name}
                                     </h1>
                                     <span
                                         className="px-3 py-1 rounded-full text-xs font-bold tracking-wider"
                                         style={{ background: "#d4af37", color: "#4a3525" }}
                                     >
-                                        {mockUser.memberTier.toUpperCase()}
+                                        {profileUser.memberTier.toUpperCase()}
                                     </span>
                                 </div>
                                 <p className="text-sm mb-4" style={{ color: "rgba(212,175,120,0.8)" }}>
-                                    Member since {mockUser.joinDate}
+                                    Member since {profileUser.joinDate}
                                 </p>
                                 <div className="flex flex-wrap gap-6">
                                     {[
-                                        { val: mockUser.points.toLocaleString(), label: "Loyalty Points" },
-                                        { val: mockUser.totalOrders, label: "Total Orders" },
-                                        { val: "4.9", label: "Avg Rating" },
+                                        { val: profileUser.totalOrders, label: "Total Orders" },
+                                        { val: "Active", label: "Account Status" },
                                     ].map((s, i) => (
                                         <div key={s.label} className="flex gap-6">
                                             {i > 0 && <div style={{ borderLeft: "1px solid rgba(212,175,120,0.3)" }} />}
@@ -138,7 +184,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
-                            {/* Reservation card */}
+                            {/* Reservation Card */}
                             <div
                                 className="flex-shrink-0 rounded-xl p-5 min-w-52"
                                 style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(212,175,120,0.25)", backdropFilter: "blur(8px)" }}
@@ -146,17 +192,30 @@ export default function ProfilePage() {
                                 <p className="text-xs font-semibold tracking-widest mb-3" style={{ color: "#d4af37" }}>
                                     UPCOMING RESERVATION
                                 </p>
-                                <p className="text-white font-semibold">{mockUser.upcomingReservation.date}</p>
-                                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
-                                    {mockUser.upcomingReservation.time} · {mockUser.upcomingReservation.guests} Guests
-                                </p>
-                                <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{mockUser.upcomingReservation.table}</p>
-                                <button
-                                    className="mt-3 text-xs font-semibold py-1 px-3 rounded-full transition-all hover:scale-105"
-                                    style={{ background: "#e85d1a", color: "white" }}
-                                >
-                                    View Details →
-                                </button>
+                                {upcomingReservation ? (
+                                    <>
+                                        <p className="text-white font-semibold">
+                                            {formatter.date(upcomingReservation.reservationTime)}
+                                        </p>
+                                        <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
+                                            {formatter.time(upcomingReservation.reservationTime)} · {upcomingReservation.numberOfGuests} Guests
+                                        </p>
+                                        <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+                                            {upcomingReservation.tableID ? `Table ${upcomingReservation.tableID}` : 'Table Pending'} ({upcomingReservation.status})
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="text-white text-sm">No upcoming reservation</p>
+                                        <Link
+                                            href={ROUTES.GUEST.RESERVATION}
+                                            className="mt-3 text-xs font-semibold py-1 px-3 rounded-full transition-all inline-block hover:scale-105"
+                                            style={{ background: "#e85d1a", color: "white" }}
+                                        >
+                                            Make a Reservation →
+                                        </Link>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -191,43 +250,91 @@ export default function ProfilePage() {
                             className="md:col-span-2 rounded-2xl p-6"
                             style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}
                         >
+                            {statusMsg && (
+                                <div className={`p-3 rounded-xl mb-4 text-sm font-semibold ${statusMsg.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                                    {statusMsg.text}
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-bold" style={{ color: "#4a3525" }}>Personal Information</h2>
                                 <button
-                                    onClick={() => setEditMode(!editMode)}
-                                    className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:scale-105"
+                                    onClick={handleSaveProfile}
+                                    disabled={isSaving}
+                                    className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:scale-105 disabled:opacity-50"
                                     style={{
                                         background: editMode ? "#e85d1a" : "#f5ede0",
                                         color: editMode ? "white" : "#6b4e35",
                                     }}
                                 >
-                                    {editMode ? "Save Changes" : "Edit Profile"}
+                                    {isSaving ? "Saving..." : editMode ? "Save Changes" : "Edit Profile"}
                                 </button>
                             </div>
+
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                {[
-                                    { label: "Full Name", value: mockUser.name, icon: "👤" },
-                                    { label: "Email Address", value: mockUser.email, icon: "✉" },
-                                    { label: "Phone Number", value: mockUser.phone, icon: "📞" },
-                                    { label: "Favorite Table", value: mockUser.favoriteTable, icon: "🪑" },
-                                ].map((field) => (
-                                    <div key={field.label}>
-                                        <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>
-                                            {field.label.toUpperCase()}
-                                        </label>
-                                        {editMode ? (
-                                            <input
-                                                defaultValue={field.value}
-                                                className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
-                                                style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525", fontFamily: "Georgia, serif" }}
-                                            />
-                                        ) : (
-                                            <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
-                                                <span>{field.icon}</span> {field.value}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))}
+                                <div>
+                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>FULL NAME</label>
+                                    {editMode ? (
+                                        <input
+                                            value={form.name}
+                                            onChange={e => setForm({ ...form, name: e.target.value })}
+                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
+                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                        />
+                                    ) : (
+                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
+                                            <span>👤</span> {profileUser.name}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>EMAIL ADDRESS</label>
+                                    {editMode ? (
+                                        <input
+                                            value={form.email}
+                                            onChange={e => setForm({ ...form, email: e.target.value })}
+                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
+                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                        />
+                                    ) : (
+                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
+                                            <span>✉</span> {profileUser.email}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>PHONE NUMBER</label>
+                                    {editMode ? (
+                                        <input
+                                            value={form.phone}
+                                            onChange={e => setForm({ ...form, phone: e.target.value })}
+                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
+                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                        />
+                                    ) : (
+                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
+                                            <span>📞</span> {profileUser.phone}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>ADDRESS</label>
+                                    {editMode ? (
+                                        <input
+                                            value={form.address}
+                                            onChange={e => setForm({ ...form, address: e.target.value })}
+                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
+                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                        />
+                                    ) : (
+                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
+                                            <span>🏠</span> {profileUser.address}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -238,9 +345,9 @@ export default function ProfilePage() {
                                 style={{ background: "linear-gradient(135deg, #d4af37 0%, #b8941e 100%)", boxShadow: "0 8px 32px rgba(212,175,55,0.3)" }}
                             >
                                 <p className="text-sm font-semibold tracking-widest mb-3" style={{ color: "rgba(74,53,37,0.7)" }}>
-                                    GOLD TIER POINTS
+                                    MEMBER REWARDS
                                 </p>
-                                <p className="text-5xl font-bold mb-1" style={{ color: "#4a3525" }}>{mockUser.points.toLocaleString()}</p>
+                                <p className="text-5xl font-bold mb-1" style={{ color: "#4a3525" }}>{profileUser.totalOrders * 100}</p>
                                 <p className="text-sm mb-4" style={{ color: "rgba(74,53,37,0.6)" }}>160 pts to Platinum</p>
                                 <div className="w-full h-2 rounded-full mb-4" style={{ background: "rgba(74,53,37,0.2)" }}>
                                     <div className="h-full rounded-full" style={{ width: "94.7%", background: "#4a3525" }} />

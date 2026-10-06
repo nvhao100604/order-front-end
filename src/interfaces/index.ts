@@ -13,3 +13,5 @@ export * from './query.interface'
 export * from './response.interface'
 //enum
 export * from './enum'
+//reservation
+export * from './reservation.interface'

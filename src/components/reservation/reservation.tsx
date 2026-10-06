@@ -1,7 +1,10 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUtensils } from "react-icons/fa";
 import { FiCalendar } from "react-icons/fi";
+import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
+import { reservation_services } from "@/services/reservation.services";
+import { IReservationPayload } from "@/interfaces";
 
 interface ReservationData {
     name: string;
@@ -21,16 +24,37 @@ const ReservationLabel = ({ text }: { text: string }) => {
     )
 }
 
-const ReservationForm = ({ onSubmit }: { onSubmit: (data: ReservationData) => void }) => {
+const ReservationForm = ({
+    onSubmit,
+    isLoading,
+    serverError
+}: {
+    onSubmit: (data: ReservationData) => void;
+    isLoading: boolean;
+    serverError: string;
+}) => {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: user?.phoneNumber || '',
         guests: '',
         date: '',
         time: '',
         requests: ''
     });
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: prev.name || user.name || '',
+                email: prev.email || user.email || '',
+                phone: prev.phone || user.phoneNumber || ''
+            }));
+        }
+    }, [user]);
+
     const today = new Date().toISOString().split('T')[0];
 
     const handleInputChange = (e: any) => {
@@ -43,11 +67,18 @@ const ReservationForm = ({ onSubmit }: { onSubmit: (data: ReservationData) => vo
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        onSubmit(formData)
+        onSubmit(formData);
     };
 
     return (
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-2xl">
+            {serverError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
+                    <span>⚠</span>
+                    <span>{serverError}</span>
+                </div>
+            )}
+
             {/* Reservation Details Section */}
             <div className="mb-8">
                 <h2 className="text-primary text-2xl font-semibold mb-6 pb-3 border-b-2 border-secondary flex items-center gap-2">
@@ -164,9 +195,20 @@ const ReservationForm = ({ onSubmit }: { onSubmit: (data: ReservationData) => vo
 
             <button
                 type="submit"
-                className="w-full bg-amber-600 text-white font-semibold py-4 px-8 rounded-full text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
+                disabled={isLoading}
+                className="w-full bg-amber-600 text-white font-semibold py-4 px-8 rounded-full text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-                🎉 Confirm Reservation
+                {isLoading ? (
+                    <>
+                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Processing Reservation...
+                    </>
+                ) : (
+                    '🎉 Confirm Reservation'
+                )}
             </button>
         </form>
     );
@@ -187,14 +229,51 @@ const SuccessMessage = () => {
 };
 
 const ReservationPage = () => {
+    const { user, isAuthenticated } = useAuth();
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [serverError, setServerError] = useState('');
 
-    const handleReservationSubmit = (reservationData: ReservationData) => {
-        console.log('Reservation Data:', reservationData);
-        setIsSubmitted(true);
+    const handleReservationSubmit = async (reservationData: ReservationData) => {
+        setIsLoading(true);
+        setServerError('');
+        try {
+            let reservationTimeISO: string;
+            if (reservationData.date && reservationData.time) {
+                reservationTimeISO = new Date(`${reservationData.date}T${reservationData.time}:00.000Z`).toISOString();
+            } else {
+                reservationTimeISO = new Date().toISOString();
+            }
 
-        // Scroll to top to show success message
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+            const payload: IReservationPayload = {
+                fullName: reservationData.name,
+                email: reservationData.email,
+                phoneNumber: reservationData.phone,
+                numberOfGuests: parseInt(reservationData.guests, 10) || 1,
+                reservationTime: reservationTimeISO,
+                specialRequests: reservationData.requests || undefined,
+            };
+
+            const res = isAuthenticated
+                ? await reservation_services.createMeReservation(payload)
+                : await reservation_services.createPublicReservation(payload);
+
+            if (res.success || res.data) {
+                setIsSubmitted(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                setServerError(res.message || 'Failed to complete reservation. Please try again.');
+            }
+        } catch (error: any) {
+            setServerError(
+                error.response?.data?.detail ||
+                error.response?.data?.message ||
+                error.message ||
+                'Something went wrong while reserving.'
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -215,7 +294,11 @@ const ReservationPage = () => {
                 {isSubmitted ? (
                     <SuccessMessage />
                 ) : (
-                    <ReservationForm onSubmit={handleReservationSubmit} />
+                    <ReservationForm
+                        onSubmit={handleReservationSubmit}
+                        isLoading={isLoading}
+                        serverError={serverError}
+                    />
                 )}
             </div>
         </div>

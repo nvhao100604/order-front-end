@@ -1,7 +1,7 @@
 import { USER_KEY } from "@/config/constants/api"
 import api from "@/config/api/axios"
 import { IResponse } from "@/interfaces"
-import { UserResponse } from "@/interfaces/user.interface"
+import { UserResponse, UserUpdate } from "@/interfaces/user.interface"
 import { AxiosRequestConfig } from "axios"
 import { SWRResponse } from "swr"
 
@@ -33,10 +33,12 @@ const getCurrentUser = async (
 
 // Update user profile
 const updateProfile = async (
-    options?: object
+    payload: UserUpdate,
+    options?: AxiosRequestConfig
 ): Promise<IResponse<UserResponse>> => {
-    const response = await api.post<IResponse<UserResponse>>(
-        `${USER_KEY}`,
+    const response = await api.put<IResponse<UserResponse>>(
+        `${USER_KEY}/me`,
+        payload,
         options
     )
     return response.data

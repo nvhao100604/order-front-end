@@ -115,16 +115,28 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
                     </svg>
                 </div>
 
-                {status === "COMPLETED" && (
-                    <button onClick={() => finalizeCheckout(order.tableID || 0)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80 text-white"
-                        style={{ background: "#e85d1a", boxShadow: "0 2px 8px rgba(232,93,26,0.3)" }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                        </svg>
-                        Process Payment
-                    </button>
-                )}
+                <div className="flex items-center gap-2">
+                    <a
+                        href={`/staff/invoice?orderId=${order.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-80"
+                        style={{ background: "#f5ede0", color: "#6b4e35", border: "1px solid #dcc9b0" }}
+                    >
+                        🖨️ Print Invoice
+                    </a>
+
+                    {status === "COMPLETED" && (
+                        <button onClick={() => finalizeCheckout(order.tableID || 0)}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80 text-white"
+                            style={{ background: "#e85d1a", boxShadow: "0 2px 8px rgba(232,93,26,0.3)" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            Process Payment
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     )

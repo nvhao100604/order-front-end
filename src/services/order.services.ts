@@ -26,3 +26,10 @@ export const updateOrderStatus = async (id: number, statusData: OrderStatus, opt
     return response.data
 }
 
+export const getOrderById = async (id: number, option?: AxiosRequestConfig)
+    : Promise<IResponse<IOrderResponse>> => {
+    const response = await api.get<IResponse<IOrderResponse>>(`${ORDER_KEY}/${id}`, option)
+    return response.data
+}
+
+
