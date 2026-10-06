@@ -3,6 +3,7 @@
 import { formatter } from "@/utils"
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { getDashboardOrdersSWR, getDashboardTablesSWR } from "@/hooks/useDashboard";
+import { FiSmile } from "react-icons/fi";
 
 const DashboardContent = () => {
     const { user, logout } = useAuth()
@@ -104,8 +105,9 @@ const DashboardContent = () => {
 
             <div className="max-w-6xl mx-auto relative">
                 <div className="mb-7">
-                    <h2 className="text-2xl font-bold" style={{ color: '#4a3525' }}>
-                        Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0]} 👋
+                    <h2 className="text-2xl font-bold flex items-center gap-1.5" style={{ color: '#4a3525' }}>
+                        <span>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0]}</span>
+                        <FiSmile className="w-6 h-6 text-amber-600 shrink-0" />
                     </h2>
                     <p className="text-sm mt-1" style={{ color: '#a08060' }}>
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}

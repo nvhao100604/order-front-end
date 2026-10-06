@@ -56,13 +56,13 @@ export default function ProfilePage() {
     )
 
     const handleCancelReservation = async (id: number) => {
-        if (!confirm('Bạn có chắc chắn muốn hủy lượt đặt bàn này?')) return
+        if (!confirm('Are you sure you want to cancel this reservation?')) return
         try {
             await reservation_services.cancelReservation(id)
-            toast.success('Hủy lượt đặt bàn thành công!')
+            toast.success('Reservation cancelled successfully!')
             mutateReservations()
         } catch {
-            toast.error('Không thể hủy lượt đặt bàn. Vui lòng thử lại.')
+            toast.error('Failed to cancel reservation. Please try again.')
         }
     }
 
@@ -100,9 +100,9 @@ export default function ProfilePage() {
                 address: form.address,
             })
             setEditMode(false)
-            setStatusMsg({ type: 'success', text: 'Cập nhật hồ sơ cá nhân thành công!' })
+            setStatusMsg({ type: 'success', text: 'Profile updated successfully!' })
         } catch (err: any) {
-            setStatusMsg({ type: 'error', text: err?.message || 'Không thể cập nhật hồ sơ.' })
+            setStatusMsg({ type: 'error', text: err?.message || 'Failed to update profile.' })
         } finally {
             setIsSaving(false)
         }
@@ -119,23 +119,22 @@ export default function ProfilePage() {
     const orderHistory = ordersData?.data || []
 
     const profileUser = {
-        name: user?.name || 'Khách hàng thân thiết',
-        email: user?.email || 'Chưa cung cấp email',
-        phone: user?.phoneNumber || 'Chưa cung cấp SĐT',
-        address: user?.address || 'Chưa cập nhật địa chỉ',
+        name: user?.name || 'Valued Customer',
+        email: user?.email || 'No email provided',
+        phone: user?.phoneNumber || 'No phone provided',
+        address: user?.address || 'No address provided',
         avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.username || 'foodie'}`,
-        joinDate: user?.createdAt ? formatter.date(user.createdAt) : 'Thành viên mới',
-        memberTier: 'Thành Viên VIP Gold',
+        joinDate: user?.createdAt ? formatter.date(user.createdAt) : 'New Member',
+        memberTier: 'VIP Gold Member',
         totalOrders: orderHistory.length,
     }
 
     const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-        { id: 'overview', label: 'Thông tin cá nhân', icon: <FiUser className="w-4 h-4" /> },
-        { id: 'orders', label: 'Lịch sử đơn hàng', icon: <FiShoppingBag className="w-4 h-4" /> },
-        { id: 'reservations', label: 'Lịch sử đặt bàn', icon: <FiCalendar className="w-4 h-4" /> },
-        { id: 'settings', label: 'Cài đặt tài khoản', icon: <FiSettings className="w-4 h-4" /> },
+        { id: 'overview', label: 'Personal Info', icon: <FiUser className="w-4 h-4" /> },
+        { id: 'orders', label: 'Order History', icon: <FiShoppingBag className="w-4 h-4" /> },
+        { id: 'reservations', label: 'Reservation History', icon: <FiCalendar className="w-4 h-4" /> },
+        { id: 'settings', label: 'Account Settings', icon: <FiSettings className="w-4 h-4" /> },
     ]
-
 
     return (
         <div
@@ -159,124 +158,213 @@ export default function ProfilePage() {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-8">
                 {/* Profile Hero Section */}
                 <div
-                    className="rounded-3xl overflow-hidden relative shadow-2xl border border-amber-900/10"
+                    className="rounded-3xl overflow-hidden relative shadow-2xl border"
                     style={{
-                        background: 'linear-gradient(135deg, #3D2B1F 0%, #5C4033 50%, #8B6B4A 100%)',
+                        background: 'linear-gradient(135deg, #1C120C 0%, #2A1C12 40%, #3D2B1F 100%)',
+                        borderColor: 'rgba(212, 175, 55, 0.25)',
+                        boxShadow: '0 25px 50px -12px rgba(28, 18, 12, 0.5), 0 0 30px rgba(212, 175, 55, 0.08)'
                     }}
                 >
-                    {/* Subtle Gold Pattern */}
+                    {/* Ambient Gold radial glow background */}
                     <div
-                        className="absolute inset-0 opacity-10 pointer-events-none"
+                        className="absolute -top-24 -left-24 w-96 h-96 rounded-full pointer-events-none blur-3xl opacity-30"
+                        style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%)' }}
+                    />
+                    <div
+                        className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full pointer-events-none blur-3xl opacity-20"
+                        style={{ background: 'radial-gradient(circle, rgba(232, 93, 26, 0.3) 0%, transparent 70%)' }}
+                    />
+
+                    {/* Geometric Gold Lines Pattern Overlay */}
+                    <div
+                        className="absolute inset-0 opacity-[0.04] pointer-events-none"
                         style={{
-                            backgroundImage:
-                                'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,175,55,0.4) 20px, rgba(212,175,55,0.4) 21px)',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='none' stroke='%23D4AF37' stroke-width='1.5'/%3E%3C/svg%3E")`,
+                            backgroundSize: '40px 40px',
                         }}
                     />
 
                     <div className="relative p-6 sm:p-10 md:p-12">
                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
                             {/* Left: Avatar & Info */}
-                            <div className="flex items-center gap-6">
-                                <div className="relative">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                                <div className="relative shrink-0">
                                     <div
-                                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-amber-900/40 p-1 shadow-2xl"
-                                        style={{ border: '3px solid #D4AF37' }}
+                                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden p-1 shadow-2xl relative"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #8A651E 100%)',
+                                            boxShadow: '0 0 25px rgba(212, 175, 55, 0.3)'
+                                        }}
                                     >
-                                        <img
-                                            src={profileUser.avatar}
-                                            alt={profileUser.name}
-                                            className="w-full h-full object-cover rounded-full bg-amber-50"
-                                        />
+                                        <div className="w-full h-full rounded-full overflow-hidden p-0.5 bg-[#1C120C]">
+                                            <img
+                                                src={profileUser.avatar}
+                                                alt={profileUser.name}
+                                                className="w-full h-full object-cover rounded-full bg-amber-50/10"
+                                            />
+                                        </div>
                                     </div>
                                     <div
-                                        className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-lg text-amber-950 font-bold"
-                                        style={{ background: '#D4AF37' }}
+                                        className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-xl text-amber-950 font-bold flex items-center justify-center"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #F3E5AB, #D4AF37)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                                            border: '1.5px solid #FFF'
+                                        }}
                                         title="VIP Gold Member"
                                     >
-                                        <FiAward className="w-4 h-4 stroke-[3]" />
+                                        <FiAward className="w-4 h-4 stroke-[2.5]" />
                                     </div>
                                 </div>
 
-                                <div className="space-y-1">
+                                <div className="space-y-2.5">
                                     <div className="flex items-center gap-3 flex-wrap">
-                                        <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-50 font-serif tracking-tight">
+                                        <h1
+                                            className="text-2xl sm:text-3xl font-extrabold font-serif tracking-tight"
+                                            style={{
+                                                background: 'linear-gradient(135deg, #FFFFFF 0%, #F5EDE0 60%, #E6C875 100%)',
+                                                WebkitBackgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                            }}
+                                        >
                                             {profileUser.name}
                                         </h1>
                                         <span
-                                            className="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase flex items-center gap-1 shadow-sm"
-                                            style={{ background: '#D4AF37', color: '#3D2B1F' }}
+                                            className="px-3 py-1 rounded-full text-[11px] font-extrabold tracking-widest uppercase flex items-center gap-1.5 shadow-md backdrop-blur-md"
+                                            style={{
+                                                background: 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(138,101,30,0.3) 100%)',
+                                                border: '1px solid rgba(212, 175, 55, 0.4)',
+                                                color: '#F3E5AB',
+                                                boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                                            }}
                                         >
-                                            <FiShield className="w-3 h-3" />
+                                            <FiShield className="w-3 h-3 text-amber-300" />
                                             {profileUser.memberTier}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-amber-200/70 font-medium">
-                                        Thành viên từ: {profileUser.joinDate}
+
+                                    <p className="text-xs text-amber-200/60 font-medium flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80 inline-block" />
+                                        Member since: <span className="text-amber-100 font-semibold">{profileUser.joinDate}</span>
                                     </p>
-                                    <div className="pt-2 flex items-center gap-6">
-                                        <div>
-                                            <p className="text-xl font-bold text-amber-300">
-                                                {profileUser.totalOrders}
-                                            </p>
-                                            <p className="text-xs text-amber-200/60">Tổng đơn hàng</p>
+
+                                    {/* Stats Grid Pill Container */}
+                                    <div className="pt-2 flex items-center gap-4 flex-wrap">
+                                        <div
+                                            className="px-4 py-2 rounded-2xl border backdrop-blur-md flex items-center gap-3"
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.04)',
+                                                borderColor: 'rgba(255, 255, 255, 0.08)'
+                                            }}
+                                        >
+                                            <div>
+                                                <p className="text-base font-extrabold text-amber-300 leading-none">
+                                                    {profileUser.totalOrders}
+                                                </p>
+                                                <p className="text-[10px] text-amber-200/60 uppercase font-bold tracking-wider mt-0.5">Total Orders</p>
+                                            </div>
                                         </div>
-                                        <div className="h-8 w-px bg-amber-700/50" />
-                                        <div>
-                                            <p className="text-xl font-bold text-emerald-400">Đang hoạt động</p>
-                                            <p className="text-xs text-amber-200/60">Trạng thái tài khoản</p>
+
+                                        <div
+                                            className="px-4 py-2 rounded-2xl border backdrop-blur-md flex items-center gap-3"
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.04)',
+                                                borderColor: 'rgba(255, 255, 255, 0.08)'
+                                            }}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="relative flex h-2.5 w-2.5">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                                </span>
+                                                <div>
+                                                    <p className="text-xs font-extrabold text-emerald-400 leading-none">Active</p>
+                                                    <p className="text-[10px] text-amber-200/60 uppercase font-bold tracking-wider mt-0.5">Account Status</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right: Upcoming Reservation Badge Card */}
+                            {/* Right: Upcoming Reservation Glass Card */}
                             <div
-                                className="w-full lg:w-auto min-w-[260px] p-5 rounded-2xl border backdrop-blur-md shadow-lg"
+                                className="w-full lg:w-auto min-w-[280px] p-6 rounded-3xl border backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-amber-400/40"
                                 style={{
-                                    background: 'rgba(255, 255, 255, 0.08)',
+                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)',
                                     borderColor: 'rgba(212, 175, 55, 0.3)',
+                                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.35)'
                                 }}
                             >
-                                <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
-                                    <FiCalendar className="w-4 h-4 text-amber-400" />
-                                    <span>Lượt Đặt Bàn Gần Nhất</span>
+                                {/* Glass shine overlay */}
+                                <div
+                                    className="absolute -top-12 -right-12 w-24 h-24 rounded-full pointer-events-none opacity-20"
+                                    style={{ background: 'radial-gradient(circle, #FFFFFF 0%, transparent 80%)' }}
+                                />
+
+                                <div className="flex items-center justify-between gap-2 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3.5 border-b border-amber-500/20 pb-2.5">
+                                    <div className="flex items-center gap-2">
+                                        <FiCalendar className="w-4 h-4 text-amber-400" />
+                                        <span>Upcoming Reservation</span>
+                                    </div>
+                                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                                 </div>
 
                                 {upcomingReservation ? (
-                                    <div className="space-y-1.5 text-sm text-amber-100">
-                                        <p className="font-bold text-white text-base">
+                                    <div className="space-y-2.5 text-sm text-amber-100">
+                                        <p className="font-extrabold text-white text-lg tracking-tight">
                                             {formatter.date(upcomingReservation.reservationTime)}
                                         </p>
-                                        <div className="flex items-center gap-3 text-xs text-amber-200/80">
-                                            <span className="flex items-center gap-1">
-                                                <FiClock className="w-3.5 h-3.5" />
+                                        <div className="flex items-center gap-4 text-xs text-amber-200/80">
+                                            <span className="flex items-center gap-1.5 bg-black/20 px-2.5 py-1 rounded-lg border border-white/5">
+                                                <FiClock className="w-3.5 h-3.5 text-amber-400" />
                                                 {formatter.time(upcomingReservation.reservationTime)}
                                             </span>
-                                            <span className="flex items-center gap-1">
-                                                <FiUsers className="w-3.5 h-3.5" />
-                                                {upcomingReservation.numberOfGuests} Khách
+                                            <span className="flex items-center gap-1.5 bg-black/20 px-2.5 py-1 rounded-lg border border-white/5">
+                                                <FiUsers className="w-3.5 h-3.5 text-amber-400" />
+                                                {upcomingReservation.numberOfGuests} Guests
                                             </span>
                                         </div>
-                                        <div className="pt-1 text-xs text-amber-300 font-semibold">
-                                            {upcomingReservation.tableID
-                                                ? `📍 Bàn số ${upcomingReservation.tableID}`
-                                                : '⌛ Đang xếp bàn'}
-                                            <span className="ml-2 px-2 py-0.5 rounded bg-amber-900/60 text-amber-200 text-[10px] uppercase">
+                                        <div className="pt-2 flex items-center justify-between text-xs text-amber-300 font-semibold border-t border-white/5">
+                                            <span>
+                                                {upcomingReservation.tableID ? (
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <FiMapPin className="w-3.5 h-3.5 text-amber-400" />
+                                                        Table #{upcomingReservation.tableID}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <FiClock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                                                        Assigning Table
+                                                    </span>
+                                                )}
+                                            </span>
+                                            <span
+                                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                                                    upcomingReservation.status === 'CONFIRMED'
+                                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                                        : 'bg-amber-500/20 text-amber-200 border border-amber-500/30'
+                                                }`}
+                                            >
                                                 {upcomingReservation.status}
                                             </span>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
-                                        <p className="text-xs text-amber-200/70">
-                                            Bạn chưa có lượt đặt bàn giữ chỗ nào sắp tới.
+                                        <p className="text-xs text-amber-200/70 font-medium">
+                                            You have no upcoming table reservations.
                                         </p>
                                         <Link
                                             href={ROUTES.GUEST.RESERVATION}
-                                            className="inline-flex items-center justify-center gap-2 w-full py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
+                                            className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-2xl text-xs font-extrabold transition-all shadow-lg text-amber-950 hover:brightness-110 active:scale-95"
+                                            style={{
+                                                background: 'linear-gradient(135deg, #F3E5AB 0%, #D4AF37 100%)',
+                                                boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)'
+                                            }}
                                         >
-                                            <span>Đặt Bàn Ngay</span>
-                                            <FiArrowRight className="w-3.5 h-3.5" />
+                                            <span>Book a Table</span>
+                                            <FiArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                                         </Link>
                                     </div>
                                 )}
@@ -324,10 +412,10 @@ export default function ProfilePage() {
                             <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
                                 <div>
                                     <h2 className="text-xl font-bold text-amber-950 font-serif">
-                                        Thông Tin Hồ Sơ
+                                        Profile Information
                                     </h2>
                                     <p className="text-xs text-amber-900/60">
-                                        Quản lý và cập nhật thông tin liên hệ của bạn
+                                        Manage and update your personal contact details
                                     </p>
                                 </div>
 
@@ -341,16 +429,16 @@ export default function ProfilePage() {
                                     }`}
                                 >
                                     {isSaving ? (
-                                        'Đang lưu...'
+                                        'Saving...'
                                     ) : editMode ? (
                                         <>
                                             <FiSave className="w-4 h-4" />
-                                            <span>Lưu Thay Đổi</span>
+                                            <span>Save Changes</span>
                                         </>
                                     ) : (
                                         <>
                                             <FiEdit3 className="w-4 h-4" />
-                                            <span>Chỉnh Sửa</span>
+                                            <span>Edit Profile</span>
                                         </>
                                     )}
                                 </button>
@@ -360,7 +448,7 @@ export default function ProfilePage() {
                                 <div>
                                     <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <FiUser className="w-3.5 h-3.5 text-amber-700" />
-                                        <span>Họ và Tên</span>
+                                        <span>Full Name</span>
                                     </label>
                                     {editMode ? (
                                         <input
@@ -379,7 +467,7 @@ export default function ProfilePage() {
                                 <div>
                                     <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <FiMail className="w-3.5 h-3.5 text-amber-700" />
-                                        <span>Địa Chỉ Email</span>
+                                        <span>Email Address</span>
                                     </label>
                                     {editMode ? (
                                         <input
@@ -398,7 +486,7 @@ export default function ProfilePage() {
                                 <div>
                                     <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <FiPhone className="w-3.5 h-3.5 text-amber-700" />
-                                        <span>Số Điện Thoại</span>
+                                        <span>Phone Number</span>
                                     </label>
                                     {editMode ? (
                                         <input
@@ -417,7 +505,7 @@ export default function ProfilePage() {
                                 <div>
                                     <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <FiMapPin className="w-3.5 h-3.5 text-amber-700" />
-                                        <span>Địa Chỉ Giao Hàng</span>
+                                        <span>Delivery Address</span>
                                     </label>
                                     {editMode ? (
                                         <input
@@ -440,36 +528,36 @@ export default function ProfilePage() {
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-amber-900/10 space-y-4">
                                 <h3 className="font-bold text-amber-950 text-base font-serif flex items-center gap-2 border-b border-amber-900/10 pb-3">
                                     <FiAward className="w-5 h-5 text-amber-600" />
-                                    <span>Đặc Quyền Hội Viên</span>
+                                    <span>Member Privileges</span>
                                 </h3>
                                 <ul className="space-y-3 text-xs font-medium text-amber-900/80">
                                     <li className="flex items-center gap-2">
                                         <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                        <span>Giảm 10% tổng hóa đơn cho mọi lượt đặt bàn</span>
+                                        <span>10% discount on total bill for all dining reservations</span>
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                        <span>Ưu tiên giữ bàn đẹp khu vực sân vườn</span>
+                                        <span>Priority seating in premium garden view area</span>
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                        <span>Tặng quà sinh nhật & tráng miệng đặc biệt</span>
+                                        <span>Complimentary birthday gifts & special dessert treats</span>
                                     </li>
                                 </ul>
                             </div>
 
                             <div className="bg-gradient-to-br from-amber-900 to-amber-950 rounded-3xl p-6 text-white shadow-lg space-y-3">
                                 <h3 className="font-bold text-amber-200 text-base font-serif">
-                                    Bạn muốn trải nghiệm ẩm thực?
+                                    Craving a Great Meal?
                                 </h3>
                                 <p className="text-xs text-amber-100/70">
-                                    Khám phá thực đơn độc quyền của Foodie Restaurant và đặt món giao tận nơi!
+                                    Explore Foodie Restaurant's exclusive menu and get your favorites delivered!
                                 </p>
                                 <Link
                                     href={ROUTES.GUEST.MENU}
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
                                 >
-                                    <span>Xem Thực Đơn</span>
+                                    <span>Explore Menu</span>
                                     <FiArrowRight className="w-3.5 h-3.5" />
                                 </Link>
                             </div>
@@ -483,10 +571,10 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
                             <div>
                                 <h2 className="text-xl font-bold text-amber-950 font-serif">
-                                    Lịch Sử Đơn Hàng
+                                    Order History
                                 </h2>
                                 <p className="text-xs text-amber-900/60">
-                                    Danh sách các đơn hàng đã đặt tại nhà hàng ({orderHistory.length} đơn)
+                                    List of orders placed at the restaurant ({orderHistory.length} orders)
                                 </p>
                             </div>
                         </div>
@@ -497,13 +585,13 @@ export default function ProfilePage() {
                                     <FiShoppingBag className="w-8 h-8" />
                                 </div>
                                 <p className="text-sm font-semibold text-amber-950">
-                                    Bạn chưa có đơn hàng nào.
+                                    You have no past orders yet.
                                 </p>
                                 <Link
                                     href={ROUTES.GUEST.MENU}
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
                                 >
-                                    <span>Đặt món ngay</span>
+                                    <span>Order Food Now</span>
                                     <FiArrowRight className="w-3.5 h-3.5" />
                                 </Link>
                             </div>
@@ -527,7 +615,7 @@ export default function ProfilePage() {
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
                                                         <h4 className="font-extrabold text-amber-950 text-base">
-                                                            Đơn hàng #{order.id}
+                                                            Order #{order.id}
                                                         </h4>
                                                         <span
                                                             className={`px-3 py-1 rounded-full text-xs font-bold border ${statusBadgeStyle}`}
@@ -536,14 +624,14 @@ export default function ProfilePage() {
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-amber-900/60">
-                                                        Thời gian đặt: {formatter.date(order.createdAt)} -{' '}
+                                                        Order Time: {formatter.date(order.createdAt)} -{' '}
                                                         {formatter.time(order.createdAt)}
                                                     </p>
                                                 </div>
 
                                                 <div className="flex items-center gap-4">
                                                     <div className="text-right">
-                                                        <p className="text-xs text-amber-900/60">Tổng tiền</p>
+                                                        <p className="text-xs text-amber-900/60">Total Price</p>
                                                         <p className="font-extrabold text-amber-900 text-base">
                                                             {order.totalPrice
                                                                 ? formatter.currency(order.totalPrice)
@@ -556,10 +644,10 @@ export default function ProfilePage() {
                                                         target="_blank"
                                                         onClick={(e) => e.stopPropagation()}
                                                         className="p-2.5 rounded-xl bg-white border border-amber-900/20 text-amber-900 hover:bg-amber-100 transition-colors text-xs font-bold flex items-center gap-1"
-                                                        title="Xem Hóa Đơn K80"
+                                                        title="View K80 Invoice"
                                                     >
                                                         <FiPrinter className="w-4 h-4" />
-                                                        <span className="hidden sm:inline">Hóa đơn</span>
+                                                        <span className="hidden sm:inline">Invoice</span>
                                                     </Link>
 
                                                     <div className="text-amber-800">
@@ -576,7 +664,7 @@ export default function ProfilePage() {
                                             {isExpanded && (
                                                 <div className="p-5 bg-white border-t border-amber-900/10 space-y-3">
                                                     <h5 className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                                                        Chi Tiết Món Ăn ({order.details?.length || 0} món):
+                                                        Order Items ({order.details?.length || 0} items):
                                                     </h5>
                                                     <div className="space-y-2">
                                                         {order.details?.map(
@@ -596,8 +684,9 @@ export default function ProfilePage() {
                                                                         />
                                                                         <div>
                                                                             <p className="font-bold text-amber-950">
-                                                                                {detail.dish?.name || 'Món ăn'}
-                                                                            </p>                                                                            <p className="text-xs text-amber-900/60">
+                                                                                {detail.dish?.name || 'Dish'}
+                                                                            </p>
+                                                                            <p className="text-xs text-amber-900/60">
                                                                                 {detail.price?.toLocaleString('vi-VN')} đ
                                                                             </p>
                                                                         </div>
@@ -625,10 +714,10 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
                             <div>
                                 <h2 className="text-xl font-bold text-amber-950 font-serif">
-                                    Lịch Sử Đặt Bàn Giữ Chỗ
+                                    Reservation History
                                 </h2>
                                 <p className="text-xs text-amber-900/60">
-                                    Danh sách lượt đặt giữ chỗ tại nhà hàng ({allReservations.length} lượt)
+                                    List of table reservations at the restaurant ({allReservations.length} reservations)
                                 </p>
                             </div>
                             <Link
@@ -636,7 +725,7 @@ export default function ProfilePage() {
                                 className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
                             >
                                 <FiCalendar className="w-4 h-4" />
-                                <span>Đặt Bàn Mới</span>
+                                <span>New Reservation</span>
                             </Link>
                         </div>
 
@@ -646,13 +735,13 @@ export default function ProfilePage() {
                                     <FiCalendar className="w-8 h-8" />
                                 </div>
                                 <p className="text-sm font-semibold text-amber-950">
-                                    Bạn chưa có lượt đặt bàn nào.
+                                    You have no table reservations yet.
                                 </p>
                                 <Link
                                     href={ROUTES.GUEST.RESERVATION}
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
                                 >
-                                    <span>Đặt bàn giữ chỗ ngay</span>
+                                    <span>Book a Table Now</span>
                                     <FiArrowRight className="w-3.5 h-3.5" />
                                 </Link>
                             </div>
@@ -686,18 +775,19 @@ export default function ProfilePage() {
                                         <div className="space-y-2 text-xs text-amber-900/80">
                                             <p className="flex items-center gap-2">
                                                 <FiClock className="w-3.5 h-3.5 text-amber-700" />
-                                                Giờ hẹn: <strong className="text-amber-950">{formatter.time(res.reservationTime)}</strong>
+                                                Time: <strong className="text-amber-950">{formatter.time(res.reservationTime)}</strong>
                                             </p>
                                             <p className="flex items-center gap-2">
                                                 <FiUsers className="w-3.5 h-3.5 text-amber-700" />
-                                                Số lượng: <strong className="text-amber-950">{res.numberOfGuests} Khách</strong>
+                                                Guests: <strong className="text-amber-950">{res.numberOfGuests} Guests</strong>
                                             </p>
                                             <p className="flex items-center gap-2">
-                                                📍 Sơ đồ bàn: <strong className="text-amber-950">{res.tableID ? `Bàn số ${res.tableID}` : 'Đang sắp xếp bàn'}</strong>
+                                                <FiMapPin className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                                                <span>Table:</span> <strong className="text-amber-950">{res.tableID ? `Table #${res.tableID}` : 'Assigning Table'}</strong>
                                             </p>
                                             {res.specialRequests && (
                                                 <p className="pt-1 text-amber-900/60 italic">
-                                                    Ghi chú: &quot;{res.specialRequests}&quot;
+                                                    Notes: &quot;{res.specialRequests}&quot;
                                                 </p>
                                             )}
                                         </div>
@@ -708,7 +798,7 @@ export default function ProfilePage() {
                                                     onClick={() => handleCancelReservation(res.id)}
                                                     className="px-4 py-2 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 text-xs font-bold transition-colors"
                                                 >
-                                                    Hủy Đặt Bàn
+                                                    Cancel Reservation
                                                 </button>
                                             </div>
                                         )}
@@ -724,20 +814,20 @@ export default function ProfilePage() {
                     <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-900/10 space-y-6">
                         <div className="border-b border-amber-900/10 pb-4">
                             <h2 className="text-xl font-bold text-amber-950 font-serif">
-                                Cài Đặt & Bảo Mật Tài Khoản
+                                Account & Security Settings
                             </h2>
                             <p className="text-xs text-amber-900/60">
-                                Tùy chỉnh ngôn ngữ, nhận thông báo và đổi mật khẩu đăng nhập
+                                Customize language, notification preferences, and account security
                             </p>
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-amber-50/50 border border-amber-900/10">
                             <div>
                                 <h4 className="font-bold text-amber-950 text-base">
-                                    Trang Cài Đặt Hệ Thống Chuyên Sâu
+                                    Advanced System Settings
                                 </h4>
                                 <p className="text-xs text-amber-900/60">
-                                    Đổi mật khẩu, cài đặt thông báo SMS/Email và tùy chọn ngôn ngữ
+                                    Change password, configure SMS/Email notifications, and language options
                                 </p>
                             </div>
 
@@ -745,7 +835,7 @@ export default function ProfilePage() {
                                 href="/setting"
                                 className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 whitespace-nowrap"
                             >
-                                <span>Mở Trang Cài Đặt</span>
+                                <span>Open Settings</span>
                                 <FiArrowRight className="w-4 h-4" />
                             </Link>
                         </div>

@@ -6,6 +6,7 @@ import { useAppSelector } from '@/redux/hooks'
 import { checkRole } from '@/utils'
 import { useAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 import { LOGO_URL } from '@/config/constants/public'
+import { FiAlertCircle, FiSliders } from 'react-icons/fi'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')
@@ -25,10 +26,6 @@ const LoginPage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         const success = await login({ username: email, password })
-        // if (success.access_token && user && user.roleID) {
-        //     // console.log("Role id: " + user.roleID)
-        //     checkRole(user.roleID, router)
-        // }
     }
 
     if (isAuthenticated) return null
@@ -82,10 +79,10 @@ const LoginPage = () => {
                     {/* Error */}
                     {error && (
                         <div
-                            className="flex items-start gap-2 p-3 rounded-lg mb-5 text-sm"
+                            className="flex items-center gap-2 p-3 rounded-lg mb-5 text-sm"
                             style={{ background: "#fff5f5", border: "1px solid #fecaca", color: "#c0392b" }}
                         >
-                            <span className="mt-0.5">⚠</span>
+                            <FiAlertCircle className="w-4 h-4 text-red-500 shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
@@ -97,8 +94,9 @@ const LoginPage = () => {
                             className="rounded-xl p-3"
                             style={{ background: "#faf6f0", border: "1px solid #e8d5b8" }}
                         >
-                            <p className="text-xs font-bold tracking-wider mb-2.5" style={{ color: "rgba(107,78,53,0.45)" }}>
-                                🧪 TEST ACCOUNTS
+                            <p className="text-xs font-bold tracking-wider mb-2.5 flex items-center gap-1.5" style={{ color: "rgba(107,78,53,0.65)" }}>
+                                <FiSliders className="w-3.5 h-3.5 text-amber-700" />
+                                <span>TEST ACCOUNTS</span>
                             </p>
                             <div className="flex gap-2">
                                 {[

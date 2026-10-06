@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from "react";
 import { FaUtensils } from "react-icons/fa";
-import { FiCalendar } from "react-icons/fi";
+import { FiCalendar, FiCheckCircle } from "react-icons/fi";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { reservation_services } from "@/services/reservation.services";
 import { IReservationPayload } from "@/interfaces";
@@ -211,7 +211,10 @@ const ReservationForm = ({
                         Processing Reservation...
                     </>
                 ) : (
-                    '🎉 Confirm Reservation'
+                    <span className="flex items-center gap-2">
+                        <FiCheckCircle className="w-5 h-5 text-white" />
+                        <span>Confirm Reservation</span>
+                    </span>
                 )}
             </button>
         </form>

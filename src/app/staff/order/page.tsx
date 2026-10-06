@@ -10,6 +10,7 @@ import { defaultQuery, IDish, IOrderDetailBase, IOrderCreate } from "@/interface
 import { formatter } from "@/utils";
 import { postOrder } from "@/services/order.services";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
 interface POSCartItem {
     dish: IDish
@@ -260,14 +261,16 @@ const StaffOrderPage = () => {
                 </div>
 
                 {orderSuccessMsg && (
-                    <div className="mx-4 mt-3 p-3 rounded-xl text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
-                        ✓ {orderSuccessMsg}
+                    <div className="mx-4 mt-3 p-3 rounded-xl text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-2">
+                        <FiCheckCircle className="w-4 h-4 shrink-0 text-green-400" />
+                        <span>{orderSuccessMsg}</span>
                     </div>
                 )}
 
                 {orderErrorMsg && (
-                    <div className="mx-4 mt-3 p-3 rounded-xl text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
-                        ⚠ {orderErrorMsg}
+                    <div className="mx-4 mt-3 p-3 rounded-xl text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-2">
+                        <FiAlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                        <span>{orderErrorMsg}</span>
                     </div>
                 )}
 
