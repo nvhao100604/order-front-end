@@ -164,10 +164,9 @@ const authSlice = createSlice({
                 }
                 if (wasLoggedIn) {
                     state.isAuthenticated = true
-                    state.isLoading = true
-                } else {
-                    state.isLoading = false
                 }
+                // Do not lock UI with isLoading during initialization
+                state.isLoading = false
             }
         },
         setToken: (state, action: PayloadAction<string>) => {
@@ -228,12 +227,9 @@ const authSlice = createSlice({
                 state.isLoading = false
                 state.error = action.payload || 'Registration failed'
             })
-            // Refresh token
-            .addCase(refreshToken.pending, (state) => {
-                // Only trigger global loading overlay if token is not already present
-                if (!state.token) {
-                    state.isLoading = true
-                }
+            // Refresh token (Silent background refresh)
+            .addCase(refreshToken.pending, (_state) => {
+                // Keep isLoading = false so refresh is 100% silent in the background
             })
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.token = action.payload.access_token
