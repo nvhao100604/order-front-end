@@ -1,4 +1,5 @@
 'use client'
+
 import { LoginCredentials, RegisterPayload } from "@/interfaces"
 import { UserUpdate } from "@/interfaces/user.interface"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
@@ -57,7 +58,8 @@ const useEnhancedAuth = (config?: object) => {
         user: swrData?.data || user,
         token,
         isAuthenticated,
-        isLoading: reduxIsLoading || (token ? isValidating : false),
+        isLoading: reduxIsLoading,
+        isValidating,
         error: swrError || null,
         mutate,
         // Actions
