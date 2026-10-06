@@ -13,9 +13,7 @@ const loginUser = createAsyncThunk<
     'auth/loginUser',
     async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
-            // console.log("credentials: ", credentials)
             const response = await auth_services.authLogin(credentials)
-            // console.log("token", response)
             if (!response || !response.access_token) {
                 return rejectWithValue('No token')
             }
@@ -35,32 +33,10 @@ const loginUser = createAsyncThunk<
                 user: userResponse.data
             }
         } catch (error: any) {
-            // console.log("CATCH ERROR:", error)
             return rejectWithValue(error.response?.data?.detail || 'Login failed')
         }
     }
 )
-
-// const fetchCurrentUser = createAsyncThunk<
-//     UserResponse,
-//     void,
-//     { rejectValue: string }
-// >(
-//     'auth/fetchCurrentUser',
-//     async (_, { rejectWithValue }) => {
-//         try {
-//             const response = await user_services.getCurrentUser()
-
-//             if (!response.success || !response.data) {
-//                 return rejectWithValue(response.message || 'Failed to fetch user')
-//             }
-
-//             return response.data
-//         } catch (error: any) {
-//             return rejectWithValue(error.response?.data?.detail || 'Failed to fetch user')
-//         }
-//     }
-// )
 
 const registerUser = createAsyncThunk<
     AuthResponse,
@@ -254,7 +230,10 @@ const authSlice = createSlice({
             })
             // Refresh token
             .addCase(refreshToken.pending, (state) => {
-                state.isLoading = true
+                // Only trigger global loading overlay if token is not already present
+                if (!state.token) {
+                    state.isLoading = true
+                }
             })
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.token = action.payload.access_token

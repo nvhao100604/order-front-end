@@ -30,7 +30,7 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
                     <div className="flex flex-col items-center justify-center p-8 bg-[#1F1A17]/95 border border-[#D4AF37]/40 rounded-2xl shadow-2xl backdrop-blur-md space-y-4">
                         <LoadingBox />
                         <p className="text-xs font-semibold text-stone-200 tracking-wide text-center">
-                            Refreshing session...
+                            Loading data, please wait a moment...
                         </p>
                     </div>
                 </Modal>
