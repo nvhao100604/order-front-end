@@ -176,9 +176,22 @@ const authSlice = createSlice({
             state.error = null
         },
         initializeAuth: (state) => {
-            const userStr = localStorage.getItem(USER_STORAGE_KEY)
-            if (userStr) {
-                state.user = JSON.parse(userStr)
+            if (typeof window !== 'undefined') {
+                const wasLoggedIn = localStorage.getItem(IS_AUTHENTICATED_KEY) === "true"
+                const userStr = localStorage.getItem(USER_STORAGE_KEY)
+                if (userStr) {
+                    try {
+                        state.user = JSON.parse(userStr)
+                    } catch (e) {
+                        state.user = null
+                    }
+                }
+                if (wasLoggedIn) {
+                    state.isAuthenticated = true
+                    state.isLoading = true
+                } else {
+                    state.isLoading = false
+                }
             }
         },
         setToken: (state, action: PayloadAction<string>) => {
@@ -240,6 +253,9 @@ const authSlice = createSlice({
                 state.error = action.payload || 'Registration failed'
             })
             // Refresh token
+            .addCase(refreshToken.pending, (state) => {
+                state.isLoading = true
+            })
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.token = action.payload.access_token
                 state.user = action.payload.user
@@ -251,8 +267,12 @@ const authSlice = createSlice({
             })
             .addCase(refreshToken.rejected, (state) => {
                 state.token = null
+                state.user = null
                 state.isAuthenticated = false
                 state.isLoading = false
+
+                localStorage.removeItem(IS_AUTHENTICATED_KEY)
+                localStorage.removeItem(USER_STORAGE_KEY)
             })
             // Update profile
             .addCase(updateProfile.fulfilled, (state, action) => {

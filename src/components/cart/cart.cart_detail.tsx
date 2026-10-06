@@ -5,8 +5,10 @@ import { useState } from "react";
 import { ICartItem, IOrderDetailBase, Total } from "@/interfaces";
 import { Modal } from "../app";
 import LoginModal from "../login/login.modal";
+import SuccessModal from "../common/success_modal";
 import { toast } from "react-toastify";
 import { useSubmitOrder } from "@/hooks/redux_custom_hooks/cartSlice.hooks";
+import { useRouter } from "next/navigation";
 
 const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
     return {
@@ -17,9 +19,12 @@ const convertItemToDetail = (item: ICartItem): IOrderDetailBase => {
 }
 
 const CartDetail = () => {
-    // const [order, setOrder] = useState<IOrder>(tempOrder)
+    const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
+    const [lastOrderTotal, setLastOrderTotal] = useState(0)
+    const [lastOrderItemsCount, setLastOrderItemsCount] = useState(0)
     const taxNumber = 8.5;
 
     const auth = useAppSelector(state => state.auth)
@@ -48,16 +53,26 @@ const CartDetail = () => {
 
     const onCheckout = async () => {
         if (auth.isAuthenticated && auth.user) {
-            await placeOrder({
-                customerID: auth.user.id,
-                notes: "tình cha",
-                details: details,
-                totalPrice: calculateTotal().total,
-                subtotal: calculateTotal().subtotal,
-                delivery: calculateTotal().delivery,
-                tax: calculateTotal().tax
-            })
-            // toast.success("Your order has been placed successfully!")
+            const currentTotal = calculateTotal().total
+            const currentCount = filtered_dish.reduce((sum, item) => sum + item.quantity, 0)
+            try {
+                await placeOrder({
+                    customerID: auth.user.id,
+                    notes: "Đặt món trực tuyến",
+                    details: details,
+                    totalPrice: currentTotal,
+                    subtotal: calculateTotal().subtotal,
+                    delivery: calculateTotal().delivery,
+                    tax: calculateTotal().tax
+                })
+                setLastOrderTotal(currentTotal)
+                setLastOrderItemsCount(currentCount)
+                setShowConfirmModal(false)
+                setShowSuccessModal(true)
+                toast.success("Đặt đơn hàng thành công!")
+            } catch {
+                toast.error("Đã xảy ra lỗi khi đặt đơn hàng. Vui lòng thử lại.")
+            }
         } else {
             setIsOpen(true)
         }
@@ -86,51 +101,67 @@ const CartDetail = () => {
                     onClick={() => setShowConfirmModal(true)}
                     disabled={cartLength === 0}
                     className="w-full bg-green-500 hover:bg-green-600 text-white mt-4 py-3 rounded-lg font-semibold text-lg 
-                disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
                 >
                     Place Order
                 </button>
             </div>
             {showConfirmModal &&
                 <Modal handleClick={() => setShowConfirmModal(false)}>
-                    <div className="flex-1 items-center bg-white rounded-2xl p-4">
-                        <h3 className="text-lg font-semibold mb-4">Confirm checkout</h3>
-                        <p className="mb-6">Are you sure you want to place this order?</p>
-                        <div className="mb-4 rounded-b-md border-2 border-t-0 p-2">
+                    <div className="flex-1 items-center bg-white rounded-2xl p-6 shadow-xl max-w-lg">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Confirm checkout</h3>
+                        <p className="text-sm text-gray-600 mb-4">Are you sure you want to place this order?</p>
+                        <div className="mb-4 rounded-xl border border-gray-200 p-3 max-h-48 overflow-y-auto">
                             {filtered_dish.map((item) => (
                                 <div
-                                    className="flex place-content-stretch items-center justify-between text-md mx-12 my-2"
+                                    className="flex items-center justify-between text-sm py-2 border-b border-gray-100 last:border-0"
                                     key={item.id}>
-                                    <div className="flex items-center gap-4">
-                                        <img className="shrink-0 w-12 h-12 rounded-sm object-cover"
+                                    <div className="flex items-center gap-3">
+                                        <img className="shrink-0 w-10 h-10 rounded-lg object-cover"
                                             src={item.imgUrl}
                                             alt={item.name} />
-                                        <h3>{item.name}</h3>
+                                        <span className="font-medium text-gray-900">{item.name}</span>
                                     </div>
-                                    <div className="font-medium">x {item.quantity}</div>
+                                    <div className="font-semibold text-gray-700">x {item.quantity}</div>
                                 </div>
                             ))}
                         </div>
-                        <div className="text-md font-bold place-items-end mb-4 text-end">
-                            Total: {formatter.currency(calculateTotal().total)}
+                        <div className="text-md font-bold text-right mb-6 text-gray-900">
+                            Total: <span className="text-green-600">{formatter.currency(calculateTotal().total)}</span>
                         </div>
-                        <div className="flex justify-end gap-4">
+                        <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-semibold transition-all"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={onCheckout}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                className="px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 text-sm font-bold shadow-md transition-all"
                             >
-                                Confirm
+                                Confirm Order
                             </button>
                         </div>
                     </div>
                 </Modal>
             }
+
+            {/* Order Success Popup Modal */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                type="ORDER"
+                orderData={{
+                    totalAmount: lastOrderTotal,
+                    itemsCount: lastOrderItemsCount,
+                }}
+                onPrimaryAction={() => {
+                    setShowSuccessModal(false)
+                    router.push('/guest/order')
+                }}
+                onSecondaryAction={() => setShowSuccessModal(false)}
+            />
 
             {isOpen && !auth.isAuthenticated &&
                 <Modal handleClick={() => setIsOpen(false)}>
@@ -142,3 +173,4 @@ const CartDetail = () => {
 }
 
 export default CartDetail
+

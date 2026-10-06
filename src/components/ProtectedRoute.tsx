@@ -22,37 +22,33 @@ const ProtectedRoute = ({
     ),
 }: ProtectedRouteProps) => {
     const { isAuthenticated, user, isLoading } = useEnhancedAuth()
+    const userRole = user ? Number(user.roleID ?? (user as any)?.role_id ?? (user as any)?.role) : undefined
+    const isRoleAllowed = !requiredRoles || (userRole !== undefined && !isNaN(userRole) && requiredRoles.includes(userRole))
     const router = useRouter()
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.push(ROUTES.AUTH.LOGIN)
+        if (isLoading) return
+
+        if (!isAuthenticated) {
+            const currentUrl = typeof window !== 'undefined'
+                ? `${window.location.pathname}${window.location.search}`
+                : ROUTES.GUEST.HOME
+            router.push(`${ROUTES.AUTH.LOGIN}?redirect=${encodeURIComponent(currentUrl)}`)
             return
         }
 
-        if (
-            !isLoading &&
-            isAuthenticated &&
-            requiredRoles &&
-            user &&
-            user.roleID !== undefined &&
-            !requiredRoles.includes(user.roleID)
-        ) {
+        if (requiredRoles && !isRoleAllowed) {
             router.push(ROUTES.UNAUTHORIZED)
             return
         }
-    }, [isAuthenticated, user, isLoading, router, requiredRoles])
+    }, [isAuthenticated, isLoading, router, requiredRoles, isRoleAllowed])
 
     if (isLoading) {
         return <>{fallback}</>
     }
 
-    if (!isAuthenticated) {
-        return null
-    }
-
-    if (requiredRoles && user && user.roleID !== undefined && !requiredRoles.includes(user.roleID)) {
-        return null
+    if (!isAuthenticated || !isRoleAllowed) {
+        return <>{fallback}</>
     }
 
     return <>{children}</>

@@ -1,41 +1,77 @@
-"use client";
+'use client'
 
-import { defaultQuery, IOrderDetailResponse, OrderStatusKey, IReservationResponse } from "@/interfaces";
-import { formatter } from "@/utils";
-import { useState, useEffect } from "react";
-import { Header } from "./app";
-import { statusStyle } from "@/app/staff/manage/manage.component";
-import { useGetReservations } from "@/hooks/useReservation";
-import { useGetOrders } from "@/hooks/useOrder";
-import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
-import Link from "next/link";
-import { ROUTES } from "@/config/constants/route";
+import { useState, useEffect } from 'react'
+import { defaultQuery, IOrderDetailResponse, OrderStatusKey, IReservationResponse } from '@/interfaces'
+import { formatter } from '@/utils'
+import { Header } from './app'
+import { statusStyle } from '@/app/staff/manage/manage.component'
+import { useGetReservations } from '@/hooks/useReservation'
+import { useGetOrders } from '@/hooks/useOrder'
+import { useEnhancedAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
+import Link from 'next/link'
+import { ROUTES } from '@/config/constants/route'
+import {
+    FiUser,
+    FiMail,
+    FiPhone,
+    FiMapPin,
+    FiCalendar,
+    FiClock,
+    FiUsers,
+    FiShoppingBag,
+    FiPrinter,
+    FiAward,
+    FiSettings,
+    FiEdit3,
+    FiSave,
+    FiCheckCircle,
+    FiArrowRight,
+    FiShield,
+    FiChevronDown,
+    FiChevronUp,
+} from 'react-icons/fi'
+
+import { reservation_services } from '@/services/reservation.services'
+import { toast } from 'react-toastify'
+
+type Tab = 'overview' | 'orders' | 'reservations' | 'settings'
 
 const getStatusStyle = (status: OrderStatusKey) => {
-    return statusStyle[status] ?? statusStyle.PENDING;
-};
-
-type Tab = "overview" | "orders" | "settings";
+    return statusStyle[status] ?? statusStyle.PENDING
+}
 
 export default function ProfilePage() {
-    const [activeTab, setActiveTab] = useState<Tab>("overview");
-    const [editMode, setEditMode] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [activeTab, setActiveTab] = useState<Tab>('overview')
+    const [editMode, setEditMode] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+    const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null)
 
-    const { user, updateProfile } = useEnhancedAuth();
+    const { user, updateProfile } = useEnhancedAuth()
 
-    const { data: reservationRes } = useGetReservations(user?.email ? { email: user.email } : undefined);
-    const upcomingReservation = (reservationRes?.data as IReservationResponse[] | undefined)?.find(
+    const { data: reservationRes, mutate: mutateReservations } = useGetReservations(user?.email ? { email: user.email } : undefined)
+    const allReservations = (reservationRes?.data as IReservationResponse[] | undefined) || []
+    const upcomingReservation = allReservations.find(
         (r: IReservationResponse) => r.status === 'PENDING' || r.status === 'CONFIRMED'
-    );
+    )
+
+    const handleCancelReservation = async (id: number) => {
+        if (!confirm('Bạn có chắc chắn muốn hủy lượt đặt bàn này?')) return
+        try {
+            await reservation_services.cancelReservation(id)
+            toast.success('Hủy lượt đặt bàn thành công!')
+            mutateReservations()
+        } catch {
+            toast.error('Không thể hủy lượt đặt bàn. Vui lòng thử lại.')
+        }
+    }
 
     const [form, setForm] = useState({
         name: user?.name || '',
         email: user?.email || '',
         phone: user?.phoneNumber || '',
-        address: user?.address || ''
-    });
+        address: user?.address || '',
+    })
 
     useEffect(() => {
         if (user) {
@@ -43,521 +79,679 @@ export default function ProfilePage() {
                 name: user.name || '',
                 email: user.email || '',
                 phone: user.phoneNumber || '',
-                address: user.address || ''
-            });
+                address: user.address || '',
+            })
         }
-    }, [user]);
+    }, [user])
 
     const handleSaveProfile = async () => {
         if (!editMode) {
-            setEditMode(true);
-            return;
+            setEditMode(true)
+            return
         }
 
-        setIsSaving(true);
-        setStatusMsg(null);
+        setIsSaving(true)
+        setStatusMsg(null)
         try {
             await updateProfile({
                 name: form.name,
                 email: form.email,
                 phoneNumber: form.phone,
-                address: form.address
-            });
-            setEditMode(false);
-            setStatusMsg({ type: 'success', text: 'Profile updated successfully!' });
+                address: form.address,
+            })
+            setEditMode(false)
+            setStatusMsg({ type: 'success', text: 'Cập nhật hồ sơ cá nhân thành công!' })
         } catch (err: any) {
-            setStatusMsg({ type: 'error', text: err?.message || 'Failed to update profile.' });
+            setStatusMsg({ type: 'error', text: err?.message || 'Không thể cập nhật hồ sơ.' })
         } finally {
-            setIsSaving(false);
+            setIsSaving(false)
         }
-    };
+    }
 
-    const { data } = useGetOrders({
-        ...defaultQuery,
-        customerID: user?.id,
-    }, { revalidateOnMount: true }) ?? []
+    const { data: ordersData } = useGetOrders(
+        {
+            ...defaultQuery,
+            customerID: user?.id,
+        },
+        { revalidateOnMount: true }
+    )
 
-    const orderHistory = data?.data || []
+    const orderHistory = ordersData?.data || []
+
     const profileUser = {
-        name: user?.name || "Guest User",
-        email: user?.email || "No email provided",
-        phone: user?.phoneNumber || "No phone provided",
-        address: user?.address || "No address provided",
+        name: user?.name || 'Khách hàng thân thiết',
+        email: user?.email || 'Chưa cung cấp email',
+        phone: user?.phoneNumber || 'Chưa cung cấp SĐT',
+        address: user?.address || 'Chưa cập nhật địa chỉ',
         avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.username || 'foodie'}`,
-        joinDate: user?.createdAt ? formatter.date(user.createdAt) : "Member",
-        memberTier: "Gold Member",
+        joinDate: user?.createdAt ? formatter.date(user.createdAt) : 'Thành viên mới',
+        memberTier: 'Thành Viên VIP Gold',
         totalOrders: orderHistory.length,
-        favoriteTable: "Table 12 – Garden View",
-    };
+    }
 
-    const tabs: { id: Tab; label: string; icon: string }[] = [
-        { id: "overview", label: "Overview", icon: "◈" },
-        { id: "orders", label: "Order History", icon: "◎" },
-        // { id: "favorites", label: "Favorites", icon: "◇" },
-        { id: "settings", label: "Settings", icon: "◉" },
-    ];
+    const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+        { id: 'overview', label: 'Thông tin cá nhân', icon: <FiUser className="w-4 h-4" /> },
+        { id: 'orders', label: 'Lịch sử đơn hàng', icon: <FiShoppingBag className="w-4 h-4" /> },
+        { id: 'reservations', label: 'Lịch sử đặt bàn', icon: <FiCalendar className="w-4 h-4" /> },
+        { id: 'settings', label: 'Cài đặt tài khoản', icon: <FiSettings className="w-4 h-4" /> },
+    ]
+
 
     return (
         <div
-            className="min-h-screen"
+            className="min-h-screen pb-16"
             style={{
-                background: "linear-gradient(135deg, #faf6f0 0%, #f5ede0 40%, #ede0cc 100%)",
-                fontFamily: "'Plus Jakarta Sans'",
+                background: 'linear-gradient(135deg, #FAF6F0 0%, #F5EDE0 50%, #EDE0CC 100%)',
+                fontFamily: "'Inter', sans-serif",
             }}
         >
-            {/* Noise overlay */}
+            {/* Background Texture */}
             <div
-                className="fixed inset-0 pointer-events-none opacity-30"
+                className="fixed inset-0 pointer-events-none opacity-20"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
                 }}
             />
 
-            {/* Navbar */}
+            {/* Main Navigation Header */}
             <Header />
-            <div className="max-w-6xl mx-auto px-4 py-10 relative">
 
-                {/* Profile Hero */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-8">
+                {/* Profile Hero Section */}
                 <div
-                    className="rounded-2xl overflow-hidden mb-8 relative"
+                    className="rounded-3xl overflow-hidden relative shadow-2xl border border-amber-900/10"
                     style={{
-                        background: "linear-gradient(160deg, #8b6b4a 0%, #6b4e35 60%, #4a3525 100%)",
-                        boxShadow: "0 20px 60px rgba(74,53,37,0.35)",
+                        background: 'linear-gradient(135deg, #3D2B1F 0%, #5C4033 50%, #8B6B4A 100%)',
                     }}
                 >
-                    {/* Diagonal pattern */}
+                    {/* Subtle Gold Pattern */}
                     <div
-                        className="absolute inset-0 opacity-10"
-                        style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,175,120,0.5) 20px, rgba(212,175,120,0.5) 21px)" }}
+                        className="absolute inset-0 opacity-10 pointer-events-none"
+                        style={{
+                            backgroundImage:
+                                'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,175,55,0.4) 20px, rgba(212,175,55,0.4) 21px)',
+                        }}
                     />
 
-                    <div className="relative p-8 md:p-12">
-                        <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
-                            {/* Avatar */}
-                            <div className="relative flex-shrink-0">
-                                <div
-                                    className="w-28 h-28 rounded-full overflow-hidden"
-                                    style={{ border: "3px solid rgba(212,175,120,0.7)", boxShadow: "0 0 0 6px rgba(212,175,120,0.15)" }}
-                                >
-                                    <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
+                    <div className="relative p-6 sm:p-10 md:p-12">
+                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+                            {/* Left: Avatar & Info */}
+                            <div className="flex items-center gap-6">
+                                <div className="relative">
+                                    <div
+                                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-amber-900/40 p-1 shadow-2xl"
+                                        style={{ border: '3px solid #D4AF37' }}
+                                    >
+                                        <img
+                                            src={profileUser.avatar}
+                                            alt={profileUser.name}
+                                            className="w-full h-full object-cover rounded-full bg-amber-50"
+                                        />
+                                    </div>
+                                    <div
+                                        className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-lg text-amber-950 font-bold"
+                                        style={{ background: '#D4AF37' }}
+                                        title="VIP Gold Member"
+                                    >
+                                        <FiAward className="w-4 h-4 stroke-[3]" />
+                                    </div>
                                 </div>
-                                <div
-                                    className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center text-xs"
-                                    style={{ background: "#d4af37", color: "#4a3525" }}
-                                >
-                                    ★
-                                </div>
-                            </div>
 
-                            {/* Info */}
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-1 flex-wrap">
-                                    <h1
-                                        className="text-3xl md:text-4xl font-bold"
-                                        style={{ color: "#faf0e0", letterSpacing: "-0.5px" }}
-                                    >
-                                        {profileUser.name}
-                                    </h1>
-                                    <span
-                                        className="px-3 py-1 rounded-full text-xs font-bold tracking-wider"
-                                        style={{ background: "#d4af37", color: "#4a3525" }}
-                                    >
-                                        {profileUser.memberTier.toUpperCase()}
-                                    </span>
-                                </div>
-                                <p className="text-sm mb-4" style={{ color: "rgba(212,175,120,0.8)" }}>
-                                    Member since {profileUser.joinDate}
-                                </p>
-                                <div className="flex flex-wrap gap-6">
-                                    {[
-                                        { val: profileUser.totalOrders, label: "Total Orders" },
-                                        { val: "Active", label: "Account Status" },
-                                    ].map((s, i) => (
-                                        <div key={s.label} className="flex gap-6">
-                                            {i > 0 && <div style={{ borderLeft: "1px solid rgba(212,175,120,0.3)" }} />}
-                                            <div className={i > 0 ? "pl-6" : ""}>
-                                                <p className="text-2xl font-bold" style={{ color: "#d4af37" }}>{s.val}</p>
-                                                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</p>
-                                            </div>
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-50 font-serif tracking-tight">
+                                            {profileUser.name}
+                                        </h1>
+                                        <span
+                                            className="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase flex items-center gap-1 shadow-sm"
+                                            style={{ background: '#D4AF37', color: '#3D2B1F' }}
+                                        >
+                                            <FiShield className="w-3 h-3" />
+                                            {profileUser.memberTier}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-amber-200/70 font-medium">
+                                        Thành viên từ: {profileUser.joinDate}
+                                    </p>
+                                    <div className="pt-2 flex items-center gap-6">
+                                        <div>
+                                            <p className="text-xl font-bold text-amber-300">
+                                                {profileUser.totalOrders}
+                                            </p>
+                                            <p className="text-xs text-amber-200/60">Tổng đơn hàng</p>
                                         </div>
-                                    ))}
+                                        <div className="h-8 w-px bg-amber-700/50" />
+                                        <div>
+                                            <p className="text-xl font-bold text-emerald-400">Đang hoạt động</p>
+                                            <p className="text-xs text-amber-200/60">Trạng thái tài khoản</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Reservation Card */}
+                            {/* Right: Upcoming Reservation Badge Card */}
                             <div
-                                className="flex-shrink-0 rounded-xl p-5 min-w-52"
-                                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(212,175,120,0.25)", backdropFilter: "blur(8px)" }}
+                                className="w-full lg:w-auto min-w-[260px] p-5 rounded-2xl border backdrop-blur-md shadow-lg"
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.08)',
+                                    borderColor: 'rgba(212, 175, 55, 0.3)',
+                                }}
                             >
-                                <p className="text-xs font-semibold tracking-widest mb-3" style={{ color: "#d4af37" }}>
-                                    UPCOMING RESERVATION
-                                </p>
+                                <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
+                                    <FiCalendar className="w-4 h-4 text-amber-400" />
+                                    <span>Lượt Đặt Bàn Gần Nhất</span>
+                                </div>
+
                                 {upcomingReservation ? (
-                                    <>
-                                        <p className="text-white font-semibold">
+                                    <div className="space-y-1.5 text-sm text-amber-100">
+                                        <p className="font-bold text-white text-base">
                                             {formatter.date(upcomingReservation.reservationTime)}
                                         </p>
-                                        <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
-                                            {formatter.time(upcomingReservation.reservationTime)} · {upcomingReservation.numberOfGuests} Guests
-                                        </p>
-                                        <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-                                            {upcomingReservation.tableID ? `Table ${upcomingReservation.tableID}` : 'Table Pending'} ({upcomingReservation.status})
-                                        </p>
-                                    </>
+                                        <div className="flex items-center gap-3 text-xs text-amber-200/80">
+                                            <span className="flex items-center gap-1">
+                                                <FiClock className="w-3.5 h-3.5" />
+                                                {formatter.time(upcomingReservation.reservationTime)}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <FiUsers className="w-3.5 h-3.5" />
+                                                {upcomingReservation.numberOfGuests} Khách
+                                            </span>
+                                        </div>
+                                        <div className="pt-1 text-xs text-amber-300 font-semibold">
+                                            {upcomingReservation.tableID
+                                                ? `📍 Bàn số ${upcomingReservation.tableID}`
+                                                : '⌛ Đang xếp bàn'}
+                                            <span className="ml-2 px-2 py-0.5 rounded bg-amber-900/60 text-amber-200 text-[10px] uppercase">
+                                                {upcomingReservation.status}
+                                            </span>
+                                        </div>
+                                    </div>
                                 ) : (
-                                    <>
-                                        <p className="text-white text-sm">No upcoming reservation</p>
+                                    <div className="space-y-3">
+                                        <p className="text-xs text-amber-200/70">
+                                            Bạn chưa có lượt đặt bàn giữ chỗ nào sắp tới.
+                                        </p>
                                         <Link
                                             href={ROUTES.GUEST.RESERVATION}
-                                            className="mt-3 text-xs font-semibold py-1 px-3 rounded-full transition-all inline-block hover:scale-105"
-                                            style={{ background: "#e85d1a", color: "white" }}
+                                            className="inline-flex items-center justify-center gap-2 w-full py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
                                         >
-                                            Make a Reservation →
+                                            <span>Đặt Bàn Ngay</span>
+                                            <FiArrowRight className="w-3.5 h-3.5" />
                                         </Link>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Tab Navigation */}
-                <div
-                    className="flex gap-1 mb-8 p-1 rounded-xl"
-                    style={{ background: "rgba(139,107,74,0.12)", border: "1px solid rgba(139,107,74,0.2)" }}
-                >
+                {/* Sub Navigation Tabs */}
+                <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/70 border border-amber-900/10 shadow-sm backdrop-blur-md">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-300"
-                            style={{
-                                background: activeTab === tab.id ? "white" : "transparent",
-                                color: activeTab === tab.id ? "#6b4e35" : "rgba(107,78,53,0.6)",
-                                boxShadow: activeTab === tab.id ? "0 2px 12px rgba(139,107,74,0.2)" : "none",
-                            }}
+                            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                                activeTab === tab.id
+                                    ? 'bg-amber-900 text-amber-100 shadow-md scale-[1.01]'
+                                    : 'text-amber-900/70 hover:bg-amber-100/50 hover:text-amber-950'
+                            }`}
                         >
-                            <span>{tab.icon}</span>
-                            <span className="hidden sm:inline">{tab.label}</span>
+                            {tab.icon}
+                            <span>{tab.label}</span>
                         </button>
                     ))}
                 </div>
 
-                {/* OVERVIEW */}
-                {activeTab === "overview" && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-                        <div
-                            className="md:col-span-2 rounded-2xl p-6"
-                            style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}
-                        >
+                {/* TAB 1: OVERVIEW & PERSONAL INFO */}
+                {activeTab === 'overview' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Left 2 Cols: Editable Form */}
+                        <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-900/10 space-y-6">
                             {statusMsg && (
-                                <div className={`p-3 rounded-xl mb-4 text-sm font-semibold ${statusMsg.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                                    {statusMsg.text}
+                                <div
+                                    className={`p-4 rounded-2xl text-xs font-bold flex items-center gap-2 ${
+                                        statusMsg.type === 'success'
+                                            ? 'bg-green-50 text-green-800 border border-green-200'
+                                            : 'bg-red-50 text-red-800 border border-red-200'
+                                    }`}
+                                >
+                                    <FiCheckCircle className="w-4 h-4 shrink-0" />
+                                    <span>{statusMsg.text}</span>
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold" style={{ color: "#4a3525" }}>Personal Information</h2>
+                            <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
+                                <div>
+                                    <h2 className="text-xl font-bold text-amber-950 font-serif">
+                                        Thông Tin Hồ Sơ
+                                    </h2>
+                                    <p className="text-xs text-amber-900/60">
+                                        Quản lý và cập nhật thông tin liên hệ của bạn
+                                    </p>
+                                </div>
+
                                 <button
                                     onClick={handleSaveProfile}
                                     disabled={isSaving}
-                                    className="text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:scale-105 disabled:opacity-50"
-                                    style={{
-                                        background: editMode ? "#e85d1a" : "#f5ede0",
-                                        color: editMode ? "white" : "#6b4e35",
-                                    }}
+                                    className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 ${
+                                        editMode
+                                            ? 'bg-amber-600 text-white hover:bg-amber-700'
+                                            : 'bg-amber-100/80 text-amber-900 hover:bg-amber-200 border border-amber-900/10'
+                                    }`}
                                 >
-                                    {isSaving ? "Saving..." : editMode ? "Save Changes" : "Edit Profile"}
+                                    {isSaving ? (
+                                        'Đang lưu...'
+                                    ) : editMode ? (
+                                        <>
+                                            <FiSave className="w-4 h-4" />
+                                            <span>Lưu Thay Đổi</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiEdit3 className="w-4 h-4" />
+                                            <span>Chỉnh Sửa</span>
+                                        </>
+                                    )}
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>FULL NAME</label>
+                                    <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <FiUser className="w-3.5 h-3.5 text-amber-700" />
+                                        <span>Họ và Tên</span>
+                                    </label>
                                     {editMode ? (
                                         <input
+                                            type="text"
                                             value={form.name}
-                                            onChange={e => setForm({ ...form, name: e.target.value })}
-                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
-                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-amber-900/20 text-sm outline-none focus:border-amber-600 bg-amber-50/50"
                                         />
                                     ) : (
-                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
-                                            <span>👤</span> {profileUser.name}
+                                        <p className="text-sm font-semibold text-amber-950 px-4 py-3 bg-amber-50/50 rounded-xl border border-amber-900/10">
+                                            {profileUser.name}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>EMAIL ADDRESS</label>
+                                    <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <FiMail className="w-3.5 h-3.5 text-amber-700" />
+                                        <span>Địa Chỉ Email</span>
+                                    </label>
                                     {editMode ? (
                                         <input
+                                            type="email"
                                             value={form.email}
-                                            onChange={e => setForm({ ...form, email: e.target.value })}
-                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
-                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-amber-900/20 text-sm outline-none focus:border-amber-600 bg-amber-50/50"
                                         />
                                     ) : (
-                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
-                                            <span>✉</span> {profileUser.email}
+                                        <p className="text-sm font-semibold text-amber-950 px-4 py-3 bg-amber-50/50 rounded-xl border border-amber-900/10">
+                                            {profileUser.email}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>PHONE NUMBER</label>
+                                    <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <FiPhone className="w-3.5 h-3.5 text-amber-700" />
+                                        <span>Số Điện Thoại</span>
+                                    </label>
                                     {editMode ? (
                                         <input
+                                            type="text"
                                             value={form.phone}
-                                            onChange={e => setForm({ ...form, phone: e.target.value })}
-                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
-                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-amber-900/20 text-sm outline-none focus:border-amber-600 bg-amber-50/50"
                                         />
                                     ) : (
-                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
-                                            <span>📞</span> {profileUser.phone}
+                                        <p className="text-sm font-semibold text-amber-950 px-4 py-3 bg-amber-50/50 rounded-xl border border-amber-900/10">
+                                            {profileUser.phone}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-semibold tracking-wider" style={{ color: "rgba(107,78,53,0.5)" }}>ADDRESS</label>
+                                    <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                        <FiMapPin className="w-3.5 h-3.5 text-amber-700" />
+                                        <span>Địa Chỉ Giao Hàng</span>
+                                    </label>
                                     {editMode ? (
                                         <input
+                                            type="text"
                                             value={form.address}
-                                            onChange={e => setForm({ ...form, address: e.target.value })}
-                                            className="w-full mt-1 px-4 py-3 rounded-lg text-sm outline-none"
-                                            style={{ border: "1.5px solid #d4af37", background: "#faf6f0", color: "#4a3525" }}
+                                            onChange={(e) => setForm({ ...form, address: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-amber-900/20 text-sm outline-none focus:border-amber-600 bg-amber-50/50"
                                         />
                                     ) : (
-                                        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "#4a3525" }}>
-                                            <span>🏠</span> {profileUser.address}
+                                        <p className="text-sm font-semibold text-amber-950 px-4 py-3 bg-amber-50/50 rounded-xl border border-amber-900/10 truncate">
+                                            {profileUser.address}
                                         </p>
                                     )}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-6">
-                            {/* Points card */}
-                            <div
-                                className="rounded-2xl p-6 text-center"
-                                style={{ background: "linear-gradient(135deg, #d4af37 0%, #b8941e 100%)", boxShadow: "0 8px 32px rgba(212,175,55,0.3)" }}
-                            >
-                                <p className="text-sm font-semibold tracking-widest mb-3" style={{ color: "rgba(74,53,37,0.7)" }}>
-                                    MEMBER REWARDS
-                                </p>
-                                <p className="text-5xl font-bold mb-1" style={{ color: "#4a3525" }}>{profileUser.totalOrders * 100}</p>
-                                <p className="text-sm mb-4" style={{ color: "rgba(74,53,37,0.6)" }}>160 pts to Platinum</p>
-                                <div className="w-full h-2 rounded-full mb-4" style={{ background: "rgba(74,53,37,0.2)" }}>
-                                    <div className="h-full rounded-full" style={{ width: "94.7%", background: "#4a3525" }} />
-                                </div>
-                                <button
-                                    className="w-full py-2 rounded-lg text-sm font-bold transition-all hover:scale-105"
-                                    style={{ background: "#4a3525", color: "#d4af37" }}
-                                >
-                                    Redeem Points
-                                </button>
+                        {/* Right 1 Col: VIP Benefits & Quick Shortcuts */}
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-3xl p-6 shadow-sm border border-amber-900/10 space-y-4">
+                                <h3 className="font-bold text-amber-950 text-base font-serif flex items-center gap-2 border-b border-amber-900/10 pb-3">
+                                    <FiAward className="w-5 h-5 text-amber-600" />
+                                    <span>Đặc Quyền Hội Viên</span>
+                                </h3>
+                                <ul className="space-y-3 text-xs font-medium text-amber-900/80">
+                                    <li className="flex items-center gap-2">
+                                        <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                        <span>Giảm 10% tổng hóa đơn cho mọi lượt đặt bàn</span>
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                        <span>Ưu tiên giữ bàn đẹp khu vực sân vườn</span>
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <FiCheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                        <span>Tặng quà sinh nhật & tráng miệng đặc biệt</span>
+                                    </li>
+                                </ul>
                             </div>
 
-                            {/* This month */}
-                            <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
-                                <h3 className="font-bold mb-4" style={{ color: "#4a3525" }}>This Month</h3>
-                                {[
-                                    { label: "Visits", value: "3", change: "+1" },
-                                    { label: "Amount Spent", value: "₫1.5M", change: "+12%" },
-                                    { label: "Points Earned", value: "340", change: "+18%" },
-                                ].map((stat) => (
-                                    <div
-                                        key={stat.label}
-                                        className="flex justify-between items-center py-2"
-                                        style={{ borderBottom: "1px solid #f5ede0" }}
-                                    >
-                                        <span className="text-sm" style={{ color: "rgba(107,78,53,0.6)" }}>{stat.label}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-sm" style={{ color: "#4a3525" }}>{stat.value}</span>
-                                            <span
-                                                className="text-xs px-2 py-0.5 rounded-full"
-                                                style={{ background: "#f0faf0", color: "#2d7a2d" }}
+                            <div className="bg-gradient-to-br from-amber-900 to-amber-950 rounded-3xl p-6 text-white shadow-lg space-y-3">
+                                <h3 className="font-bold text-amber-200 text-base font-serif">
+                                    Bạn muốn trải nghiệm ẩm thực?
+                                </h3>
+                                <p className="text-xs text-amber-100/70">
+                                    Khám phá thực đơn độc quyền của Foodie Restaurant và đặt món giao tận nơi!
+                                </p>
+                                <Link
+                                    href={ROUTES.GUEST.MENU}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
+                                >
+                                    <span>Xem Thực Đơn</span>
+                                    <FiArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* TAB 2: ORDER HISTORY */}
+                {activeTab === 'orders' && (
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-900/10 space-y-6">
+                        <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-amber-950 font-serif">
+                                    Lịch Sử Đơn Hàng
+                                </h2>
+                                <p className="text-xs text-amber-900/60">
+                                    Danh sách các đơn hàng đã đặt tại nhà hàng ({orderHistory.length} đơn)
+                                </p>
+                            </div>
+                        </div>
+
+                        {orderHistory.length === 0 ? (
+                            <div className="text-center py-16 space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center mx-auto border border-amber-900/10">
+                                    <FiShoppingBag className="w-8 h-8" />
+                                </div>
+                                <p className="text-sm font-semibold text-amber-950">
+                                    Bạn chưa có đơn hàng nào.
+                                </p>
+                                <Link
+                                    href={ROUTES.GUEST.MENU}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
+                                >
+                                    <span>Đặt món ngay</span>
+                                    <FiArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {orderHistory.map((order) => {
+                                    const isExpanded = expandedOrderId === order.id
+                                    const statusBadgeStyle = getStatusStyle(order.status as OrderStatusKey)
+
+                                    return (
+                                        <div
+                                            key={order.id}
+                                            className="rounded-2xl border border-amber-900/10 overflow-hidden transition-all hover:border-amber-600/30"
+                                        >
+                                            <div
+                                                onClick={() =>
+                                                    setExpandedOrderId(isExpanded ? null : order.id)
+                                                }
+                                                className="p-5 bg-amber-50/30 hover:bg-amber-50/60 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors"
                                             >
-                                                {stat.change}
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-3">
+                                                        <h4 className="font-extrabold text-amber-950 text-base">
+                                                            Đơn hàng #{order.id}
+                                                        </h4>
+                                                        <span
+                                                            className={`px-3 py-1 rounded-full text-xs font-bold border ${statusBadgeStyle}`}
+                                                        >
+                                                            {order.status}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-amber-900/60">
+                                                        Thời gian đặt: {formatter.date(order.createdAt)} -{' '}
+                                                        {formatter.time(order.createdAt)}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex items-center gap-4">
+                                                    <div className="text-right">
+                                                        <p className="text-xs text-amber-900/60">Tổng tiền</p>
+                                                        <p className="font-extrabold text-amber-900 text-base">
+                                                            {order.totalPrice
+                                                                ? formatter.currency(order.totalPrice)
+                                                                : '0 đ'}
+                                                        </p>
+                                                    </div>
+
+                                                    <Link
+                                                        href={`/staff/invoice?orderId=${order.id}`}
+                                                        target="_blank"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="p-2.5 rounded-xl bg-white border border-amber-900/20 text-amber-900 hover:bg-amber-100 transition-colors text-xs font-bold flex items-center gap-1"
+                                                        title="Xem Hóa Đơn K80"
+                                                    >
+                                                        <FiPrinter className="w-4 h-4" />
+                                                        <span className="hidden sm:inline">Hóa đơn</span>
+                                                    </Link>
+
+                                                    <div className="text-amber-800">
+                                                        {isExpanded ? (
+                                                            <FiChevronUp className="w-5 h-5" />
+                                                        ) : (
+                                                            <FiChevronDown className="w-5 h-5" />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Details Drawer */}
+                                            {isExpanded && (
+                                                <div className="p-5 bg-white border-t border-amber-900/10 space-y-3">
+                                                    <h5 className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+                                                        Chi Tiết Món Ăn ({order.details?.length || 0} món):
+                                                    </h5>
+                                                    <div className="space-y-2">
+                                                        {order.details?.map(
+                                                            (detail: IOrderDetailResponse) => (
+                                                                <div
+                                                                    key={detail.id}
+                                                                    className="flex items-center justify-between text-sm py-2 border-b border-amber-900/5 last:border-0"
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <img
+                                                                            src={
+                                                                                detail.dish?.imgUrl ||
+                                                                                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'
+                                                                            }
+                                                                            alt={detail.dish?.name}
+                                                                            className="w-10 h-10 rounded-lg object-cover border border-amber-900/10"
+                                                                        />
+                                                                        <div>
+                                                                            <p className="font-bold text-amber-950">
+                                                                                {detail.dish?.name || 'Món ăn'}
+                                                                            </p>                                                                            <p className="text-xs text-amber-900/60">
+                                                                                {detail.price?.toLocaleString('vi-VN')} đ
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <span className="font-bold text-amber-900">
+                                                                        x{detail.quantity}
+                                                                    </span>
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* TAB 3: RESERVATION HISTORY */}
+                {activeTab === 'reservations' && (
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-900/10 space-y-6">
+                        <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-amber-950 font-serif">
+                                    Lịch Sử Đặt Bàn Giữ Chỗ
+                                </h2>
+                                <p className="text-xs text-amber-900/60">
+                                    Danh sách lượt đặt giữ chỗ tại nhà hàng ({allReservations.length} lượt)
+                                </p>
+                            </div>
+                            <Link
+                                href={ROUTES.GUEST.RESERVATION}
+                                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+                            >
+                                <FiCalendar className="w-4 h-4" />
+                                <span>Đặt Bàn Mới</span>
+                            </Link>
+                        </div>
+
+                        {allReservations.length === 0 ? (
+                            <div className="text-center py-16 space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center mx-auto border border-amber-900/10">
+                                    <FiCalendar className="w-8 h-8" />
+                                </div>
+                                <p className="text-sm font-semibold text-amber-950">
+                                    Bạn chưa có lượt đặt bàn nào.
+                                </p>
+                                <Link
+                                    href={ROUTES.GUEST.RESERVATION}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md"
+                                >
+                                    <span>Đặt bàn giữ chỗ ngay</span>
+                                    <FiArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {allReservations.map((res: IReservationResponse) => (
+                                    <div
+                                        key={res.id}
+                                        className="p-6 rounded-2xl border border-amber-900/10 bg-amber-50/30 hover:bg-amber-50/60 transition-all space-y-4 shadow-xs"
+                                    >
+                                        <div className="flex items-center justify-between border-b border-amber-900/10 pb-3">
+                                            <div className="flex items-center gap-2">
+                                                <FiCalendar className="w-4 h-4 text-amber-700" />
+                                                <span className="font-extrabold text-amber-950 text-base">
+                                                    {formatter.date(res.reservationTime)}
+                                                </span>
+                                            </div>
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-xs font-extrabold ${
+                                                    res.status === 'CONFIRMED'
+                                                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                                        : res.status === 'CANCELLED'
+                                                        ? 'bg-red-100 text-red-800 border border-red-300'
+                                                        : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                                }`}
+                                            >
+                                                {res.status}
                                             </span>
                                         </div>
+
+                                        <div className="space-y-2 text-xs text-amber-900/80">
+                                            <p className="flex items-center gap-2">
+                                                <FiClock className="w-3.5 h-3.5 text-amber-700" />
+                                                Giờ hẹn: <strong className="text-amber-950">{formatter.time(res.reservationTime)}</strong>
+                                            </p>
+                                            <p className="flex items-center gap-2">
+                                                <FiUsers className="w-3.5 h-3.5 text-amber-700" />
+                                                Số lượng: <strong className="text-amber-950">{res.numberOfGuests} Khách</strong>
+                                            </p>
+                                            <p className="flex items-center gap-2">
+                                                📍 Sơ đồ bàn: <strong className="text-amber-950">{res.tableID ? `Bàn số ${res.tableID}` : 'Đang sắp xếp bàn'}</strong>
+                                            </p>
+                                            {res.specialRequests && (
+                                                <p className="pt-1 text-amber-900/60 italic">
+                                                    Ghi chú: &quot;{res.specialRequests}&quot;
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {(res.status === 'PENDING' || res.status === 'CONFIRMED') && (
+                                            <div className="pt-2 border-t border-amber-900/10 flex justify-end">
+                                                <button
+                                                    onClick={() => handleCancelReservation(res.id)}
+                                                    className="px-4 py-2 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 text-xs font-bold transition-colors"
+                                                >
+                                                    Hủy Đặt Bàn
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
 
-                {/* ORDERS */}
-                {activeTab === "orders" && (
-                    <div className="animate-fade-in">
-                        <div className="rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
-                            <div className="p-6 flex items-center justify-between" style={{ borderBottom: "1px solid #f5ede0" }}>
-                                <h2 className="text-xl font-bold" style={{ color: "#4a3525" }}>Order History</h2>
-                                <span className="text-sm" style={{ color: "rgba(107,78,53,0.5)" }}>{orderHistory.length} orders</span>
+                {/* TAB 4: SETTINGS SHORTCUT */}
+                {activeTab === 'settings' && (
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-900/10 space-y-6">
+                        <div className="border-b border-amber-900/10 pb-4">
+                            <h2 className="text-xl font-bold text-amber-950 font-serif">
+                                Cài Đặt & Bảo Mật Tài Khoản
+                            </h2>
+                            <p className="text-xs text-amber-900/60">
+                                Tùy chỉnh ngôn ngữ, nhận thông báo và đổi mật khẩu đăng nhập
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-amber-50/50 border border-amber-900/10">
+                            <div>
+                                <h4 className="font-bold text-amber-950 text-base">
+                                    Trang Cài Đặt Hệ Thống Chuyên Sâu
+                                </h4>
+                                <p className="text-xs text-amber-900/60">
+                                    Đổi mật khẩu, cài đặt thông báo SMS/Email và tùy chọn ngôn ngữ
+                                </p>
                             </div>
-                            {orderHistory.map((order) => (
-                                <div
-                                    key={order.id}
-                                    className="p-6 transition-colors group hover:bg-amber-50"
-                                    style={{ borderBottom: "1px solid #f5ede0" }}
-                                >
-                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <span className="font-bold" style={{ color: "#4a3525" }}>{order.id}</span>
-                                                <span
-                                                    className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                                    style={{
-                                                        background: getStatusStyle(order.status).bg,
-                                                        color: getStatusStyle(order.status).color,
-                                                        border: getStatusStyle(order.status).border
-                                                    }}
-                                                >
-                                                    {order.status}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm mb-1" style={{ color: "rgba(107,78,53,0.5)" }}>
-                                                {formatter.time(order.createdAt)}, {formatter.date(order.createdAt)}
-                                            </p>
-                                            <p className="text-sm" style={{ color: "#6b4e35" }}>
-                                                {order.details.map((d: IOrderDetailResponse) => d.dish.name).join(" · ")}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <p className="text-lg font-bold" style={{ color: "#4a3525" }}>{formatter.currency(order.totalPrice)}</p>
-                                            <button
-                                                className="opacity-0 group-hover:opacity-100 text-xs px-3 py-2 rounded-lg transition-all font-semibold"
-                                                style={{ background: "#f5ede0", color: "#6b4e35" }}
-                                            >
-                                                Reorder →
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
 
-                {/* FAVORITES */}
-                {/* {activeTab === "favorites" && (
-                    <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        {favoriteItems.map((item) => (
-                            <div
-                                key={item.name}
-                                className="flex items-center gap-5 p-5 rounded-2xl group hover:scale-[1.02] transition-all cursor-pointer"
-                                style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}
+                            <Link
+                                href="/setting"
+                                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 whitespace-nowrap"
                             >
-                                <div
-                                    className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl flex-shrink-0"
-                                    style={{ background: "#faf0e0" }}
-                                >
-                                    {item.emoji}
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-bold" style={{ color: "#4a3525" }}>{item.name}</h3>
-                                    <p className="text-xs mt-0.5" style={{ color: "rgba(107,78,53,0.5)" }}>{item.category}</p>
-                                    <p className="text-sm font-semibold mt-1" style={{ color: "#d4af37" }}>{formatter.currency(item.price)}</p>
-                                </div>
-                                <button
-                                    className="opacity-0 group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
-                                    style={{ background: "#e85d1a" }}
-                                >
-                                    +
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )} */}
-
-                {/* SETTINGS */}
-                {activeTab === "settings" && (
-                    <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Notifications */}
-                        <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
-                            <h2 className="text-xl font-bold mb-6" style={{ color: "#4a3525" }}>Notifications</h2>
-                            {[
-                                { label: "Reservation Reminders", desc: "Get notified 2h before your booking", enabled: true },
-                                { label: "Special Offers", desc: "Exclusive deals for Gold members", enabled: true },
-                                { label: "New Menu Items", desc: "Be first to know about seasonal dishes", enabled: false },
-                                { label: "Points Updates", desc: "Alerts when you earn or redeem points", enabled: true },
-                            ].map((item) => (
-                                <div
-                                    key={item.label}
-                                    className="flex items-center justify-between py-4"
-                                    style={{ borderBottom: "1px solid #f5ede0" }}
-                                >
-                                    <div>
-                                        <p className="font-semibold text-sm" style={{ color: "#4a3525" }}>{item.label}</p>
-                                        <p className="text-xs" style={{ color: "rgba(107,78,53,0.5)" }}>{item.desc}</p>
-                                    </div>
-                                    <div
-                                        className="w-12 h-6 rounded-full flex items-center cursor-pointer"
-                                        style={{
-                                            background: item.enabled ? "#d4af37" : "#e0d5c8",
-                                            padding: "2px",
-                                            justifyContent: item.enabled ? "flex-end" : "flex-start",
-                                        }}
-                                    >
-                                        <div className="w-5 h-5 rounded-full bg-white shadow" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex flex-col gap-6">
-                            {/* Dietary */}
-                            <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
-                                <h2 className="text-xl font-bold mb-4" style={{ color: "#4a3525" }}>Dietary Preferences</h2>
-                                <div className="flex flex-wrap gap-2">
-                                    {["No Shellfish", "Low Sodium", "Halal", "No MSG", "Vegetarian Options"].map((pref, i) => (
-                                        <span
-                                            key={pref}
-                                            className="px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all hover:scale-105"
-                                            style={{
-                                                background: i < 3 ? "#4a3525" : "#f5ede0",
-                                                color: i < 3 ? "#d4af37" : "#6b4e35",
-                                                border: "1.5px solid",
-                                                borderColor: i < 3 ? "#4a3525" : "#d4af37",
-                                            }}
-                                        >
-                                            {i < 3 && "✓ "}{pref}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Account actions */}
-                            <div className="rounded-2xl p-6" style={{ background: "white", boxShadow: "0 4px 24px rgba(139,107,74,0.1)" }}>
-                                <h2 className="text-xl font-bold mb-4" style={{ color: "#4a3525" }}>Account Actions</h2>
-                                <div className="flex flex-col gap-3">
-                                    <button
-                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
-                                        style={{ background: "#f5ede0", color: "#6b4e35" }}
-                                    >
-                                        Change Password
-                                    </button>
-                                    <button
-                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
-                                        style={{ background: "#e85d1a", color: "white" }}
-                                    >
-                                        Sign Out
-                                    </button>
-                                    <button
-                                        className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
-                                        style={{ background: "#fff0f0", color: "#c0392b" }}
-                                    >
-                                        Delete Account
-                                    </button>
-                                </div>
-                            </div>
+                                <span>Mở Trang Cài Đặt</span>
+                                <FiArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </div>
                 )}
             </div>
         </div>
-    );
+    )
 }

@@ -9,25 +9,33 @@ const DashboardContent = () => {
     const tables_data = getDashboardTablesSWR()
     const orders_data = getDashboardOrdersSWR()
 
-    const orders = orders_data.data?.data ?? []
-    const tables = tables_data.data?.data ?? []
+    const rawOrders = orders_data.data?.data
+    const orders = Array.isArray(rawOrders) ? rawOrders : []
+
+    const rawTables = tables_data.data?.data
+    const tables = Array.isArray(rawTables) ? rawTables : []
+
     // Derived stats from Redux state
     const totalRevenue = orders
-        .filter((o) => o.status === "COMPLETED")
-        .reduce((s, o) => s + o.totalPrice, 0)
+        .filter((o) => o?.status === "COMPLETED")
+        .reduce((s, o) => s + (o?.totalPrice ?? 0), 0)
 
     const todayOrders = orders.length
-    const pendingOrders = orders.filter((o) => o.status === "PENDING").length
-    const occupiedTables = tables.filter((t) => t.status === "OCCUPIED").length
-    const availableTables = tables.filter((t) => t.status === "EMPTY").length
-    const reservedTables = tables.filter((t) => t.status === "RESERVED").length
+    const pendingOrders = orders.filter((o) => o?.status === "PENDING").length
+    const occupiedTables = tables.filter((t) => t?.status === "OCCUPIED").length
+    const availableTables = tables.filter((t) => t?.status === "EMPTY").length
+    const reservedTables = tables.filter((t) => t?.status === "RESERVED").length
 
     // Top dishes derived from order items
     const dishCountMap: Record<string, number> = {}
     orders.forEach((o) => {
-        o.details?.forEach(detail => {
-            dishCountMap[detail.dish.name] = (dishCountMap[detail.dish.name] ?? 0) + detail.quantity
-        })
+        if (Array.isArray(o?.details)) {
+            o.details.forEach(detail => {
+                if (detail?.dish?.name) {
+                    dishCountMap[detail.dish.name] = (dishCountMap[detail.dish.name] ?? 0) + (detail.quantity ?? 1)
+                }
+            })
+        }
     })
     const topDishes = Object.entries(dishCountMap)
         .sort((a, b) => b[1] - a[1])

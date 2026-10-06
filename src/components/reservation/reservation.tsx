@@ -5,6 +5,10 @@ import { FiCalendar } from "react-icons/fi";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { reservation_services } from "@/services/reservation.services";
 import { IReservationPayload } from "@/interfaces";
+import SuccessModal, { ReservationSuccessData } from "../common/success_modal";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/config/constants/route";
 
 interface ReservationData {
     name: string;
@@ -229,29 +233,31 @@ const SuccessMessage = () => {
 };
 
 const ReservationPage = () => {
+    const router = useRouter();
     const { user, isAuthenticated } = useAuth();
-    const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState('');
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [reservationData, setReservationData] = useState<ReservationSuccessData | null>(null);
 
-    const handleReservationSubmit = async (reservationData: ReservationData) => {
+    const handleReservationSubmit = async (formData: ReservationData) => {
         setIsLoading(true);
         setServerError('');
         try {
             let reservationTimeISO: string;
-            if (reservationData.date && reservationData.time) {
-                reservationTimeISO = new Date(`${reservationData.date}T${reservationData.time}:00.000Z`).toISOString();
+            if (formData.date && formData.time) {
+                reservationTimeISO = new Date(`${formData.date}T${formData.time}:00.000Z`).toISOString();
             } else {
                 reservationTimeISO = new Date().toISOString();
             }
 
             const payload: IReservationPayload = {
-                fullName: reservationData.name,
-                email: reservationData.email,
-                phoneNumber: reservationData.phone,
-                numberOfGuests: parseInt(reservationData.guests, 10) || 1,
+                fullName: formData.name,
+                email: formData.email,
+                phoneNumber: formData.phone,
+                numberOfGuests: parseInt(formData.guests, 10) || 1,
                 reservationTime: reservationTimeISO,
-                specialRequests: reservationData.requests || undefined,
+                specialRequests: formData.requests || undefined,
             };
 
             const res = isAuthenticated
@@ -259,8 +265,15 @@ const ReservationPage = () => {
                 : await reservation_services.createPublicReservation(payload);
 
             if (res.success || res.data) {
-                setIsSubmitted(true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setReservationData({
+                    fullName: formData.name,
+                    date: formData.date,
+                    time: formData.time,
+                    numberOfGuests: parseInt(formData.guests, 10) || 1,
+                    tableID: res.data?.tableID || null,
+                });
+                setShowSuccessModal(true);
+                toast.success("Đặt bàn thành công! Cảm ơn quý khách.");
             } else {
                 setServerError(res.message || 'Failed to complete reservation. Please try again.');
             }
@@ -290,20 +303,35 @@ const ReservationPage = () => {
                     </p>
                 </div>
 
-                {/* Main Content */}
-                {isSubmitted ? (
-                    <SuccessMessage />
-                ) : (
-                    <ReservationForm
-                        onSubmit={handleReservationSubmit}
-                        isLoading={isLoading}
-                        serverError={serverError}
+                {/* Main Content Form */}
+                <ReservationForm
+                    onSubmit={handleReservationSubmit}
+                    isLoading={isLoading}
+                    serverError={serverError}
+                />
+
+                {/* Reservation Success Modal Popup */}
+                {showSuccessModal && reservationData && (
+                    <SuccessModal
+                        isOpen={showSuccessModal}
+                        onClose={() => setShowSuccessModal(false)}
+                        type="RESERVATION"
+                        reservationData={reservationData}
+                        onPrimaryAction={() => {
+                            setShowSuccessModal(false);
+                            router.push('/account');
+                        }}
+                        onSecondaryAction={() => {
+                            setShowSuccessModal(false);
+                            router.push(ROUTES.GUEST.HOME || '/guest');
+                        }}
                     />
                 )}
             </div>
         </div>
     );
 };
+
 
 export default ReservationPage
 

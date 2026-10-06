@@ -19,7 +19,8 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
   useOrderWebSocket()
 
   const orders_data = getDashboardOrdersSWR()
-  const orders = orders_data.data?.data ?? []
+  const rawOrders = orders_data.data?.data
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
   const { user, logout } = useEnhancedAuth()
   const pathname = usePathname()
 

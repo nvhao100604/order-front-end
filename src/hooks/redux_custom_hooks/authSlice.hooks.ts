@@ -30,15 +30,11 @@ const useAuth = () => {
 
 const useEnhancedAuth = (config?: object) => {
     const dispatch = useAppDispatch()
-    const { user, token, isAuthenticated } = useAppSelector(state => state.auth)
+    const { user, token, isAuthenticated, isLoading: reduxIsLoading } = useAppSelector(state => state.auth)
 
     const { data: swrData, mutate, isValidating, error: swrError } = useCurrentUser(
         token ? config : null
     )
-
-    // useEffect(() => {
-    //     console.log("Is Auth: ", isAuthenticated)
-    // }, [isAuthenticated])
 
     useEffect(() => {
         if (swrData?.success && swrData.data) {
@@ -61,7 +57,7 @@ const useEnhancedAuth = (config?: object) => {
         user: swrData?.data || user,
         token,
         isAuthenticated,
-        isLoading: isValidating,
+        isLoading: reduxIsLoading || (token ? isValidating : false),
         error: swrError || null,
         mutate,
         // Actions

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAppSelector } from '@/redux/hooks'
 import { checkRole } from '@/utils'
 import { useAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
@@ -13,13 +13,14 @@ const LoginPage = () => {
     const { login, isLoading, error, isAuthenticated } = useAuth()
     const user = useAppSelector(state => state.auth.user)
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const redirectUrl = searchParams.get('redirect')
 
     useEffect(() => {
         if (isAuthenticated && user && user.roleID) {
-            // console.log("Role id: " + user.roleID)
-            checkRole(user.roleID, router)
+            checkRole(user.roleID, router, redirectUrl)
         }
-    }, [isAuthenticated, router])
+    }, [isAuthenticated, user, redirectUrl, router])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
