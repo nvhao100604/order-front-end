@@ -5,7 +5,7 @@ import { FilterPanel, OrderItem } from "./manage.component";
 import useQuery from "@/hooks/useQuery";
 import { useTableCheckout } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
 import useRefresh from "@/hooks/useRefresh";
-import { ORDER_KEY } from "@/config/constants/api";
+import { ORDER_KEY, TABLE_KEY } from "@/config/constants/api";
 import { useGetOrders } from "@/hooks/useOrder";
 import { updateOrderStatus } from "@/services/order.services";
 
@@ -39,9 +39,8 @@ const StaffManagePage = () => {
         try {
             const response = await updateOrderStatus(orderID, status)
             if (response.success) {
-                // console.log("New status: ", response.data?.status)
-                //mutate chỗ này
                 refresh(ORDER_KEY)
+                refresh(TABLE_KEY)
             } else {
                 console.error(response.message)
             }

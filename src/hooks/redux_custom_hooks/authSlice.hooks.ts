@@ -54,7 +54,12 @@ const useEnhancedAuth = (config?: object) => {
     const login = (credentials: LoginCredentials) => dispatch(loginUser(credentials)).unwrap()
     const register = (payload: RegisterPayload) => dispatch(registerUser(payload)).unwrap()
     const refresh = () => dispatch(refreshToken()).unwrap()
-    const update = (data: UserUpdate) => dispatch(updateProfile(data)).unwrap()
+    const update = async (data: UserUpdate) => {
+        const res = await dispatch(updateProfile(data)).unwrap()
+        mutate()
+        globalMutate((key) => typeof key === 'string' && key.includes('user'))
+        return res
+    }
     const initialize = () => dispatch(initializeAuth())
 
     const activeUser = (swrData?.data && user && swrData.data.id === user.id)

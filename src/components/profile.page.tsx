@@ -24,7 +24,7 @@ export default function ProfilePage() {
     const [isSaving, setIsSaving] = useState(false)
     const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-    const { user, updateProfile } = useEnhancedAuth()
+    const { user, updateProfile, mutate: mutateUser } = useEnhancedAuth()
 
     const { data: reservationRes, mutate: mutateReservations } = useGetReservations(
         user?.email ? { email: user.email } : undefined
@@ -78,6 +78,7 @@ export default function ProfilePage() {
                 phoneNumber: form.phone,
                 address: form.address,
             })
+            mutateUser()
             setEditMode(false)
             setStatusMsg({ type: 'success', text: 'Profile updated successfully!' })
         } catch (err: any) {

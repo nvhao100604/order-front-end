@@ -9,6 +9,8 @@ import SuccessModal, { ReservationSuccessData } from "../common/success_modal";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/config/constants/route";
+import { mutate } from "swr";
+import { RESERVATION_KEY } from "@/config/constants/api";
 
 interface ReservationData {
     name: string;
@@ -268,6 +270,7 @@ const ReservationPage = () => {
                 : await reservation_services.createPublicReservation(payload);
 
             if (res.success || res.data) {
+                mutate((key) => typeof key === 'string' && key.includes(RESERVATION_KEY));
                 setReservationData({
                     fullName: formData.name,
                     date: formData.date,

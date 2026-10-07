@@ -11,9 +11,7 @@ const useRefresh = () => {
 
         mutate(
             (key) => {
-                // console.log("Checking key:", key);
-                const match = Array.isArray(key) ? key[0] === keyPrefix : String(key).startsWith(keyPrefix);
-                // if (match) console.log("Found match! Refreshing:", key);
+                const match = Array.isArray(key) ? key[0] === keyPrefix : String(key).includes(keyPrefix);
                 return match;
             },
             undefined,

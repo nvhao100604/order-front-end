@@ -11,6 +11,8 @@ import { formatter } from "@/utils";
 import { postOrder } from "@/services/order.services";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { mutate } from "swr";
+import { ORDER_KEY, TABLE_KEY } from "@/config/constants/api";
 
 interface POSCartItem {
     dish: IDish
@@ -117,6 +119,7 @@ const StaffOrderPage = () => {
 
             const res = await postOrder(payload);
             if (res.success || res.data) {
+                mutate((key) => typeof key === 'string' && (key.includes(ORDER_KEY) || key.includes(TABLE_KEY)));
                 setOrderSuccessMsg(`Order #${res.data?.id || ''} placed successfully for Table B${currentTableId}!`);
                 setCartMap(prev => ({ ...prev, [currentTableId]: [] }));
             } else {

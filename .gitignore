@@ -46,3 +46,6 @@ src/components/feedback
 
 #test
 test.tsx
+
+# ai tools
+.kilo/

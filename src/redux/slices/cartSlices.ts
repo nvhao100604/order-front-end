@@ -2,6 +2,8 @@ import { ICart, ICartItem, ICartState, IDish, IOrderCreate, IOrderResponse } fro
 import { postOrder } from '@/services/order.services'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { mutate } from 'swr'
+import { ORDER_KEY, TABLE_KEY } from '@/config/constants/api'
 
 const initialCart: ICart = {
     dishes: [],
@@ -30,6 +32,7 @@ const placeOrder = createAsyncThunk<
             console.log("response: ", response)
             if (response.success && response.data) {
                 console.log("Success")
+                mutate((key) => typeof key === 'string' && (key.includes(ORDER_KEY) || key.includes(TABLE_KEY)))
                 return response.data
             }
             return rejectWithValue(response.message || "Order' data is incorrect.")
