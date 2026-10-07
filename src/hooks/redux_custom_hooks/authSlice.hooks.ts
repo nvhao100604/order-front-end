@@ -7,6 +7,8 @@ import { initializeAuth, loginUser, logout, refreshToken, registerUser, setUser,
 import { useEffect } from "react";
 import { useCurrentUser } from "../useUser";
 
+import { useSWRConfig } from "swr";
+
 const useAuth = () => {
     const dispatch = useAppDispatch()
     const authState = useAppSelector(state => state.auth)
@@ -31,6 +33,7 @@ const useAuth = () => {
 
 const useEnhancedAuth = (config?: object) => {
     const dispatch = useAppDispatch()
+    const { mutate: globalMutate } = useSWRConfig()
     const { user, token, isAuthenticated, isLoading: reduxIsLoading } = useAppSelector(state => state.auth)
 
     const { data: swrData, mutate, isValidating, error: swrError } = useCurrentUser(
@@ -46,6 +49,7 @@ const useEnhancedAuth = (config?: object) => {
     const handleLogout = () => {
         dispatch(logout())
         mutate(undefined, false)
+        globalMutate(() => true, undefined, { revalidate: false })
     }
     const login = (credentials: LoginCredentials) => dispatch(loginUser(credentials)).unwrap()
     const register = (payload: RegisterPayload) => dispatch(registerUser(payload)).unwrap()
@@ -53,9 +57,13 @@ const useEnhancedAuth = (config?: object) => {
     const update = (data: UserUpdate) => dispatch(updateProfile(data)).unwrap()
     const initialize = () => dispatch(initializeAuth())
 
+    const activeUser = (swrData?.data && user && swrData.data.id === user.id)
+        ? swrData.data
+        : (user || swrData?.data || null)
+
     return {
         // Data & State
-        user: swrData?.data || user,
+        user: activeUser,
         token,
         isAuthenticated,
         isLoading: reduxIsLoading,

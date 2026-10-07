@@ -86,10 +86,13 @@ const ReservationButton = ({
     )
 }
 
+import { useRouter } from "next/navigation"
+
 const UserMenu = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { isAuthenticated, logout } = useEnhancedAuth();
+    const router = useRouter();
 
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -102,6 +105,12 @@ const UserMenu = () => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleLogoutClick = () => {
+        logout();
+        setIsDropdownOpen(false);
+        router.push(ROUTES.AUTH.LOGIN);
+    };
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -128,7 +137,7 @@ const UserMenu = () => {
 
                         {/* 2. Cài đặt hệ thống */}
                         <Link
-                            href="/settings"
+                            href="/setting"
                             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-200 hover:bg-orange-500 hover:text-white rounded-lg transition-colors"
                             onClick={() => setIsDropdownOpen(false)}
                         >
@@ -141,10 +150,7 @@ const UserMenu = () => {
                         {/* 3. Đăng nhập / Đăng xuất */}
                         {isAuthenticated ? (
                             <button
-                                onClick={() => {
-                                    logout();
-                                    setIsDropdownOpen(false);
-                                }}
+                                onClick={handleLogoutClick}
                                 className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/20 rounded-lg transition-colors font-medium"
                             >
                                 <FaSignOutAlt className="text-lg" />
