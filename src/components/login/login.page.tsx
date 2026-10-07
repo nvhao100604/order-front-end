@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAppSelector } from '@/redux/hooks'
 import { checkRole } from '@/utils'
+import { getRoleFromUser } from '@/utils/roleChecker'
 import { useAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 import { LOGO_URL } from '@/config/constants/public'
 import { FiAlertCircle, FiSliders } from 'react-icons/fi'
+import LoadingBox from '../ui/loading'
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')
@@ -18,17 +20,32 @@ const LoginPage = () => {
     const redirectUrl = searchParams.get('redirect')
 
     useEffect(() => {
-        if (isAuthenticated && user && user.roleID) {
-            checkRole(user.roleID, router, redirectUrl)
+        if (isAuthenticated && user) {
+            const roleId = getRoleFromUser(user)
+            checkRole(roleId, router, redirectUrl)
         }
     }, [isAuthenticated, user, redirectUrl, router])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
-        const success = await login({ username: email, password })
+        try {
+            const res = await login({ username: email, password })
+            if (res?.user) {
+                const roleId = getRoleFromUser(res.user)
+                checkRole(roleId, router, redirectUrl)
+            }
+        } catch {
+            // Error is stored in auth slice state
+        }
     }
 
-    if (isAuthenticated) return null
+    if (isAuthenticated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#faf6f0]">
+                <LoadingBox />
+            </div>
+        )
+    }
 
     return (
         <div

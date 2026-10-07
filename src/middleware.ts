@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const LOGIN_URL = '/auth/login'
-
 export function middleware(request: NextRequest) {
-    const token = request.cookies.get('refresh_token')?.value
-
-    if (!token) {
-        return NextResponse.redirect(new URL(LOGIN_URL, request.url))
-    }
-
+    // Auth validation and role permission checks are managed client-side by ProtectedRoute component
     return NextResponse.next()
 }
 

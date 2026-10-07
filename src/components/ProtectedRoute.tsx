@@ -7,6 +7,8 @@ import { ROUTES } from '@/config/constants/route'
 import { useEnhancedAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks'
 import { IS_AUTHENTICATED_KEY } from '@/config/constants/storage'
 
+import { getRoleFromUser } from '@/utils/roleChecker'
+
 interface ProtectedRouteProps {
     children: ReactNode
     requiredRoles?: number[]
@@ -23,8 +25,8 @@ const ProtectedRoute = ({
     ),
 }: ProtectedRouteProps) => {
     const { isAuthenticated, user, isLoading } = useEnhancedAuth()
-    const userRole = user ? Number(user.roleID ?? (user as any)?.role_id ?? (user as any)?.role) : undefined
-    const isRoleAllowed = !requiredRoles || (userRole !== undefined && !isNaN(userRole) && requiredRoles.includes(userRole))
+    const userRole = user ? getRoleFromUser(user) : undefined
+    const isRoleAllowed = !requiredRoles || (userRole !== undefined && requiredRoles.includes(userRole))
     const router = useRouter()
 
     const wasLoggedIn = typeof window !== 'undefined' && localStorage.getItem(IS_AUTHENTICATED_KEY) === 'true'
