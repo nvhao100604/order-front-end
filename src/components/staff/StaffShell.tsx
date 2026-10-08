@@ -9,14 +9,14 @@ import { HiOutlineXMark } from "react-icons/hi2";
 import { MdOutlineLogout, MdOutlineMenu } from "react-icons/md";
 import { NotifPanel } from "./staff.components";
 import { dashboard_services } from "@/services/dashboard.services";
-import useOrderWebSocket from "@/hooks/useOrderWebSocket";
+import useOrderPolling from "@/hooks/useOrderPolling";
 import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { ROUTES } from "@/config/constants/route";
 import { LOGO_URL } from "@/config/constants/public";
 import { getDashboardOrdersSWR } from "@/hooks/useDashboard";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
-  useOrderWebSocket()
+  useOrderPolling()
 
   const orders_data = getDashboardOrdersSWR()
   const rawOrders = orders_data.data?.data

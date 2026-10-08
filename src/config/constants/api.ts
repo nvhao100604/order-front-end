@@ -37,6 +37,11 @@ export const REFRESH_INTERVAL = Number(envCheck(
     "60000"
 ))
 
+export const POLL_INTERVAL = Number(envCheck(
+    process.env.NEXT_PUBLIC_POLL_INTERVAL,
+    "10000"
+))
+
 // Query Keys (cho SWR hoặc React Query)
 export const DISH_KEY = "dishes"
 export const CATEGORY_KEY = "categories"
