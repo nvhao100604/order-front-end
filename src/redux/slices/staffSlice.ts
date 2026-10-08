@@ -3,7 +3,8 @@ import { IOrderResponse, OrderStatus, IOrderFilter, ITableResponse } from '@/int
 import {
     HiOutlineChartBar,
     HiOutlineClipboardDocumentList,
-    HiOutlineCog6Tooth
+    HiOutlineCog6Tooth,
+    HiOutlineTableCells
 } from "react-icons/hi2";
 
 // Định nghĩa các Tab dành cho nhân viên
@@ -17,6 +18,11 @@ export const STAFF_TABS = [
         id: 'order',
         label: 'Order',
         icon: HiOutlineClipboardDocumentList
+    },
+    {
+        id: 'table-map',
+        label: 'Table Map',
+        icon: HiOutlineTableCells
     },
     {
         id: 'manage',
