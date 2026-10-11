@@ -57,10 +57,15 @@ export interface ITableBase {
     minCapacity: number;
     maxCapacity: number;
     status: TableStatus;
+    areaId?: number | null;
 }
 
 export interface ITableResponse extends ITableBase {
     id: number;
+}
+
+export interface ITableCreate extends ITableBase {
+    seats?: number;
 }
 
 export interface ITableUpdate {
@@ -68,11 +73,13 @@ export interface ITableUpdate {
     minCapacity?: number;
     maxCapacity?: number;
     status?: TableStatus;
+    areaId?: number | null;
 }
 
 export interface ITableFilter extends ITableUpdate {
     customer_search?: string;
     staff_search?: string;
+    unplaced?: boolean;
 }
 
 // ORDER
