@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Link2 } from 'lucide-react';
 
 export const LegendBar: React.FC = () => {
   const items = [
@@ -18,7 +19,7 @@ export const LegendBar: React.FC = () => {
       {items.map((item, idx) => (
         <div key={idx} className="flex items-center gap-1.5">
           {item.isLink ? (
-            <span className="text-[#9B9FDB] font-bold">🔗</span>
+            <Link2 className="w-3.5 h-3.5 text-[#9B9FDB]" />
           ) : (
             <span className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
           )}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { POSTable } from '@/types/posTableMap';
+import { X, AlertTriangle } from 'lucide-react';
 
 interface TableActionPopoverProps {
   table: POSTable | null;
@@ -26,23 +27,25 @@ export const TableActionPopover: React.FC<TableActionPopoverProps> = ({
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-serif text-2xl font-bold text-[#1F2535]">Open Table {table.name}</h3>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E1EDDD] text-[#2F6140] border border-[#8DBB98]">
-              ● Available
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E1EDDD] text-[#2F6140] border border-[#8DBB98] inline-flex items-center">
+              <span className="w-2 h-2 rounded-full bg-[#2F6140] inline-block mr-1.5" />
+              Available
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F3EAD3] text-[#1F2535] flex items-center justify-center font-bold cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#F3EAD3] text-[#1F2535] flex items-center justify-center hover:bg-[#CFC3A6] transition-colors cursor-pointer"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         <p className="text-xs text-[#5F6575]">{table.capacity} seats · +1 extra chair max</p>
 
         {/* Warning banner */}
-        <div className="p-3 bg-[#F8E7BE] border border-[#D9A63E] rounded-xl text-xs text-[#7A4E06] font-medium">
-          ⚠️ Table has a reservation at 19:30 (40m left). Continue serving?
+        <div className="p-3 bg-[#F8E7BE] border border-[#D9A63E] rounded-xl text-xs text-[#7A4E06] font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-[#7A4E06] shrink-0" />
+          <span>Table has a reservation at 19:30 (40m left). Continue serving?</span>
         </div>
 
         {/* Keypad 1-8 */}

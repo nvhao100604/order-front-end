@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react'
 import { IArea } from '@/interfaces'
-import { MapPin, Maximize2, ShieldCheck, RotateCcw, Save, Loader2 } from 'lucide-react'
+import { MapPin, Maximize2, ShieldCheck, RotateCcw, Save, Loader2, Undo2 } from 'lucide-react'
 
 interface FloorPlanHeaderProps {
     areas: IArea[]
@@ -10,9 +10,11 @@ interface FloorPlanHeaderProps {
     currentArea: IArea | null
     isLoading: boolean
     isSaving: boolean
+    isDirty?: boolean
     hasErrors: boolean
     onSelectArea: (id: number) => void
     onRefresh: () => void
+    onResetDraft?: () => void
     onSave: () => void
 }
 
@@ -22,9 +24,11 @@ export const FloorPlanHeader: React.FC<FloorPlanHeaderProps> = memo(({
     currentArea,
     isLoading,
     isSaving,
+    isDirty,
     hasErrors,
     onSelectArea,
     onRefresh,
+    onResetDraft,
     onSave,
 }) => {
     return (
@@ -75,6 +79,18 @@ export const FloorPlanHeader: React.FC<FloorPlanHeaderProps> = memo(({
                     <RotateCcw className={`w-4 h-4 ${isLoading ? 'animate-spin text-amber-600' : ''}`} />
                     <span>Refresh</span>
                 </button>
+
+                {isDirty && onResetDraft && (
+                    <button
+                        onClick={onResetDraft}
+                        disabled={isLoading || isSaving}
+                        className="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 font-semibold text-sm transition-all flex items-center gap-1.5 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                        title="Discard draft changes and revert to server version"
+                    >
+                        <Undo2 className="w-4 h-4 text-amber-700" />
+                        <span>Discard Changes</span>
+                    </button>
+                )}
 
                 <button
                     onClick={onSave}

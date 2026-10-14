@@ -20,6 +20,7 @@ import {
     Home,
     Crown,
     CheckCircle2,
+    Map,
 } from 'lucide-react'
 
 type AdminTab = 'OVERVIEW' | 'DISHES' | 'TABLES' | 'USERS'
@@ -29,7 +30,7 @@ const AdminContent = () => {
     const { data: adminData, error, isLoading } = useSWRWithAuth<AdminData>('/admin/stats')
 
     const stats = adminData || {
-        systemHealth: '100% Hoạt động',
+        systemHealth: '100% Operational',
         activeUsers: 48,
         serverLoad: 12,
     }
@@ -54,7 +55,7 @@ const AdminContent = () => {
                         <div>
                             <h1 className="text-xl font-black tracking-tight text-amber-100 font-serif flex items-center gap-2">
                                 <Crown className="w-5 h-5 text-amber-400" />
-                                <span>Quản Trị Hệ Thống</span>
+                                <span>System Administration</span>
                                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-800/60 text-amber-300 font-sans font-bold border border-amber-700/50">
                                     ADMIN PORTAL
                                 </span>
@@ -64,6 +65,13 @@ const AdminContent = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        <Link
+                            href={ROUTES.ADMIN_FLOOR_PLAN}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-800/80 hover:bg-amber-800 text-amber-200 transition-colors border border-amber-700/60 flex items-center gap-1.5"
+                        >
+                            <Map className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Floor Plan Editor</span>
+                        </Link>
                         <Link
                             href={ROUTES.STAFF.DASHBOARD}
                             className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-900/60 hover:bg-amber-900 text-amber-200 transition-colors border border-amber-800/50 flex items-center gap-1.5"
@@ -76,7 +84,7 @@ const AdminContent = () => {
                             className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-all flex items-center gap-1.5"
                         >
                             <Home className="w-3.5 h-3.5" />
-                            <span>Trang chủ</span>
+                            <span>Home</span>
                         </Link>
                     </div>
                 </div>
@@ -92,7 +100,7 @@ const AdminContent = () => {
                         }`}
                     >
                         <BarChart3 className="w-4 h-4" />
-                        <span>Tổng Quan Hệ Thống</span>
+                        <span>Overview</span>
                     </button>
 
                     <button
@@ -104,7 +112,7 @@ const AdminContent = () => {
                         }`}
                     >
                         <Utensils className="w-4 h-4" />
-                        <span>Món Ăn & Danh Mục</span>
+                        <span>Menu & Dishes</span>
                     </button>
 
                     <button
@@ -116,7 +124,7 @@ const AdminContent = () => {
                         }`}
                     >
                         <LayoutGrid className="w-4 h-4" />
-                        <span>Sơ Đồ Bàn Ăn</span>
+                        <span>Tables & Layout</span>
                     </button>
 
                     <button
@@ -128,7 +136,7 @@ const AdminContent = () => {
                         }`}
                     >
                         <Users className="w-4 h-4" />
-                        <span>Người Dùng & Nhân Sự</span>
+                        <span>Users & Staff</span>
                     </button>
                 </div>
             </header>
@@ -138,50 +146,50 @@ const AdminContent = () => {
                 {activeTab === 'OVERVIEW' && (
                     <div className="space-y-6">
                         <div className="bg-white rounded-2xl shadow-sm border border-stone-200/80 p-6">
-                            <h2 className="text-xl font-bold text-stone-900 mb-1">Chỉ Số Vận Hành Hệ Thống</h2>
-                            <p className="text-sm text-stone-500 mb-6">Trạng thái máy chủ và hiệu năng ứng dụng theo thời gian thực</p>
+                            <h2 className="text-xl font-bold text-stone-900 mb-1">System Performance Metrics</h2>
+                            <p className="text-sm text-stone-500 mb-6">Real-time server health and system throughput</p>
 
                             {isLoading && (
                                 <div className="text-center py-8 text-stone-500 animate-pulse">
-                                    Đang tải dữ liệu máy chủ...
+                                    Loading server metrics...
                                 </div>
                             )}
 
                             {error && (
                                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm mb-6">
-                                    Đang hiển thị chỉ số đo lường hệ thống tổng hợp.
+                                    Displaying aggregated system operational metrics.
                                 </div>
                             )}
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="bg-emerald-50/70 p-6 rounded-2xl border border-emerald-200/80 shadow-xs">
                                     <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">Trạng Thái Hệ Thống</h3>
+                                        <h3 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">System Status</h3>
                                         <Activity className="w-5 h-5 text-emerald-600" />
                                     </div>
                                     <p className="text-3xl font-black text-emerald-950">{stats.systemHealth}</p>
                                     <p className="text-xs text-emerald-700/80 mt-2 flex items-center gap-1">
                                         <CheckCircle2 className="w-3.5 h-3.5" />
-                                        <span>Tất cả Endpoints API hoạt động bình thường</span>
+                                        <span>All API endpoints operating normally</span>
                                     </p>
                                 </div>
 
                                 <div className="bg-blue-50/70 p-6 rounded-2xl border border-blue-200/80 shadow-xs">
                                     <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Người Dùng Hoạt Động</h3>
+                                        <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Active Users</h3>
                                         <Users className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <p className="text-3xl font-black text-blue-950">{stats.activeUsers} Sessions</p>
-                                    <p className="text-xs text-blue-700/80 mt-2">Bao gồm Khách hàng & Nhân viên phục vụ</p>
+                                    <p className="text-xs text-blue-700/80 mt-2">Includes Customer & Staff active sessions</p>
                                 </div>
 
                                 <div className="bg-amber-50/70 p-6 rounded-2xl border border-amber-200/80 shadow-xs">
                                     <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-xs font-bold text-amber-900 uppercase tracking-wider">Tải Trọng Máy Chủ</h3>
+                                        <h3 className="text-xs font-bold text-amber-900 uppercase tracking-wider">Server Load</h3>
                                         <Cpu className="w-5 h-5 text-amber-600" />
                                     </div>
                                     <p className="text-3xl font-black text-amber-950">{stats.serverLoad}% CPU</p>
-                                    <p className="text-xs text-amber-700/80 mt-2">Mức tiêu thụ tài nguyên tối ưu</p>
+                                    <p className="text-xs text-amber-700/80 mt-2">Optimal server resource consumption</p>
                                 </div>
                             </div>
                         </div>
@@ -190,46 +198,46 @@ const AdminContent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <button
                                 onClick={() => setActiveTab('DISHES')}
-                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group"
+                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group cursor-pointer"
                             >
                                 <div className="p-3 bg-amber-50 rounded-xl text-amber-700 w-fit mb-3 group-hover:scale-105 transition-transform">
                                     <Utensils className="w-6 h-6" />
                                 </div>
                                 <h3 className="font-bold text-stone-900 text-lg group-hover:text-amber-700 transition-colors">
-                                    Quản Lý Món Ăn
+                                    Dish Management
                                 </h3>
                                 <p className="text-xs text-stone-500 mt-1">
-                                    Thêm món mới, cập nhật đơn giá, hình ảnh và phân loại danh mục thực đơn.
+                                    Manage dishes, pricing, images, and category classifications.
                                 </p>
                             </button>
 
                             <button
                                 onClick={() => setActiveTab('TABLES')}
-                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group"
+                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group cursor-pointer"
                             >
                                 <div className="p-3 bg-amber-50 rounded-xl text-amber-700 w-fit mb-3 group-hover:scale-105 transition-transform">
                                     <LayoutGrid className="w-6 h-6" />
                                 </div>
                                 <h3 className="font-bold text-stone-900 text-lg group-hover:text-amber-700 transition-colors">
-                                    Quản Lý Bàn Ăn
+                                    Table Management
                                 </h3>
                                 <p className="text-xs text-stone-500 mt-1">
-                                    Thiết lập sơ đồ bàn, sức chứa tối đa/tối thiểu và trạng thái hoạt động.
+                                    Configure table lists, capacities, and dining layout editor.
                                 </p>
                             </button>
 
                             <button
                                 onClick={() => setActiveTab('USERS')}
-                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group"
+                                className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200/80 hover:border-amber-600 hover:shadow-md transition-all text-left group cursor-pointer"
                             >
                                 <div className="p-3 bg-amber-50 rounded-xl text-amber-700 w-fit mb-3 group-hover:scale-105 transition-transform">
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <h3 className="font-bold text-stone-900 text-lg group-hover:text-amber-700 transition-colors">
-                                    Quản Lý Nhân Sự & Khách
+                                    User Management
                                 </h3>
                                 <p className="text-xs text-stone-500 mt-1">
-                                    Phân quyền truy cập (Admin/Staff/Customer), kích hoạt hoặc khóa tài khoản.
+                                    Manage access roles (Admin/Staff/Customer) and account statuses.
                                 </p>
                             </button>
                         </div>

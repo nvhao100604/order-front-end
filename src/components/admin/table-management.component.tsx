@@ -1,21 +1,18 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { ITableResponse, TableStatus } from '@/interfaces'
 import { tables_services } from '@/services/table.services'
-import { FloorPlanEditor } from './floor-plan/FloorPlanEditor'
 import { TableListToolbar } from './tables/TableListToolbar'
 import { TableGridView } from './tables/TableGridView'
 import { TableTableView } from './tables/TableTableView'
 import { TableFormModal } from './tables/TableFormModal'
+import { ROUTES } from '@/config/constants/route'
 import { toast } from 'react-toastify'
-
-import { Map, LayoutGrid } from 'lucide-react'
-
-type SubTab = 'LAYOUT' | 'LIST'
+import { Map, ArrowRight } from 'lucide-react'
 
 export default function TableManagementComponent() {
-    const [subTab, setSubTab] = useState<SubTab>('LAYOUT')
     const [tables, setTables] = useState<ITableResponse[]>([])
     const [selectedStatus, setSelectedStatus] = useState<TableStatus | 'ALL'>('ALL')
     const [viewMode, setViewMode] = useState<'GRID' | 'TABLE'>('GRID')
@@ -125,93 +122,68 @@ export default function TableManagementComponent() {
 
     return (
         <div className="space-y-6">
-            {/* Top Sub-Tab Switcher */}
-            <div className="flex items-center justify-between border-b border-amber-900/15 pb-2">
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setSubTab('LAYOUT')}
-                        className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                            subTab === 'LAYOUT'
-                                ? 'bg-amber-600 text-white shadow-sm'
-                                : 'text-amber-900/70 hover:text-amber-950 hover:bg-amber-100/60'
-                        }`}
-                    >
-                        <Map className="w-4 h-4" />
-                        <span>Floor Layout</span>
-                    </button>
-                    <button
-                        onClick={() => setSubTab('LIST')}
-                        className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                            subTab === 'LIST'
-                                ? 'bg-amber-600 text-white shadow-sm'
-                                : 'text-amber-900/70 hover:text-amber-950 hover:bg-amber-100/60'
-                        }`}
-                    >
-                        <LayoutGrid className="w-4 h-4" />
-                        <span>Table List</span>
-                        <span
-                            className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                                subTab === 'LIST'
-                                    ? 'bg-amber-700/60 text-amber-100'
-                                    : 'bg-amber-200/60 text-amber-900'
-                            }`}
-                        >
-                            {tables.length}
-                        </span>
-                    </button>
+            {/* Floor Plan Banner CTA */}
+            <div className="bg-linear-to-r from-amber-900 to-amber-800 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-amber-700/50">
+                <div className="flex items-center gap-3.5">
+                    <div className="p-3 bg-amber-700/60 rounded-xl text-amber-200 border border-amber-600/40">
+                        <Map className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-base text-amber-100">
+                            Floor Plan Layout Editor
+                        </h3>
+                        <p className="text-xs text-amber-200/80 mt-0.5">
+                            Interactively position dining tables, areas, and architectural obstacles on the grid.
+                        </p>
+                    </div>
                 </div>
+                <Link
+                    href={ROUTES.ADMIN_FLOOR_PLAN}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-sm shadow-sm transition-all active:scale-[0.98] shrink-0"
+                >
+                    <span>Open Floor Plan Editor</span>
+                    <ArrowRight className="w-4 h-4" />
+                </Link>
             </div>
 
-            {/* TAB 1: Floor Plan Layout */}
-            {subTab === 'LAYOUT' && (
-                <FloorPlanEditor
-                    onOpenTableCRUD={() => {
-                        setSubTab('LIST')
-                        handleOpenAddModal()
-                    }}
+            {/* Table CRUD & List View */}
+            <div className="space-y-6">
+                <TableListToolbar
+                    selectedStatus={selectedStatus}
+                    totalCount={tables.length}
+                    viewMode={viewMode}
+                    onStatusChange={setSelectedStatus}
+                    onViewModeChange={setViewMode}
+                    onOpenAddModal={handleOpenAddModal}
                 />
-            )}
 
-            {/* TAB 2: Table List */}
-            {subTab === 'LIST' && (
-                <div className="space-y-6">
-                    <TableListToolbar
-                        selectedStatus={selectedStatus}
-                        totalCount={tables.length}
-                        viewMode={viewMode}
-                        onStatusChange={setSelectedStatus}
-                        onViewModeChange={setViewMode}
-                        onOpenAddModal={handleOpenAddModal}
+                {isLoading ? (
+                    <div className="bg-white p-12 rounded-2xl border border-amber-900/10 text-center text-amber-900/60 font-medium animate-pulse">
+                        Loading tables from server...
+                    </div>
+                ) : viewMode === 'GRID' ? (
+                    <TableGridView
+                        tables={filteredTables}
+                        onToggleStatus={handleToggleStatus}
+                        onOpenEditModal={handleOpenEditModal}
+                        onDeleteTable={handleDeleteTable}
                     />
-
-                    {isLoading ? (
-                        <div className="bg-white p-12 rounded-2xl border border-amber-900/10 text-center text-amber-900/60 font-medium animate-pulse">
-                            Loading tables from server...
-                        </div>
-                    ) : viewMode === 'GRID' ? (
-                        <TableGridView
-                            tables={filteredTables}
-                            onToggleStatus={handleToggleStatus}
-                            onOpenEditModal={handleOpenEditModal}
-                            onDeleteTable={handleDeleteTable}
-                        />
-                    ) : (
-                        <TableTableView
-                            tables={filteredTables}
-                            onOpenEditModal={handleOpenEditModal}
-                            onDeleteTable={handleDeleteTable}
-                        />
-                    )}
-
-                    <TableFormModal
-                        isOpen={isModalOpen}
-                        editingTable={editingTable}
-                        nextNumber={tables.length + 1}
-                        onClose={() => setIsModalOpen(false)}
-                        onSubmit={handleSaveTable}
+                ) : (
+                    <TableTableView
+                        tables={filteredTables}
+                        onOpenEditModal={handleOpenEditModal}
+                        onDeleteTable={handleDeleteTable}
                     />
-                </div>
-            )}
+                )}
+
+                <TableFormModal
+                    isOpen={isModalOpen}
+                    editingTable={editingTable}
+                    nextNumber={tables.length + 1}
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={handleSaveTable}
+                />
+            </div>
         </div>
     )
 }

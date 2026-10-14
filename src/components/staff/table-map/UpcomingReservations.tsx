@@ -86,7 +86,7 @@ export const UpcomingReservations: React.FC<UpcomingReservationsProps> = ({
                     onClick={() => setAssigningRes(res)}
                     className="py-1.5 text-xs font-semibold rounded-xl bg-[#FFFDF7] border border-[#CFC3A6] text-[#2F6140] hover:bg-white cursor-pointer font-bold"
                   >
-                    Xếp bàn
+                    Assign Table
                   </button>
                 ) : (
                   <button
@@ -98,7 +98,7 @@ export const UpcomingReservations: React.FC<UpcomingReservationsProps> = ({
                 )}
                 <button
                   onClick={() => {
-                    if (confirm(`Hủy đặt bàn của khách ${res.customerName}?`)) {
+                    if (confirm(`Cancel reservation for ${res.customerName}?`)) {
                       onCancel(res);
                     }
                   }}
@@ -117,10 +117,10 @@ export const UpcomingReservations: React.FC<UpcomingReservationsProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2535]/30 backdrop-blur-xs">
           <div className="bg-[#FFFDF7] rounded-2xl p-5 w-80 border border-[#CFC3A6]/40 shadow-xl space-y-3">
             <h4 className="font-serif text-lg font-bold text-[#1F2535]">
-              Xếp bàn cho {assigningRes.customerName}
+              Assign Table for {assigningRes.customerName}
             </h4>
             <p className="text-xs text-[#5F6575]">
-              Yêu cầu: {assigningRes.guestCount} khách
+              Party size: {assigningRes.guestCount} guests
             </p>
             <div className="max-h-48 overflow-y-auto space-y-1.5">
               {availableTables.filter((t) => t.status === 'EMPTY').map((t) => (
@@ -139,14 +139,14 @@ export const UpcomingReservations: React.FC<UpcomingReservationsProps> = ({
                 </button>
               ))}
               {availableTables.filter((t) => t.status === 'EMPTY').length === 0 && (
-                <p className="text-xs text-[#962B1A] py-2 text-center">Không có bàn trống khả dụng</p>
+                <p className="text-xs text-[#962B1A] py-2 text-center">No available empty tables</p>
               )}
             </div>
             <button
               onClick={() => setAssigningRes(null)}
               className="w-full py-2 bg-[#F3EAD3] text-xs font-semibold rounded-xl text-[#1F2535] cursor-pointer"
             >
-              Đóng
+              Close
             </button>
           </div>
         </div>

@@ -1,59 +1,90 @@
 import { POSTable, TableArea, TableShape } from "@/types/posTableMap";
-import { ITableResponse } from "@/interfaces";
+import { ITableResponse, IFloorItem, getEffectiveDimensions } from "@/interfaces";
 
 export const DEFAULT_AREAS: TableArea[] = ['Floor 1', 'Garden', 'VIP Room', 'Bar Area'];
 
-// Preconfigured coordinate layout for standard restaurant layout
-interface TableLayoutSlot {
-  shape: TableShape;
-  area: TableArea;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-const TABLE_LAYOUT_SLOTS: Record<number, TableLayoutSlot> = {
-  1: { shape: 'Round', area: 'Floor 1', x: 36, y: 32, width: 96, height: 96 },
-  2: { shape: 'Square', area: 'Floor 1', x: 168, y: 32, width: 112, height: 112 },
-  3: { shape: 'Square', area: 'Floor 1', x: 308, y: 32, width: 112, height: 112 },
-  8: { shape: 'Round', area: 'Floor 1', x: 628, y: 104, width: 96, height: 96 },
-  4: { shape: 'Square', area: 'Floor 1', x: 36, y: 212, width: 112, height: 112 },
-  5: { shape: 'Square', area: 'Floor 1', x: 160, y: 212, width: 112, height: 112 },
-  6: { shape: 'Square', area: 'Floor 1', x: 348, y: 212, width: 112, height: 112 },
-  7: { shape: 'Long', area: 'Floor 1', x: 488, y: 212, width: 192, height: 112 },
-  9: { shape: 'Round', area: 'Floor 1', x: 36, y: 400, width: 96, height: 96 },
-  10: { shape: 'Square', area: 'Floor 1', x: 168, y: 396, width: 112, height: 112 },
-  11: { shape: 'Long', area: 'Floor 1', x: 308, y: 396, width: 192, height: 112 },
-  12: { shape: 'Long', area: 'Floor 1', x: 524, y: 396, width: 224, height: 112 },
+const normalizeShape = (shape?: string | null): TableShape => {
+  const s = (shape || '').toUpperCase();
+  if (s === 'ROUND') return 'Round';
+  if (s === 'LONG') return 'Long';
+  return 'Square';
 };
 
 /**
- * Merge raw backend tables with visual layout coordinates.
- * Falls back to auto-grid arrangement if a table is not in preset slots.
+ * Merge raw floor items from backend layout (/areas/{id}/layout) with live backend tables.
+ * Maps coordinates, effective sizes, and live table statuses.
  */
-export function mapBackendTablesToPOSTables(rawTables: ITableResponse[]): POSTable[] {
-  return rawTables.map((t, idx) => {
-    const slot = TABLE_LAYOUT_SLOTS[t.id] || TABLE_LAYOUT_SLOTS[t.number] || {
-      shape: (t.maxCapacity > 4 ? 'Long' : t.maxCapacity === 2 ? 'Round' : 'Square') as TableShape,
-      area: 'Floor 1' as TableArea,
-      x: 36 + (idx % 4) * 180,
-      y: 32 + Math.floor(idx / 4) * 160,
-      width: t.maxCapacity > 4 ? 192 : 112,
-      height: 112,
+export function mapFloorItemsToPOSTables(
+  items: IFloorItem[],
+  backendTables: ITableResponse[],
+  cellSize: number = 28,
+  areaName: string = 'Floor 1'
+): POSTable[] {
+  const tableMap = new Map<number, ITableResponse>();
+  backendTables.forEach((t) => {
+    tableMap.set(t.id, t);
+    if (t.number) {
+      tableMap.set(t.number, t);
+    }
+  });
+
+  const tableFloorItems = items.filter(
+    (item) => item.kind === 'TABLE' && item.tableId !== undefined && item.tableId !== null
+  );
+
+  // If no floor items configured for this area, fallback to auto-arranging backend tables
+  if (tableFloorItems.length === 0 && backendTables.length > 0) {
+    return mapBackendTablesToPOSTables(backendTables, areaName);
+  }
+
+  return tableFloorItems.map((item, idx) => {
+    const rawTable = item.tableId ? tableMap.get(item.tableId) : undefined;
+    const eff = getEffectiveDimensions(item.w, item.h, item.rotation ?? 0);
+
+    const tableId = item.tableId ? `B${item.tableId}` : `T${idx + 1}`;
+    const tableName = rawTable?.number ? `B${rawTable.number}` : (item.tableId ? `B${item.tableId}` : `B${idx + 1}`);
+
+    return {
+      id: tableId,
+      name: tableName,
+      shape: normalizeShape(item.shape),
+      status: (rawTable?.status || 'EMPTY') as POSTable['status'],
+      area: areaName as TableArea,
+      capacity: rawTable?.maxCapacity || 4,
+      x: Math.round(item.x * cellSize),
+      y: Math.round(item.y * cellSize),
+      width: Math.max(Math.round(eff.effW * cellSize), 60),
+      height: Math.max(Math.round(eff.effH * cellSize), 60),
     };
+  });
+}
+
+/**
+ * Fallback grid arrangement for raw tables when area layout items are not yet created in editor.
+ */
+export function mapBackendTablesToPOSTables(
+  rawTables: ITableResponse[],
+  areaName: string = 'Floor 1'
+): POSTable[] {
+  return rawTables.map((t, idx) => {
+    const shape: TableShape = t.maxCapacity > 4 ? 'Long' : t.maxCapacity === 2 ? 'Round' : 'Square';
+    const width = shape === 'Long' ? 180 : 100;
+    const height = 100;
+
+    const col = idx % 4;
+    const row = Math.floor(idx / 4);
 
     return {
       id: `B${t.id}`,
       name: `B${t.number || t.id}`,
-      shape: slot.shape,
+      shape,
       status: t.status as POSTable['status'],
-      area: slot.area,
+      area: areaName as TableArea,
       capacity: t.maxCapacity || 4,
-      x: slot.x,
-      y: slot.y,
-      width: slot.width,
-      height: slot.height,
+      x: 32 + col * 180,
+      y: 32 + row * 130,
+      width,
+      height,
     };
   });
 }

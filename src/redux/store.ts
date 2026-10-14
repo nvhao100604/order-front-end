@@ -3,6 +3,7 @@ import counterReducer from '@/redux/slices/counterSlices'
 import cartReducer from './slices/cartSlices'
 import authReducer from './slices/authSlices'
 import staffReducer from './slices/staffSlice'
+import floorPlanReducer from './slices/floorPlanSlice'
 import { rtkQueryErrorLogger } from './middlewares/errorLogging'
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
         cart: cartReducer,
         auth: authReducer,
         staff: staffReducer,
+        floorPlan: floorPlanReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(rtkQueryErrorLogger),

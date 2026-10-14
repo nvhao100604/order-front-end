@@ -1,6 +1,6 @@
 export type TableStatus = 'EMPTY' | 'OCCUPIED' | 'PAY' | 'RESERVED' | 'CLEAN' | 'LATE';
 export type TableShape = 'Round' | 'Square' | 'Long';
-export type TableArea = 'Floor 1' | 'Garden' | 'VIP Room' | 'Bar Area';
+export type TableArea = 'Floor 1' | 'Garden' | 'VIP Room' | 'Bar Area' | (string & {});
 
 export interface OrderItem {
   id: string;

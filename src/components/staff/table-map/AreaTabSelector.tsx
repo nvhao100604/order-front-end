@@ -7,14 +7,15 @@ interface AreaTabSelectorProps {
   activeArea: TableArea;
   onAreaChange: (area: TableArea) => void;
   areaCounts: Record<TableArea, { available: number; total: number }>;
+  areas?: TableArea[];
 }
 
 export const AreaTabSelector: React.FC<AreaTabSelectorProps> = ({
   activeArea,
   onAreaChange,
   areaCounts,
+  areas = ['Floor 1', 'Garden', 'VIP Room', 'Bar Area'],
 }) => {
-  const areas: TableArea[] = ['Floor 1', 'Garden', 'VIP Room', 'Bar Area'];
 
   return (
     <div className="flex items-center gap-7 border-b border-[#CFC3A6]/40 pb-2">

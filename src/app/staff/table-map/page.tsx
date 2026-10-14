@@ -10,6 +10,8 @@ import { TableQuickPanel } from '@/components/staff/table-map/TableQuickPanel';
 import { UpcomingReservations } from '@/components/staff/table-map/UpcomingReservations';
 import { NewReservationDrawer } from '@/components/staff/table-map/NewReservationDrawer';
 import { TableActionPopover } from '@/components/staff/table-map/TableActionPopover';
+import { MergeTableModal } from '@/components/staff/table-map/MergeTableModal';
+import { QuickOrderDrawer } from '@/components/staff/table-map/QuickOrderDrawer';
 import { LegendBar } from '@/components/staff/table-map/LegendBar';
 import { POSTable } from '@/types/posTableMap';
 import { useTableMapData } from '@/hooks/useTableMapData';
@@ -18,6 +20,8 @@ import { ROUTES } from '@/config/constants/route';
 export default function POSTableMapPage() {
   const router = useRouter();
   const {
+    areas,
+    areaListNames,
     activeArea,
     setActiveArea,
     activeFilter,
@@ -26,9 +30,12 @@ export default function POSTableMapPage() {
     setSelectedTableId,
     posTables,
     filteredTables,
+    floorItems,
+    selectedTableOrder,
     upcomingReservations,
     areaCounts,
     statusCounts,
+    revalidateAll,
     handleCreateReservation,
     handleCheckIn,
     handleCancelReservation,
@@ -37,6 +44,8 @@ export default function POSTableMapPage() {
   } = useTableMapData();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
+  const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [popoverTable, setPopoverTable] = useState<POSTable | null>(null);
 
   const handleTableSelect = (table: POSTable) => {
@@ -45,6 +54,10 @@ export default function POSTableMapPage() {
       setPopoverTable(table);
     }
   };
+
+  const selectedNumericId = selectedTable
+    ? Number(selectedTable.id.replace(/\D/g, '')) || 1
+    : 1;
 
   return (
     <div className="min-h-screen bg-[#FBF5E4] text-[#1F2535] flex flex-col font-sans">
@@ -66,6 +79,7 @@ export default function POSTableMapPage() {
       <main className="flex-1 max-w-[1280px] w-full mx-auto p-6 space-y-4">
         {/* Area Tabs */}
         <AreaTabSelector
+          areas={areaListNames}
           activeArea={activeArea}
           onAreaChange={setActiveArea}
           areaCounts={areaCounts}
@@ -83,6 +97,7 @@ export default function POSTableMapPage() {
           <div className="flex flex-col gap-2">
             <FloorPlanCanvas
               tables={filteredTables}
+              floorItems={floorItems}
               selectedTableId={selectedTable?.id || null}
               onTableSelect={handleTableSelect}
             />
@@ -92,8 +107,11 @@ export default function POSTableMapPage() {
           <div className="flex flex-col">
             <TableQuickPanel
               table={selectedTable}
+              order={selectedTableOrder}
               onOrderClick={() => router.push(ROUTES.STAFF.ORDER)}
+              onQuickOrderClick={() => setIsQuickOrderOpen(true)}
               onPaymentClick={() => router.push(ROUTES.STAFF.INVOICE || '/staff/manage')}
+              onMergeClick={() => setIsMergeModalOpen(true)}
               onTransferClick={() => {}}
               onSplitTableClick={() => {}}
               onSplitBillClick={() => {}}
@@ -124,6 +142,24 @@ export default function POSTableMapPage() {
           handleOpenTable(table, guests);
           setPopoverTable(null);
         }}
+      />
+
+      {/* Merge Table Modal */}
+      <MergeTableModal
+        isOpen={isMergeModalOpen}
+        currentTable={selectedTable}
+        allTables={posTables}
+        onClose={() => setIsMergeModalOpen(false)}
+        onMergeSuccess={revalidateAll}
+      />
+
+      {/* Quick Order Drawer */}
+      <QuickOrderDrawer
+        isOpen={isQuickOrderOpen}
+        tableId={selectedNumericId}
+        tableName={selectedTable?.name}
+        onClose={() => setIsQuickOrderOpen(false)}
+        onOrderCreated={revalidateAll}
       />
     </div>
   );
