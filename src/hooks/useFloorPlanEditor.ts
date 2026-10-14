@@ -14,6 +14,20 @@ import {
 import { area_services } from '@/services/area.services'
 import { tables_services } from '@/services/table.services'
 import { SnapTarget, findSnapPosition, isAABBOverlap, isSnapTargetEqual } from '@/utils/gridSnap'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import {
+    loadLayout,
+    moveDraftItem,
+    addDraftItem,
+    removeDraftItem,
+    rotateDraftItem,
+    updateDraftItem,
+    selectItem,
+    resetDraft,
+    setSaving,
+    commitSaveSuccess,
+    setSaveError,
+} from '@/redux/slices/floorPlanSlice'
 
 export interface ActiveDragState {
     source: 'EXISTING' | 'NEW_TABLE' | 'NEW_OBSTACLE'
@@ -58,16 +72,16 @@ const getTableDefaultSize = (shape: TableShape = 'SQUARE') => {
 }
 
 export function useFloorPlanEditor() {
+    const dispatch = useAppDispatch()
+    const { draftItems, selectedIndex, isDirty, isSaving } = useAppSelector((state) => state.floorPlan)
+
     const [areas, setAreas] = useState<IArea[]>([])
     const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null)
     const [currentArea, setCurrentArea] = useState<IArea | null>(null)
-    const [layoutItems, setLayoutItems] = useState<IFloorItemPayload[]>([])
     const [areaTables, setAreaTables] = useState<ITableResponse[]>([])
     const [unplacedTables, setUnplacedTables] = useState<ITableResponse[]>([])
 
     const [isLoading, setIsLoading] = useState(false)
-    const [isSaving, setIsSaving] = useState(false)
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
     const [cellSize, setCellSize] = useState<number>(26)
 
     // Active drag state for snap-to-grid preview
@@ -82,8 +96,8 @@ export function useFloorPlanEditor() {
 
     const pendingDragRef = useRef<PendingDrag | null>(null)
 
-    const layoutItemsRef = useRef(layoutItems)
-    layoutItemsRef.current = layoutItems
+    const layoutItemsRef = useRef(draftItems)
+    layoutItemsRef.current = draftItems
 
     const currentAreaRef = useRef(currentArea)
     currentAreaRef.current = currentArea
@@ -97,6 +111,11 @@ export function useFloorPlanEditor() {
     // Animation frame ref for drag throttling (60fps/120fps sync)
     const rafRef = useRef<number | null>(null)
     const latestPointerPosRef = useRef<{ x: number; y: number } | null>(null)
+
+    // Selection helper
+    const setSelectedIndex = useCallback((idx: number | null) => {
+        dispatch(selectItem(idx))
+    }, [dispatch])
 
     // 1. Fetch Area List & Unplaced Tables directly from API
     const fetchInitialData = useCallback(async () => {
@@ -130,10 +149,10 @@ export function useFloorPlanEditor() {
         fetchInitialData()
     }, [fetchInitialData])
 
-    // 2. Load layout directly from API for selected area
+    // 2. Load layout directly from API for selected area into Redux
     const loadAreaLayout = useCallback(async (areaId: number) => {
         setIsLoading(true)
-        setSelectedIndex(null)
+        dispatch(selectItem(null))
         setActiveDrag(null)
         activeDragRef.current = null
         pendingDragRef.current = null
@@ -153,18 +172,19 @@ export function useFloorPlanEditor() {
                     gridH: data.gridH,
                     layoutVersion: data.layoutVersion,
                 })
-                setLayoutItems(
-                    (data.items || []).map((it) => ({
-                        tableId: it.tableId ?? null,
-                        kind: it.kind,
-                        shape: it.shape || (it.kind === 'TABLE' ? 'SQUARE' : null),
-                        x: it.x,
-                        y: it.y,
-                        w: it.w,
-                        h: it.h,
-                        rotation: it.rotation ?? 0,
-                    }))
-                )
+
+                const items: IFloorItemPayload[] = (data.items || []).map((it) => ({
+                    tableId: it.tableId ?? null,
+                    kind: it.kind,
+                    shape: it.shape || (it.kind === 'TABLE' ? 'SQUARE' : null),
+                    x: it.x,
+                    y: it.y,
+                    w: it.w,
+                    h: it.h,
+                    rotation: it.rotation ?? 0,
+                }))
+
+                dispatch(loadLayout({ areaId: data.id, layoutVersion: data.layoutVersion, items }))
                 setAreaTables(data.tables || [])
             }
 
@@ -177,7 +197,7 @@ export function useFloorPlanEditor() {
         } finally {
             setIsLoading(false)
         }
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         if (selectedAreaId) {
@@ -185,20 +205,19 @@ export function useFloorPlanEditor() {
         }
     }, [selectedAreaId, loadAreaLayout])
 
-    // 3. Real-time Effective Bounding Box & Collision Validation (Optimized with precomputed dims)
+    // 3. Real-time Effective Bounding Box & Collision Validation
     const validationErrors = useMemo(() => {
         if (!currentArea) return { hasError: false, boundaryErrors: new Set<number>(), collisions: new Set<number>() }
 
         const boundarySet = new Set<number>()
         const collisionSet = new Set<number>()
 
-        // Precompute effective dimensions once (O(N) instead of O(N^2))
-        const effDims = layoutItems.map((item) =>
+        const effDims = draftItems.map((item) =>
             getEffectiveDimensions(item.w, item.h, item.rotation ?? 0)
         )
 
-        for (let i = 0; i < layoutItems.length; i++) {
-            const item1 = layoutItems[i]
+        for (let i = 0; i < draftItems.length; i++) {
+            const item1 = draftItems[i]
             const eff1 = effDims[i]
 
             // Boundary Check
@@ -212,8 +231,8 @@ export function useFloorPlanEditor() {
             }
 
             // Overlap Collision Check
-            for (let j = i + 1; j < layoutItems.length; j++) {
-                const item2 = layoutItems[j]
+            for (let j = i + 1; j < draftItems.length; j++) {
+                const item2 = draftItems[j]
                 const eff2 = effDims[j]
 
                 const overlap = isAABBOverlap(
@@ -239,18 +258,18 @@ export function useFloorPlanEditor() {
             boundaryErrors: boundarySet,
             collisions: collisionSet,
         }
-    }, [layoutItems, currentArea])
+    }, [draftItems, currentArea])
 
-    // 4. Save Layout via API (with Optimistic Lock 409 handling)
+    // 4. Save Layout via API (with Redux commitSaveSuccess & Optimistic Lock handling)
     const handleSaveLayout = useCallback(async () => {
         if (!currentAreaRef.current || !selectedAreaId) return
 
         if (validationErrors.hasError) {
-            toast.warn('⚠️ Items exceeding boundaries or colliding detected. Please adjust before saving.')
+            toast.warn('Items exceeding boundaries or colliding detected. Please adjust before saving.')
             return
         }
 
-        setIsSaving(true)
+        dispatch(setSaving(true))
         const payload: IUpdateLayoutPayload = {
             layoutVersion: currentAreaRef.current.layoutVersion,
             items: layoutItemsRef.current.map((item) => ({
@@ -269,7 +288,7 @@ export function useFloorPlanEditor() {
             const res = await area_services.updateAreaLayout(selectedAreaId, payload)
             if (res?.data) {
                 const updated = res.data
-                toast.success(`✅ Layout for area "${updated.name}" (v${updated.layoutVersion}) saved successfully!`)
+                toast.success(`Layout for area "${updated.name}" (v${updated.layoutVersion}) saved successfully!`)
                 setCurrentArea({
                     id: updated.id,
                     name: updated.name,
@@ -277,18 +296,18 @@ export function useFloorPlanEditor() {
                     gridH: updated.gridH,
                     layoutVersion: updated.layoutVersion,
                 })
-                setLayoutItems(
-                    (updated.items || []).map((it) => ({
-                        tableId: it.tableId ?? null,
-                        kind: it.kind,
-                        shape: it.shape || (it.kind === 'TABLE' ? 'SQUARE' : null),
-                        x: it.x,
-                        y: it.y,
-                        w: it.w,
-                        h: it.h,
-                        rotation: it.rotation ?? 0,
-                    }))
-                )
+                const updatedItems: IFloorItemPayload[] = (updated.items || []).map((it) => ({
+                    tableId: it.tableId ?? null,
+                    kind: it.kind,
+                    shape: it.shape || (it.kind === 'TABLE' ? 'SQUARE' : null),
+                    x: it.x,
+                    y: it.y,
+                    w: it.w,
+                    h: it.h,
+                    rotation: it.rotation ?? 0,
+                }))
+
+                dispatch(commitSaveSuccess({ layoutVersion: updated.layoutVersion, items: updatedItems }))
                 setAreaTables(updated.tables || [])
 
                 // Refresh unplaced tables directly from API
@@ -299,37 +318,38 @@ export function useFloorPlanEditor() {
             }
         } catch (err: any) {
             console.error('Update layout API error:', err)
+            const errorMsg = err.response?.data?.detail || err.message || 'Failed to save layout.'
+            dispatch(setSaveError(errorMsg))
+
             if (err.response?.status === 409) {
-                toast.error('❌ The layout was updated by another user. Please reload the page to get the latest data.')
+                toast.error('The layout was updated by another user. Reloading to get the latest data.')
                 await loadAreaLayout(selectedAreaId)
             } else if (err.response?.status === 422) {
-                toast.error(`❌ Layout data error: ${err.response?.data?.detail || 'Collision or boundary error'}`)
+                toast.error(`Layout data error: ${errorMsg}`)
             } else if (err.response?.status === 403) {
-                toast.error('❌ You do not have permission to perform this action (requires Staff or Admin role).')
+                toast.error('You do not have permission to perform this action (requires Staff or Admin role).')
             } else {
-                toast.error(err.response?.data?.detail || err.message || 'Failed to save layout.')
+                toast.error(errorMsg)
             }
         } finally {
-            setIsSaving(false)
+            dispatch(setSaving(false))
         }
-    }, [selectedAreaId, validationErrors.hasError, loadAreaLayout])
+    }, [selectedAreaId, validationErrors.hasError, loadAreaLayout, dispatch])
 
-    // 5. Manipulation Methods
+    // Discard/Rollback changes back to server state
+    const handleResetDraft = useCallback(() => {
+        dispatch(resetDraft())
+        toast.info('Discarded changes. Layout returned to server version.')
+    }, [dispatch])
+
+    // 5. Manipulation Methods (Dispatched to Redux)
     const handleRotateItem = useCallback((index: number) => {
-        setLayoutItems((prev) =>
-            prev.map((item, idx) => {
-                if (idx !== index) return item
-                const nextRotation = ((item.rotation ?? 0) + 90) % 360
-                return { ...item, rotation: nextRotation }
-            })
-        )
-    }, [])
+        dispatch(rotateDraftItem(index))
+    }, [dispatch])
 
     const handleUpdateItem = useCallback((index: number, updates: Partial<IFloorItemPayload>) => {
-        setLayoutItems((prev) =>
-            prev.map((item, idx) => (idx === index ? { ...item, ...updates } : item))
-        )
-    }, [])
+        dispatch(updateDraftItem({ index, updates }))
+    }, [dispatch])
 
     const handleRemoveItem = useCallback((index: number) => {
         const removed = layoutItemsRef.current[index]
@@ -342,9 +362,8 @@ export function useFloorPlanEditor() {
             }
         }
 
-        setLayoutItems((prev) => prev.filter((_, idx) => idx !== index))
-        setSelectedIndex(null)
-    }, [areaTables])
+        dispatch(removeDraftItem(index))
+    }, [areaTables, dispatch])
 
     const handleAddObstacle = useCallback((kind: FloorItemKind) => {
         if (!currentAreaRef.current) return
@@ -361,10 +380,9 @@ export function useFloorPlanEditor() {
             rotation: 0,
         }
 
-        setLayoutItems((prev) => [...prev, newItem])
-        setSelectedIndex(layoutItemsRef.current.length)
+        dispatch(addDraftItem(newItem))
         toast.info(`Added ${kind}. You can drag and drop it onto the floor layout.`)
-    }, [])
+    }, [dispatch])
 
     const handlePlaceUnplacedTable = useCallback((table: ITableResponse, shape: TableShape = 'SQUARE') => {
         if (!currentAreaRef.current) return
@@ -381,17 +399,16 @@ export function useFloorPlanEditor() {
             rotation: 0,
         }
 
-        setLayoutItems((prev) => [...prev, newItem])
+        dispatch(addDraftItem(newItem))
         setUnplacedTables((prev) => prev.filter((t) => t.id !== table.id))
-        setSelectedIndex(layoutItemsRef.current.length)
         toast.success(`Placed table #${table.number || table.id} onto the layout!`)
-    }, [])
+    }, [dispatch])
 
     // 6. Snap-to-Grid Drag & Drop Event Triggers (Pointer Events)
     const handlePointerDownItem = useCallback((e: React.PointerEvent, index: number) => {
         if (e.button !== 0) return
         e.stopPropagation()
-        setSelectedIndex(index)
+        dispatch(selectItem(index))
 
         const item = layoutItemsRef.current[index]
         if (!item) return
@@ -403,7 +420,7 @@ export function useFloorPlanEditor() {
             startY: e.clientY,
             item,
         }
-    }, [])
+    }, [dispatch])
 
     const handlePointerDownNewTable = useCallback((e: React.PointerEvent, table: ITableResponse, shape?: TableShape) => {
         if (e.button !== 0) return
@@ -538,7 +555,6 @@ export function useFloorPlanEditor() {
                     )
                 }
 
-                // If snap target didn't change cell or validity, preserve reference
                 const targetToUse = isSnapTargetEqual(current.snapTarget, nextSnapTarget)
                     ? current.snapTarget
                     : nextSnapTarget
@@ -575,7 +591,7 @@ export function useFloorPlanEditor() {
                 pendingDragRef.current = null
 
                 if (pd.type === 'EXISTING') {
-                    setSelectedIndex(pd.index)
+                    dispatch(selectItem(pd.index))
                 } else if (pd.type === 'NEW_TABLE') {
                     handlePlaceUnplacedTable(pd.table, pd.shape)
                 } else if (pd.type === 'NEW_OBSTACLE') {
@@ -594,25 +610,23 @@ export function useFloorPlanEditor() {
                     const { x, y } = drag.snapTarget
 
                     if (drag.source === 'EXISTING' && drag.itemIndex !== undefined) {
-                        setLayoutItems((prev) =>
-                            prev.map((it, idx) =>
-                                idx === drag.itemIndex
-                                    ? { ...it, x, y, rotation: drag.dragItem.rotation }
-                                    : it
-                            )
+                        dispatch(
+                            updateDraftItem({
+                                index: drag.itemIndex,
+                                updates: { x, y, rotation: drag.dragItem.rotation },
+                            })
                         )
-                        setSelectedIndex(drag.itemIndex)
+                        dispatch(selectItem(drag.itemIndex))
                     } else if (drag.source === 'NEW_TABLE') {
                         const newItem: IFloorItemPayload = {
                             ...drag.dragItem,
                             x,
                             y,
                         }
-                        setLayoutItems((prev) => [...prev, newItem])
+                        dispatch(addDraftItem(newItem))
                         if (drag.dragItem.tableId) {
                             setUnplacedTables((prev) => prev.filter((t) => t.id !== drag.dragItem.tableId))
                         }
-                        setSelectedIndex(layoutItemsRef.current.length)
                         toast.success(`Placed table #${drag.dragItem.tableId} at position (${x}, ${y})!`)
                     } else if (drag.source === 'NEW_OBSTACLE') {
                         const newItem: IFloorItemPayload = {
@@ -620,14 +634,13 @@ export function useFloorPlanEditor() {
                             x,
                             y,
                         }
-                        setLayoutItems((prev) => [...prev, newItem])
-                        setSelectedIndex(layoutItemsRef.current.length)
+                        dispatch(addDraftItem(newItem))
                         toast.info(`Placed ${drag.dragItem.kind} at position (${x}, ${y}).`)
                     }
                 } else {
-                    // Fallback rule: Cancel operation (revert existing items, discard new items)
+                    // Fallback rule: Cancel operation
                     if (drag.source === 'EXISTING') {
-                        setSelectedIndex(drag.itemIndex ?? null)
+                        dispatch(selectItem(drag.itemIndex ?? null))
                         toast.info('Action cancelled (item returned to original position).')
                     } else if (drag.source === 'NEW_TABLE') {
                         toast.info('Table placement cancelled.')
@@ -651,7 +664,7 @@ export function useFloorPlanEditor() {
                     return
                 }
 
-                // Rotate while dragging (drag in progress)
+                // Rotate while dragging
                 if (activeDragRef.current) {
                     e.preventDefault()
                     const current = activeDragRef.current
@@ -692,7 +705,7 @@ export function useFloorPlanEditor() {
                     return
                 }
 
-                // Rotate when dropped and item is selected on canvas
+                // Rotate when dropped and item is selected
                 if (selectedIndexRef.current !== null) {
                     e.preventDefault()
                     handleRotateItem(selectedIndexRef.current)
@@ -715,17 +728,18 @@ export function useFloorPlanEditor() {
             window.removeEventListener('pointercancel', handleWindowPointerUp)
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [handleRotateItem, handleAddObstacle, handlePlaceUnplacedTable])
+    }, [handleRotateItem, handleAddObstacle, handlePlaceUnplacedTable, dispatch])
 
     return {
         areas,
         selectedAreaId,
         setSelectedAreaId,
         currentArea,
-        layoutItems,
+        layoutItems: draftItems,
         unplacedTables,
         isLoading,
         isSaving,
+        isDirty,
         selectedIndex,
         setSelectedIndex,
         cellSize,
@@ -734,6 +748,7 @@ export function useFloorPlanEditor() {
         gridRef,
         activeDrag,
         handleSaveLayout,
+        handleResetDraft,
         handleRotateItem,
         handleUpdateItem,
         handleRemoveItem,

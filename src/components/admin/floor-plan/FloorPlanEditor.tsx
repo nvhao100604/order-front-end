@@ -23,6 +23,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = memo(({ onOpenTab
         unplacedTables,
         isLoading,
         isSaving,
+        isDirty,
         selectedIndex,
         setSelectedIndex,
         cellSize,
@@ -31,6 +32,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = memo(({ onOpenTab
         gridRef,
         activeDrag,
         handleSaveLayout,
+        handleResetDraft,
         handleRotateItem,
         handleUpdateItem,
         handleRemoveItem,
@@ -63,9 +65,11 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = memo(({ onOpenTab
                 currentArea={currentArea}
                 isLoading={isLoading}
                 isSaving={isSaving}
+                isDirty={isDirty}
                 hasErrors={validationErrors.hasError}
                 onSelectArea={setSelectedAreaId}
                 onRefresh={handleRefresh}
+                onResetDraft={handleResetDraft}
                 onSave={handleSaveLayout}
             />
 

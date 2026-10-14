@@ -19,6 +19,7 @@ export const ROUTES = {
         INVOICE: "/staff/invoice",
     },
     ADMIN: "/admin",
+    ADMIN_FLOOR_PLAN: "/admin/floor-plan",
     CONTACT: "#footer",
     UNAUTHORIZED: "/unauthorized",
 } as const
