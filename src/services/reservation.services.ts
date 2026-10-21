@@ -8,17 +8,16 @@ import {
     IReservationFilter,
     Query
 } from "@/interfaces";
-import { convertToParams } from "@/utils";
+import { convertToParams, executeIdempotentRequest, IdempotentRequestOptions } from "@/utils";
 import { AxiosRequestConfig } from "axios";
 
 // 1. Create reservation (Public)
 const createPublicReservation = async (
     payload: IReservationPayload,
-    options?: AxiosRequestConfig
+    options?: IdempotentRequestOptions
 ): Promise<IResponse<IReservationResponse>> => {
-    const response = await api.post<IResponse<IReservationResponse>>(
-        `${RESERVATION_KEY}`,
-        payload,
+    const response = await executeIdempotentRequest<IResponse<IReservationResponse>>(
+        (config) => api.post(`${RESERVATION_KEY}`, payload, config),
         options
     );
     return response.data;
@@ -27,11 +26,10 @@ const createPublicReservation = async (
 // 2. Create reservation for logged-in user
 const createMeReservation = async (
     payload: IReservationPayload,
-    options?: AxiosRequestConfig
+    options?: IdempotentRequestOptions
 ): Promise<IResponse<IReservationResponse>> => {
-    const response = await api.post<IResponse<IReservationResponse>>(
-        `${RESERVATION_KEY}/me`,
-        payload,
+    const response = await executeIdempotentRequest<IResponse<IReservationResponse>>(
+        (config) => api.post(`${RESERVATION_KEY}/me`, payload, config),
         options
     );
     return response.data;
