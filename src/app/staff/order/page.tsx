@@ -126,7 +126,15 @@ const StaffOrderPage = () => {
                 setOrderErrorMsg(res.message || 'Failed to place order.');
             }
         } catch (err: any) {
-            setOrderErrorMsg(err.response?.data?.detail || err.message || 'Error placing order.');
+            const status = err.response?.status;
+            const data = err.response?.data;
+            if (status === 409) {
+                setOrderErrorMsg(data?.message || data?.detail || 'Order conflict or table is currently locked. Please try again.');
+            } else if (status === 422) {
+                setOrderErrorMsg(data?.detail || data?.message || 'Invalid order data or payload conflict. Please verify items.');
+            } else {
+                setOrderErrorMsg(data?.detail || data?.message || err.message || 'Error placing order.');
+            }
         } finally {
             setIsSubmitting(false);
         }

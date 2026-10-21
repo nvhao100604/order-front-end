@@ -298,7 +298,15 @@ export function useTableMapData() {
           return false;
         }
       } catch (err: any) {
-        toast.error(err.response?.data?.detail || err.message || 'Error creating reservation.');
+        const status = err.response?.status;
+        const data = err.response?.data;
+        if (status === 409) {
+          toast.error(data?.message || data?.detail || 'This table or time slot is already reserved. Please select another table.');
+        } else if (status === 422) {
+          toast.error(data?.detail || data?.message || 'Invalid reservation information or payload conflict.');
+        } else {
+          toast.error(data?.detail || data?.message || err.message || 'Error creating reservation.');
+        }
         return false;
       }
     },

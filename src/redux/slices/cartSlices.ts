@@ -39,11 +39,24 @@ const placeOrder = createAsyncThunk<
 
         } catch (error: any) {
             console.error("API Error: ", error.response?.data);
+            const status = error.response?.status;
+            const data = error.response?.data;
+            if (status === 409) {
+                return rejectWithValue(
+                    data?.message || data?.detail || "Order conflict or table is currently locked. Please try again."
+                );
+            }
+            if (status === 422) {
+                return rejectWithValue(
+                    data?.detail || data?.message || "Invalid order payload or conflicting request. Please try again."
+                );
+            }
             return rejectWithValue(
-                error.response?.data?.detail ||
-                error.response?.data?.message ||
-                "Place Order failed."
-            )
+                data?.detail ||
+                data?.message ||
+                error.message ||
+                "Failed to place order. Please try again."
+            );
         }
     })
 

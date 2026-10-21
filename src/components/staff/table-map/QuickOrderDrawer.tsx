@@ -174,9 +174,17 @@ export const QuickOrderDrawer: React.FC<QuickOrderDrawerProps> = ({
       }
     } catch (err: any) {
       console.error('Post order error:', err);
-      toast.error(
-        err.response?.data?.detail || err.message || 'Error submitting order request.'
-      );
+      const status = err.response?.status;
+      const data = err.response?.data;
+      if (status === 409) {
+        toast.error(data?.message || data?.detail || 'Order conflict or table is currently locked. Please try again.');
+      } else if (status === 422) {
+        toast.error(data?.detail || data?.message || 'Invalid order data or payload conflict. Please verify items.');
+      } else {
+        toast.error(
+          data?.detail || data?.message || err.message || 'Error submitting order request.'
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
