@@ -1,208 +1,364 @@
-'use client'
+'use client';
 
-import { formatter } from "@/utils"
+import Link from "next/link";
+import { formatter } from "@/utils";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { getDashboardOrdersSWR, getDashboardTablesSWR } from "@/hooks/useDashboard";
-import { FiSmile } from "react-icons/fi";
+import { ROUTES } from "@/config/constants/route";
+import {
+  ShoppingBag,
+  LayoutGrid,
+  DollarSign,
+  Clock,
+  UtensilsCrossed,
+  Receipt,
+  ArrowRight,
+  Smile,
+  Plus
+} from "lucide-react";
 
 const DashboardContent = () => {
-    const { user, logout } = useAuth()
-    const tables_data = getDashboardTablesSWR()
-    const orders_data = getDashboardOrdersSWR()
+  const { user } = useAuth();
+  const tables_data = getDashboardTablesSWR();
+  const orders_data = getDashboardOrdersSWR();
 
-    const rawOrders = orders_data.data?.data
-    const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const rawOrders = orders_data.data?.data;
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
 
-    const rawTables = tables_data.data?.data
-    const tables = Array.isArray(rawTables) ? rawTables : []
+  const rawTables = tables_data.data?.data;
+  const tables = Array.isArray(rawTables) ? rawTables : [];
 
-    // Derived stats from Redux state
-    const totalRevenue = orders
-        .filter((o) => o?.status === "COMPLETED")
-        .reduce((s, o) => s + (o?.totalPrice ?? 0), 0)
+  // Derived stats from state
+  const totalRevenue = orders
+    .filter((o) => o?.status === "COMPLETED")
+    .reduce((s, o) => s + (o?.totalPrice ?? 0), 0);
 
-    const todayOrders = orders.length
-    const pendingOrders = orders.filter((o) => o?.status === "PENDING").length
-    const occupiedTables = tables.filter((t) => t?.status === "OCCUPIED").length
-    const availableTables = tables.filter((t) => t?.status === "EMPTY").length
-    const reservedTables = tables.filter((t) => t?.status === "RESERVED").length
+  const todayOrders = orders.length;
+  const pendingOrders = orders.filter((o) => o?.status === "PENDING").length;
+  const preparingOrders = orders.filter((o) => o?.status === "PREPARING").length;
+  const occupiedTables = tables.filter((t) => t?.status === "OCCUPIED").length;
+  const availableTables = tables.filter((t) => t?.status === "EMPTY").length;
+  const reservedTables = tables.filter((t) => t?.status === "RESERVED").length;
 
-    // Top dishes derived from order items
-    const dishCountMap: Record<string, number> = {}
-    orders.forEach((o) => {
-        if (Array.isArray(o?.details)) {
-            o.details.forEach(detail => {
-                if (detail?.dish?.name) {
-                    dishCountMap[detail.dish.name] = (dishCountMap[detail.dish.name] ?? 0) + (detail.quantity ?? 1)
-                }
-            })
+  const occupancyRate = tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0;
+
+  // Active orders queue
+  const activeOrders = orders.filter(
+    (o) => o?.status === "PENDING" || o?.status === "PREPARING"
+  );
+
+  // Top dishes derived from order items
+  const dishCountMap: Record<string, number> = {};
+  orders.forEach((o) => {
+    if (Array.isArray(o?.details)) {
+      o.details.forEach((detail) => {
+        if (detail?.dish?.name) {
+          dishCountMap[detail.dish.name] = (dishCountMap[detail.dish.name] ?? 0) + (detail.quantity ?? 1);
         }
-    })
-    const topDishes = Object.entries(dishCountMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([name, count]) => ({ name, count }))
+      });
+    }
+  });
+  const topDishes = Object.entries(dishCountMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name, count]) => ({ name, count }));
 
-    const stats = [
-        {
-            label: "Total Orders",
-            value: todayOrders.toLocaleString(),
-            sub: `${pendingOrders} pending`,
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                    <rect x="9" y="3" width="6" height="4" rx="1" /><line x1="9" y1="12" x2="15" y2="12" /><line x1="9" y1="16" x2="13" y2="16" />
-                </svg>
-            ),
-            color: '#2d7a2d', bg: '#f0faf0',
-        },
-        {
-            label: "Tables In Use",
-            value: `${occupiedTables}/${tables.length}`,
-            sub: `${availableTables} available`,
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
-                </svg>
-            ),
-            color: '#c0622a', bg: '#fef3e2',
-        },
-        {
-            label: "Revenue",
-            value: formatter.currency(totalRevenue),
-            sub: "from completed orders",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-            ),
-            color: '#8b6b4a', bg: '#fdf6ec',
-        },
-        {
-            label: "Pending",
-            value: pendingOrders,
-            sub: `${orders.filter(o => o.status === 'PREPARING').length} preparing`,
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                </svg>
-            ),
-            color: '#6b4e35', bg: '#faf6f0',
-        },
-    ]
+  const stats = [
+    {
+      label: "Total Orders",
+      value: todayOrders.toLocaleString("en-US"),
+      sub: `${pendingOrders} pending`,
+      icon: <ShoppingBag className="w-5 h-5 text-emerald-600" />,
+      bg: "bg-emerald-50",
+    },
+    {
+      label: "Tables In Use",
+      value: `${occupiedTables}/${tables.length}`,
+      sub: `${availableTables} available`,
+      icon: <LayoutGrid className="w-5 h-5 text-amber-600" />,
+      bg: "bg-amber-50",
+    },
+    {
+      label: "Revenue",
+      value: formatter.currency(totalRevenue),
+      sub: "from completed orders",
+      icon: <DollarSign className="w-5 h-5 text-orange-600" />,
+      bg: "bg-orange-50",
+    },
+    {
+      label: "Pending",
+      value: pendingOrders.toString(),
+      sub: `${preparingOrders} preparing`,
+      icon: <Clock className="w-5 h-5 text-stone-600" />,
+      bg: "bg-stone-100",
+    },
+  ];
 
-    return (
-        <div
-            className="min-h-screen"
-            style={{
-                // background: 'linear-gradient(135deg, #faf6f0 0%, #f5ede0 40%, #ede0cc 100%)',
-                fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-            }}
-        >
-            <div className="fixed inset-0 pointer-events-none opacity-20" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
-            }} />
+  return (
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Greeting Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+          <span>
+            Good{" "}
+            {new Date().getHours() < 12
+              ? "morning"
+              : new Date().getHours() < 18
+              ? "afternoon"
+              : "evening"}
+            , {user?.name?.split(" ")[0] || "Staff"}
+          </span>
+          <Smile className="w-6 h-6 text-amber-500 shrink-0" />
+        </h1>
+        <p className="text-sm text-stone-400 mt-1">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
 
-            <div className="max-w-6xl mx-auto relative">
-                <div className="mb-7">
-                    <h2 className="text-2xl font-bold flex items-center gap-1.5" style={{ color: '#4a3525' }}>
-                        <span>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0]}</span>
-                        <FiSmile className="w-6 h-6 text-amber-600 shrink-0" />
-                    </h2>
-                    <p className="text-sm mt-1" style={{ color: '#a08060' }}>
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-                    {stats.map((s) => (
-                        <div key={s.label} className="rounded-2xl p-5" style={{ background: 'white', boxShadow: '0 4px 24px rgba(139,107,74,0.1)' }}>
-                            <div className="flex items-start justify-between mb-3">
-                                <p className="text-xs font-semibold" style={{ color: '#a08060' }}>{s.label.toUpperCase()}</p>
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color }}>
-                                    {s.icon}
-                                </div>
-                            </div>
-                            <p className="text-2xl font-bold mb-1" style={{ color: '#4a3525' }}>{s.value}</p>
-                            <p className="text-xs" style={{ color: '#b09070' }}>{s.sub}</p>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    {/* User profile */}
-                    <div className="rounded-2xl p-6" style={{ background: 'white', boxShadow: '0 4px 24px rgba(139,107,74,0.1)' }}>
-                        <h3 className="text-sm font-bold mb-4" style={{ color: '#4a3525' }}>YOUR ACCOUNT</h3>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0" style={{ background: 'linear-gradient(135deg, #8b6b4a, #6b4e35)' }}>
-                                {user?.name?.[0]?.toUpperCase() ?? 'U'}
-                            </div>
-                            <div>
-                                <p className="font-bold text-sm" style={{ color: '#4a3525' }}>{user?.name}</p>
-                                <p className="text-xs" style={{ color: '#a08060' }}>{user?.email}</p>
-                            </div>
-                        </div>
-                        {[{ label: 'User ID', value: `#${user?.id}` }, { label: 'Role', value: `Role ${user?.roleID}` }].map(row => (
-                            <div key={row.label} className="flex justify-between py-2" style={{ borderTop: '1px solid #f5ede0' }}>
-                                <span className="text-xs" style={{ color: '#a08060' }}>{row.label}</span>
-                                <span className="text-xs font-semibold" style={{ color: '#4a3525' }}>{row.value}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Table status */}
-                    <div className="rounded-2xl p-6" style={{ background: 'white', boxShadow: '0 4px 24px rgba(139,107,74,0.1)' }}>
-                        <h3 className="text-sm font-bold mb-4" style={{ color: '#4a3525' }}>TABLE STATUS</h3>
-                        <div className="space-y-2">
-                            {[
-                                { label: 'Available', value: availableTables, color: '#2d7a2d', bg: '#f0faf0' },
-                                { label: 'Occupied', value: occupiedTables, color: '#c0622a', bg: '#fef3e2' },
-                                { label: 'Reserved', value: reservedTables, color: '#6b4e35', bg: '#faf6f0' },
-                            ].map(t => (
-                                <div key={t.label} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: t.bg }}>
-                                    <span className="text-sm font-medium" style={{ color: t.color }}>{t.label}</span>
-                                    <span className="text-sm font-bold" style={{ color: t.color }}>{t.value} tables</span>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="mt-3 pt-3" style={{ borderTop: '1px solid #f5ede0' }}>
-                            <p className="text-xs text-center" style={{ color: '#b09070' }}>Total: {tables.length} tables</p>
-                        </div>
-                    </div>
-
-                    {/* Top dishes */}
-                    <div className="rounded-2xl p-6" style={{ background: 'white', boxShadow: '0 4px 24px rgba(139,107,74,0.1)' }}>
-                        <h3 className="text-sm font-bold mb-4" style={{ color: '#4a3525' }}>TOP DISHES TODAY</h3>
-                        {topDishes.length === 0 ? (
-                            <p className="text-sm text-center py-4" style={{ color: '#b09070' }}>No orders yet</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {topDishes.map((dish, i) => (
-                                    <div key={dish.name} className="flex items-center gap-3">
-                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                            style={{ background: i === 0 ? '#fdefc3' : '#f5ede0', color: i === 0 ? '#8a6200' : '#6b4e35' }}>
-                                            {i + 1}
-                                        </span>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium" style={{ color: '#4a3525' }}>{dish.name}</p>
-                                            <div className="h-1.5 rounded-full mt-1" style={{ background: '#f5ede0' }}>
-                                                <div className="h-full rounded-full" style={{
-                                                    width: `${Math.round((dish.count / (topDishes[0]?.count ?? 1)) * 100)}%`,
-                                                    background: i === 0 ? '#e85d1a' : '#c0622a',
-                                                }} />
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-semibold" style={{ color: '#a08060' }}>{dish.count}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
+      {/* 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="bg-white rounded-2xl border border-stone-200/80 shadow-sm p-5 flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                {s.label}
+              </span>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.bg}`}>
+                {s.icon}
+              </div>
             </div>
-        </div>
-    )
-}
+            <div>
+              <p className="text-2xl font-bold text-stone-900 tabular-nums mt-2">
+                {s.value}
+              </p>
+              <p className="text-xs text-stone-500 mt-1">{s.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-export default DashboardContent
+      {/* 2-Column Grid Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Column 1: Table Status */}
+        <div className="lg:col-span-1 bg-white rounded-2xl border border-stone-200/80 shadow-sm p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+                Table Status
+              </h2>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 tabular-nums">
+                {tables.length} total
+              </span>
+            </div>
+
+            {/* Occupancy Progress */}
+            <div className="mb-6">
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-xs text-stone-500">Occupancy Rate</span>
+                <span className="text-sm font-bold text-stone-900 tabular-nums">
+                  {occupancyRate}%
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden flex">
+                <div
+                  className="bg-amber-500 transition-all duration-500"
+                  style={{ width: `${occupancyRate}%` }}
+                />
+                <div
+                  className="bg-blue-500 transition-all duration-500"
+                  style={{
+                    width: `${tables.length > 0 ? Math.round((reservedTables / tables.length) * 100) : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Breakdown List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-xs font-semibold text-emerald-800">Available</span>
+                </div>
+                <span className="text-xs font-bold text-emerald-700 tabular-nums">
+                  {availableTables} tables
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-xs font-semibold text-amber-800">Occupied</span>
+                </div>
+                <span className="text-xs font-bold text-amber-800 tabular-nums">
+                  {occupiedTables} tables
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50 border border-blue-200">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-xs font-semibold text-blue-800">Reserved</span>
+                </div>
+                <span className="text-xs font-bold text-blue-700 tabular-nums">
+                  {reservedTables} tables
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 mt-6 border-t border-stone-100">
+            <Link
+              href={ROUTES.STAFF.TABLE_MAP}
+              className="w-full py-2.5 px-4 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
+            >
+              <span>View Table Floor Plan</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Column 2: Top Dishes Today & Active Orders Queue */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Top Dishes Today */}
+          <div className="bg-white rounded-2xl border border-stone-200/80 shadow-sm p-6">
+            <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-4">
+              Top Dishes Today
+            </h2>
+
+            {topDishes.length === 0 ? (
+              <div className="py-8 text-center">
+                <UtensilsCrossed className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                <p className="text-xs text-stone-400">No dish sales recorded yet today.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {topDishes.map((dish, i) => (
+                  <div key={dish.name} className="flex items-center gap-3">
+                    <span
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 tabular-nums ${
+                        i === 0
+                          ? "bg-amber-100 text-amber-800 font-bold"
+                          : "bg-stone-100 text-stone-600"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className="text-xs font-semibold text-stone-800">
+                          {dish.name}
+                        </span>
+                        <span className="text-xs font-medium text-stone-400 tabular-nums">
+                          {dish.count} ordered
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-orange-500"
+                          style={{
+                            width: `${Math.round(
+                              (dish.count / (topDishes[0]?.count ?? 1)) * 100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Active Orders Queue */}
+          <div className="bg-white rounded-2xl border border-stone-200/80 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+                Active Orders Queue
+              </h2>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 tabular-nums">
+                {activeOrders.length} active
+              </span>
+            </div>
+
+            {activeOrders.length === 0 ? (
+              <div className="py-10 text-center flex flex-col items-center justify-center">
+                <Receipt className="w-10 h-10 text-stone-300 mb-2" />
+                <p className="text-sm font-semibold text-stone-700">No active orders</p>
+                <p className="text-xs text-stone-400 max-w-sm mt-1">
+                  All orders are completed. Tap below to start taking a new order for a table or customer.
+                </p>
+                <Link
+                  href={ROUTES.STAFF.ORDER}
+                  className="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create Order</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-stone-100">
+                {activeOrders.slice(0, 5).map((order) => (
+                  <div
+                    key={order.id}
+                    className="py-3 flex items-center justify-between hover:bg-stone-50/50 px-2 rounded-xl transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-700 font-bold text-xs flex items-center justify-center shrink-0">
+                        #{order.id}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-stone-800">
+                          {order.tableID ? `Table B${order.tableID}` : "Online Order"}
+                        </p>
+                        <p className="text-[11px] text-stone-400">
+                          {order.details?.length || 0} item{(order.details?.length || 0) !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                          order.status === "PENDING"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-blue-50 text-blue-700 border-blue-200"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                      <span className="text-xs font-bold text-orange-600 tabular-nums">
+                        {formatter.currency(order.totalPrice)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {activeOrders.length > 5 && (
+                  <div className="pt-3 text-center">
+                    <Link
+                      href={ROUTES.STAFF.MANAGE}
+                      className="text-xs text-orange-600 hover:text-orange-700 font-semibold"
+                    >
+                      View all {activeOrders.length} active orders →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardContent;

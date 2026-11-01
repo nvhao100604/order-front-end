@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import { defaultQuery, IOrderFilter, OrderStatus } from "@/interfaces";
 import { useState, useRef, useEffect } from "react";
 import { FilterPanel, OrderItem } from "./manage.component";
@@ -8,224 +9,229 @@ import useRefresh from "@/hooks/useRefresh";
 import { ORDER_KEY, TABLE_KEY } from "@/config/constants/api";
 import { useGetOrders } from "@/hooks/useOrder";
 import { updateOrderStatus } from "@/services/order.services";
+import {
+  SlidersHorizontal,
+  Receipt,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 const StaffManagePage = () => {
-    const [query, updateQuery, resetQuery] = useQuery(defaultQuery)
-    const finalizeCheckout = useTableCheckout()
-    const refresh = useRefresh()
-    const { data } = useGetOrders(query)
-    const orders = data?.data || []
-    const currentPage = query.page ?? 1
-    const totalPages = Math.ceil((data?.meta?.total ?? 1) / (data?.meta?.limit ?? 1))
+  const [query, updateQuery, resetQuery] = useQuery(defaultQuery);
+  const finalizeCheckout = useTableCheckout();
+  const refresh = useRefresh();
+  const { data } = useGetOrders(query);
+  const orders = data?.data || [];
+  const currentPage = query.page ?? 1;
+  const totalPages = Math.ceil((data?.meta?.total ?? 1) / (data?.meta?.limit ?? 1));
 
-    const [showFilter, setShowFilter] = useState(false)
-    const panelRef = useRef<HTMLDivElement>(null)
+  const [showFilter, setShowFilter] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-    const filterKeys: (keyof IOrderFilter)[] = ["status", "min_price", "max_price", "staffID", "customerID", "tableID", "start_date", "end_date"]
-    const activeFilterCount = filterKeys.filter(k => query[k] !== undefined && query[k] !== "").length
+  const filterKeys: (keyof IOrderFilter)[] = [
+    "status",
+    "min_price",
+    "max_price",
+    "staffID",
+    "customerID",
+    "tableID",
+    "start_date",
+    "end_date",
+  ];
+  const activeFilterCount = filterKeys.filter(
+    (k) => query[k] !== undefined && query[k] !== ""
+  ).length;
 
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (panelRef.current && !panelRef.current.contains(e.target as Node))
-                setShowFilter(false)
-        }
-        if (showFilter) document.addEventListener("mousedown", handler)
-        return () => document.removeEventListener("mousedown", handler)
-    }, [showFilter])
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setShowFilter(false);
+      }
+    };
+    if (showFilter) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showFilter]);
 
-    const updateStatus = async (orderID: number, status: OrderStatus) => {
-        // console.log("Id:", orderID)
-        // console.log("status: ", status)
-        try {
-            const response = await updateOrderStatus(orderID, status)
-            if (response.success) {
-                refresh(ORDER_KEY)
-                refresh(TABLE_KEY)
-            } else {
-                console.error(response.message)
-            }
-        } catch (error) {
-            console.error(error)
-        }
+  const updateStatus = async (orderID: number, status: OrderStatus) => {
+    try {
+      const response = await updateOrderStatus(orderID, status);
+      if (response.success) {
+        refresh(ORDER_KEY);
+        refresh(TABLE_KEY);
+      } else {
+        console.error(response.message);
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    const setPage = (newPage: number) => {
-        updateQuery({
-            ...query,
-            page: newPage
-        })
-    }
+  const setPage = (newPage: number) => {
+    updateQuery({
+      ...query,
+      page: newPage,
+    });
+  };
 
-    return (
-        <main className="max-w-5xl w-full" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
-            {/* Header row */}
-            <div className="flex items-start justify-between mb-6 gap-4">
-                <div>
-                    <h1 className="text-xl font-bold" style={{ color: "#3d2b1a" }}>Order Management</h1>
-                    <p className="text-sm mt-0.5" style={{ color: "#a08060" }}>
-                        {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
-                        {activeFilterCount > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold"
-                                style={{ background: "#fef3e2", color: "#92600a", border: "1px solid #f5c842" }}>
-                                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
-                            </span>
-                        )}
-                    </p>
-                </div>
-
-                {/* Filter trigger */}
-                <div className="relative flex-shrink-0" ref={panelRef}>
-                    <button
-                        onClick={() => setShowFilter(v => !v)}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                        style={{
-                            background: showFilter ? "#4a3525" : activeFilterCount > 0 ? "#e85d1a" : "white",
-                            color: showFilter || activeFilterCount > 0 ? "white" : "#4a3525",
-                            border: "1.5px solid",
-                            borderColor: showFilter ? "#4a3525" : activeFilterCount > 0 ? "#e85d1a" : "#dcc9b0",
-                            boxShadow: "0 2px 8px rgba(139,107,74,0.12)",
-                        }}
-                    >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                        </svg>
-                        Advanced Filter
-                        {activeFilterCount > 0 && (
-                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black"
-                                style={{ background: "rgba(255,255,255,0.3)" }}>
-                                {activeFilterCount}
-                            </span>
-                        )}
-                    </button>
-
-                    {showFilter && (
-                        <FilterPanel
-                            query={query}
-                            updateQuery={updateQuery}
-                            resetQuery={resetQuery}
-                            onClose={() => setShowFilter(false)}
-                        />
-                    )}
-                </div>
-            </div>
-
-            {/* Order list */}
-            <div className="space-y-3">
-                {orders.map((order) => (
-                    <OrderItem
-                        key={order.id}
-                        order={order}
-                        updateStatus={updateStatus}
-                        finalizeCheckout={finalizeCheckout}
-                    />
-                ))}
-
-                {orders.length === 0 && (
-                    <div className="rounded-2xl p-12 text-center"
-                        style={{ background: "white", border: "1px dashed rgba(212,175,120,0.4)" }}>
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                            style={{ background: "#faf0e0" }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0622a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                                <rect x="9" y="3" width="6" height="4" rx="1" />
-                            </svg>
-                        </div>
-                        <p className="text-sm font-medium" style={{ color: "#a08060" }}>No active orders</p>
-                        <p className="text-xs mt-1" style={{ color: "#c8b49a" }}>New orders will appear here</p>
-                    </div>
-                )}
-            </div>
-            {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 px-1">
-                    {/* Info */}
-                    <p className="text-xs" style={{ color: "#a08060" }}>
-                        Page <span className="font-semibold" style={{ color: "#4a3525" }}>{currentPage}</span> of{" "}
-                        <span className="font-semibold" style={{ color: "#4a3525" }}>{totalPages}</span>
-                    </p>
-
-                    {/* Controls */}
-                    <div className="flex items-center gap-1">
-                        {/* First */}
-                        <button
-                            onClick={() => setPage(1)}
-                            disabled={currentPage === 1}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
-                            style={{ background: "#f5ede0", color: "#6b4e35" }}
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" />
-                            </svg>
-                        </button>
-
-                        {/* Prev */}
-                        <button
-                            onClick={() => setPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
-                            style={{ background: "#f5ede0", color: "#6b4e35" }}
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="15 18 9 12 15 6" />
-                            </svg>
-                        </button>
-
-                        {/* Page numbers */}
-                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                            .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                            .reduce<(number | "...")[]>((acc, p, i, arr) => {
-                                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...")
-                                acc.push(p)
-                                return acc
-                            }, [])
-                            .map((p, i) =>
-                                p === "..." ? (
-                                    <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-xs"
-                                        style={{ color: "#a08060" }}>…</span>
-                                ) : (
-                                    <button
-                                        key={p}
-                                        onClick={() => setPage(p as number)}
-                                        className="w-8 h-8 rounded-lg text-xs font-semibold transition-all"
-                                        style={{
-                                            background: currentPage === p ? "#e85d1a" : "#f5ede0",
-                                            color: currentPage === p ? "white" : "#6b4e35",
-                                            boxShadow: currentPage === p ? "0 2px 8px rgba(232,93,26,0.3)" : "none",
-                                        }}
-                                    >
-                                        {p}
-                                    </button>
-                                )
-                            )
-                        }
-
-                        {/* Next */}
-                        <button
-                            onClick={() => setPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
-                            style={{ background: "#f5ede0", color: "#6b4e35" }}
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                        </button>
-
-                        {/* Last */}
-                        <button
-                            onClick={() => setPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
-                            style={{ background: "#f5ede0", color: "#6b4e35" }}
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+  return (
+    <div className="max-w-7xl mx-auto space-y-6 font-sans">
+      {/* Header Row */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-stone-900">Order Management</h1>
+          <p className="text-xs text-stone-500 mt-0.5">
+            <span className="tabular-nums font-semibold">{orders.length}</span> order
+            {orders.length !== 1 ? "s" : ""} in current view
+            {activeFilterCount > 0 && (
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </span>
             )}
-        </main >
-    )
-}
+          </p>
+        </div>
 
-export default StaffManagePage
+        {/* Filter Trigger Button */}
+        <div className="relative shrink-0" ref={panelRef}>
+          <button
+            onClick={() => setShowFilter((v) => !v)}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs border ${
+              showFilter || activeFilterCount > 0
+                ? "bg-orange-600 text-white border-orange-600 shadow-sm"
+                : "bg-white text-stone-700 border-stone-200 hover:bg-stone-50"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filter</span>
+            {activeFilterCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-white text-orange-600 text-[10px] flex items-center justify-center font-bold tabular-nums">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          {showFilter && (
+            <FilterPanel
+              query={query}
+              updateQuery={updateQuery}
+              resetQuery={resetQuery}
+              onClose={() => setShowFilter(false)}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Order Tickets Grid */}
+      {orders.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-stone-200/80 p-16 text-center shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto mb-3">
+            <Receipt className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-stone-800">No active orders</h3>
+          <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
+            No orders match the current filter criteria or queue.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {orders.map((order) => (
+            <OrderItem
+              key={order.id}
+              order={order}
+              updateStatus={updateStatus}
+              finalizeCheckout={finalizeCheckout}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-stone-200/80 px-1">
+          <p className="text-xs text-stone-400 tabular-nums">
+            Page <span className="font-semibold text-stone-800">{currentPage}</span> of{" "}
+            <span className="font-semibold text-stone-800">{totalPages}</span>
+          </p>
+
+          <div className="flex items-center gap-1.5">
+            {/* First */}
+            <button
+              onClick={() => setPage(1)}
+              disabled={currentPage === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer shadow-2xs"
+              aria-label="First page"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+
+            {/* Prev */}
+            <button
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer shadow-2xs"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Page numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(
+                (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1
+              )
+              .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...");
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, i) =>
+                p === "..." ? (
+                  <span
+                    key={`ellipsis-${i}`}
+                    className="w-8 h-8 flex items-center justify-center text-xs text-stone-400"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all tabular-nums cursor-pointer ${
+                      currentPage === p
+                        ? "bg-orange-600 text-white shadow-xs"
+                        : "bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 shadow-2xs"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+
+            {/* Next */}
+            <button
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer shadow-2xs"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Last */}
+            <button
+              onClick={() => setPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer shadow-2xs"
+              aria-label="Last page"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StaffManagePage;

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { POSTable } from '@/types/posTableMap';
+import { Users, Clock } from 'lucide-react';
 
 interface TableTileProps {
   table: POSTable;
@@ -10,86 +11,104 @@ interface TableTileProps {
 }
 
 export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick }) => {
-  // Figma v2 Status Style Tokens
-  const getStatusStyle = () => {
+  const getStatusBadge = () => {
     switch (table.status) {
       case 'EMPTY':
-        return 'bg-[#E1EDDD] border-[#8DBB98] text-[#2F6140]';
+        return {
+          label: 'Available',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          dotClass: 'bg-emerald-500',
+        };
       case 'OCCUPIED':
-        return 'bg-[#F8E7BE] border-[#D9A63E] text-[#7A4E06]';
+        return {
+          label: 'Occupied',
+          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+          dotClass: 'bg-amber-500',
+        };
       case 'PAY':
-        return 'bg-[#DAEBF1] border-[#7FB1C4] text-[#245A72]';
+        return {
+          label: 'Payment',
+          badgeClass: 'bg-sky-50 text-sky-800 border-sky-200',
+          dotClass: 'bg-sky-500',
+        };
       case 'RESERVED':
-        return 'bg-[#E4E5F6] border-[#9B9FDB] text-[#3F4498]';
+        return {
+          label: 'Reserved',
+          badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+          dotClass: 'bg-blue-500',
+        };
       case 'CLEAN':
-        return 'bg-[#EDE6D6] border-[#A89F89] border-dashed text-[#5C574A]';
+        return {
+          label: 'Cleaning',
+          badgeClass: 'bg-stone-100 text-stone-700 border-stone-200',
+          dotClass: 'bg-stone-400',
+        };
       case 'LATE':
-        return 'bg-[#F8DCD5] border-[#D4806F] text-[#962B1A]';
+        return {
+          label: 'Overdue',
+          badgeClass: 'bg-red-50 text-red-700 border-red-200',
+          dotClass: 'bg-red-500',
+        };
       default:
-        return 'bg-[#FFFDF7] border-[#CFC3A6] text-[#1F2535]';
+        return {
+          label: table.status,
+          badgeClass: 'bg-stone-50 text-stone-700 border-stone-200',
+          dotClass: 'bg-stone-400',
+        };
     }
   };
 
-  const getShapeStyle = () => {
-    switch (table.shape) {
-      case 'Round':
-        return 'rounded-full';
-      case 'Square':
-        return 'rounded-2xl';
-      case 'Long':
-        return 'rounded-2xl';
-    }
-  };
-
-  const statusLabel = () => {
-    switch (table.status) {
-      case 'EMPTY':
-        return 'Available';
-      case 'OCCUPIED':
-        return 'Occupied';
-      case 'PAY':
-        return 'Payment Pending';
-      case 'RESERVED':
-        return 'Reserved';
-      case 'CLEAN':
-        return 'Needs Cleaning';
-      case 'LATE':
-        return 'Overdue';
-    }
-  };
+  const statusInfo = getStatusBadge();
 
   return (
     <div
       onClick={() => onClick(table)}
-      style={{
-        left: `${table.x}px`,
-        top: `${table.y}px`,
-        width: `${table.width}px`,
-        height: `${table.height}px`,
-      }}
-      className={`absolute cursor-pointer flex flex-col items-center justify-center p-2 border-[1.5px] transition-all hover:scale-[1.02] shadow-sm select-none ${getStatusStyle()} ${getShapeStyle()} ${
-        isSelected ? 'ring-2 ring-offset-2 ring-[#F25C14]' : ''
+      className={`relative bg-white rounded-2xl border p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[116px] select-none ${
+        isSelected
+          ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-md'
+          : 'border-stone-200/90 hover:border-stone-300'
       }`}
     >
-      <span className="font-serif text-xl font-bold leading-none">{table.name}</span>
+      {/* Top Header: Table Name & Status Badge */}
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="font-sans text-base font-bold text-stone-900 leading-tight">
+            {table.name}
+          </h3>
+          <p className="text-[11px] text-stone-400 mt-0.5">{table.shape || 'Standard'}</p>
+        </div>
 
-      {/* Meta text */}
-      <span className="text-[11px] font-normal opacity-90 mt-0.5">
-        {table.status === 'OCCUPIED' && table.durationMinutes
-          ? `${table.durationMinutes}m · Group`
-          : table.status === 'RESERVED' && table.reservedTime
-          ? `${table.reservedTime} · ${table.capacity} guests`
-          : table.status === 'PAY'
-          ? `${table.currentGuests || 5}/${table.capacity} guests`
-          : table.status === 'LATE'
-          ? `${table.capacity} guests · at 19:30`
-          : `${table.capacity} seats`}
-      </span>
+        <span
+          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusInfo.badgeClass}`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dotClass}`} />
+          <span>{statusInfo.label}</span>
+        </span>
+      </div>
 
-      {/* Status Subtitle */}
-      <span className="text-[11px] font-semibold mt-0.5">
-        {table.note ? table.note : statusLabel()}
-      </span>
+      {/* Bottom Row: Capacity and Time / Note */}
+      <div className="flex items-center justify-between text-xs text-stone-500 pt-2 border-t border-stone-100 mt-2">
+        <div className="flex items-center gap-1">
+          <Users className="w-3.5 h-3.5 text-stone-400" />
+          <span className="tabular-nums font-medium">
+            {table.status === 'PAY' && table.currentGuests
+              ? `${table.currentGuests}/${table.capacity} guests`
+              : `${table.capacity} seats`}
+          </span>
+        </div>
+
+        {table.status === 'OCCUPIED' && table.durationMinutes ? (
+          <div className="flex items-center gap-1 text-amber-700 font-semibold tabular-nums text-[11px]">
+            <Clock className="w-3 h-3" />
+            <span>{table.durationMinutes}m</span>
+          </div>
+        ) : table.status === 'RESERVED' && table.reservedTime ? (
+          <div className="flex items-center gap-1 text-blue-700 font-medium tabular-nums text-[11px]">
+            <Clock className="w-3 h-3" />
+            <span>{table.reservedTime}</span>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };
