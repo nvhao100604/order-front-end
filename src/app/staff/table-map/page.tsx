@@ -143,7 +143,16 @@ export default function POSTableMapPage() {
             order={selectedTableOrder}
             onOrderClick={() => router.push(ROUTES.STAFF.ORDER)}
             onQuickOrderClick={() => setIsQuickOrderOpen(true)}
-            onPaymentClick={() => router.push(ROUTES.STAFF.INVOICE || '/staff/manage')}
+            onPaymentClick={() => {
+              const params = new URLSearchParams();
+              if (selectedTableOrder?.id) {
+                params.set('orderId', String(selectedTableOrder.id));
+              }
+              if (selectedNumericId) {
+                params.set('tableId', String(selectedNumericId));
+              }
+              router.push(`${ROUTES.STAFF.INVOICE}?${params.toString()}`);
+            }}
             onMergeClick={() => setIsMergeModalOpen(true)}
             onTransferClick={() => {}}
             onSplitTableClick={() => selectedTable && handleSplitTable(selectedTable)}

@@ -191,7 +191,7 @@ const OrderItem = ({ order, updateStatus, finalizeCheckout }: OrderItemProps) =>
 
           {/* Print Invoice button */}
           <a
-            href={`/staff/invoice?orderId=${order.id}`}
+            href={`/staff/invoice?orderId=${order.id}${order.tableID ? `&tableId=${order.tableID}` : ''}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200 transition-colors shadow-2xs"
