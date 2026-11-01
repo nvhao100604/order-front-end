@@ -2,57 +2,102 @@
 
 import React from 'react';
 import { POSTable } from '@/types/posTableMap';
+import { IFloorItem } from '@/interfaces';
 import { TableTile } from './TableTile';
-import { FloorObstacle } from './FloorObstacle';
 
 interface FloorPlanCanvasProps {
   tables: POSTable[];
+  floorItems?: IFloorItem[];
   selectedTableId: string | null;
   onTableSelect: (table: POSTable) => void;
 }
 
 export const FloorPlanCanvas: React.FC<FloorPlanCanvasProps> = ({
   tables,
+  floorItems = [],
   selectedTableId,
   onTableSelect,
 }) => {
-  return (
-    <div className="relative w-[776px] h-[576px] bg-[#FFFDF7] rounded-2xl shadow-sm border border-[#CFC3A6]/30 overflow-hidden">
-      {/* Fixed Architectural Obstacles */}
-      <FloorObstacle label="Bar Counter" x={544} y={32} width={196} height={44} />
-      <FloorObstacle label="Pillar" x={452} y={60} width={40} height={32} />
-      <FloorObstacle label="Entrance" x={24} y={516} width={120} height={28} />
-      <FloorObstacle label="Stairs" x={632} y={516} width={120} height={28} />
+  // Only filter genuine non-table architectural obstacles that aren't entrance/stairs indicators
+  const customObstacles = floorItems.filter(
+    (item) => item.kind !== 'TABLE' && item.kind !== 'DOOR' && item.kind !== 'STAIRS'
+  );
 
-      {/* Merged Group Hull (B4 + B5) */}
-      <div className="absolute left-[24px] top-[200px] w-[272px] h-[164px] border-2 border-[#D9A63E] rounded-2xl pointer-events-none">
-        <div className="absolute -bottom-6 left-6 text-xs font-medium text-[#7A4E06] bg-[#F8E7BE] px-2 py-0.5 rounded-md border border-[#D9A63E]/60 shadow-xs">
-          🔗 B4 + B5 · 6/8 guests · 52m
+  return (
+    <div className="w-full overflow-x-auto rounded-2xl shadow-sm">
+      <div className="relative min-w-[920px] min-h-[580px] bg-[#FCFBF9] bg-[radial-gradient(#d6d3d1_1px,transparent_1px)] [background-size:20px_20px] rounded-2xl border border-stone-200/80 p-8 select-none">
+        {/* Dynamic Merged Table Link Overlay */}
+        {tables
+          .filter((t) => t.mergedWithId)
+          .map((table) => {
+            const target = tables.find((t) => t.id === table.mergedWithId);
+            if (!target) return null;
+            const tableCenterX =
+              table.x + (table.capacity > 4 ? 96 : table.capacity <= 2 ? 56 : 64);
+            const tableCenterY = table.y + (table.capacity <= 2 ? 56 : 64);
+            const targetCenterX =
+              target.x + (target.capacity > 4 ? 96 : target.capacity <= 2 ? 56 : 64);
+            const targetCenterY = target.y + (target.capacity <= 2 ? 56 : 64);
+
+            return (
+              <svg
+                key={`link-${table.id}-${target.id}`}
+                className="absolute inset-0 w-full h-full pointer-events-none z-10"
+              >
+                <line
+                  x1={tableCenterX}
+                  y1={tableCenterY}
+                  x2={targetCenterX}
+                  y2={targetCenterY}
+                  stroke="#F97316"
+                  strokeWidth="2.5"
+                  strokeDasharray="6 4"
+                />
+              </svg>
+            );
+          })}
+
+        {/* Custom architectural obstacles from floorItems (e.g. Bar, Pillar) */}
+        {customObstacles.map((obs, idx) => (
+          <div
+            key={obs.id || idx}
+            style={{
+              left: `${Math.round(obs.x * 28)}px`,
+              top: `${Math.round(obs.y * 28)}px`,
+              width: `${Math.round(obs.w * 28)}px`,
+              height: `${Math.round(obs.h * 28)}px`,
+            }}
+            className="absolute bg-stone-100 border border-stone-300 text-stone-600 rounded-xl text-xs font-semibold flex items-center justify-center uppercase tracking-wider select-none shadow-2xs"
+          >
+            {obs.kind}
+          </div>
+        ))}
+
+        {/* Table Tiles positioned by coordinates with their real physical shapes */}
+        {tables.length === 0 ? (
+          <div className="flex items-center justify-center h-80 text-stone-400 text-sm">
+            No tables found for this area or filter.
+          </div>
+        ) : (
+          tables.map((table) => (
+            <TableTile
+              key={table.id}
+              table={table}
+              isSelected={selectedTableId === table.id}
+              onClick={onTableSelect}
+            />
+          ))
+        )}
+
+        {/* Architectural Floor Indicators (Entrance & Stairs) */}
+        <div className="absolute bottom-6 left-8 px-5 py-1.5 rounded-full bg-stone-100 border border-stone-300 text-stone-500 text-xs font-semibold uppercase tracking-widest select-none shadow-2xs">
+          Entrance
+        </div>
+
+        <div className="absolute bottom-6 right-8 px-5 py-1.5 rounded-full bg-stone-100 border border-stone-300 text-stone-500 text-xs font-semibold uppercase tracking-widest select-none shadow-2xs">
+          Stairs
         </div>
       </div>
-
-      {/* SVG Dashed Link (B2 - B6) */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
-        <line
-          x1={224}
-          y1={88}
-          x2={404}
-          y2={268}
-          stroke="#9B9FDB"
-          strokeWidth="2"
-          strokeDasharray="6 4"
-        />
-      </svg>
-
-      {/* Table Tiles */}
-      {tables.map((table) => (
-        <TableTile
-          key={table.id}
-          table={table}
-          isSelected={selectedTableId === table.id}
-          onClick={onTableSelect}
-        />
-      ))}
     </div>
   );
 };

@@ -16,8 +16,10 @@ export const ROUTES = {
         ORDER: "/staff/order",
         MANAGE: "/staff/manage",
         TABLE_MAP: "/staff/table-map",
+        INVOICE: "/staff/invoice",
     },
     ADMIN: "/admin",
+    ADMIN_FLOOR_PLAN: "/admin/floor-plan",
     CONTACT: "#footer",
     UNAUTHORIZED: "/unauthorized",
 } as const

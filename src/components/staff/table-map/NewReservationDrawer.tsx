@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DrawerGuestStepper } from './drawer/DrawerGuestStepper';
 import { DrawerHoldWindowBanner } from './drawer/DrawerHoldWindowBanner';
 import { DrawerCustomerForm } from './drawer/DrawerCustomerForm';
 import { DrawerTableOptionsList, TableOption } from './drawer/DrawerTableOptionsList';
 import { DrawerFooterActions } from './drawer/DrawerFooterActions';
+import { tables_services } from '@/services/table.services';
 
 interface NewReservationDrawerProps {
   isOpen: boolean;
@@ -14,46 +15,93 @@ interface NewReservationDrawerProps {
     guests: number;
     name: string;
     phone: string;
+    email?: string;
     note: string;
+    date: string;
+    time: string;
     selectedTableOption: string;
-  }) => void;
+  }) => Promise<boolean | void> | boolean | void;
 }
-
-const DEFAULT_TABLE_OPTIONS: TableOption[] = [
-  {
-    id: 'B7',
-    title: 'B7 · 6 seats',
-    detail: 'Fits well · expected available 20:15',
-    recommended: true,
-    tag: 'Recommended',
-  },
-  {
-    id: 'B4+B5',
-    title: 'B4 + B5 · 8 seats',
-    detail: 'Adjacent merge · same cluster · expected available 20:00',
-    recommended: false,
-  },
-  {
-    id: 'B12',
-    title: 'B12 · 8 seats',
-    detail: 'Reserved 19:30 · overlapping time slot · still selectable',
-    recommended: false,
-    isWarning: true,
-  },
-];
 
 export const NewReservationDrawer: React.FC<NewReservationDrawerProps> = ({
   isOpen,
   onClose,
   onSubmit,
 }) => {
-  const [guests, setGuests] = useState(6);
-  const [name, setName] = useState('Mr. Nam');
-  const [phone, setPhone] = useState('0901 234 567');
+  const [guests, setGuests] = useState(4);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
   const [date, setDate] = useState('Today');
-  const [time, setTime] = useState('20:30');
-  const [selectedTableOption, setSelectedTableOption] = useState('B7');
+  const [time, setTime] = useState('19:30');
+  const [selectedTableOption, setSelectedTableOption] = useState<string>('');
+  const [tableOptions, setTableOptions] = useState<TableOption[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch recommended tables whenever party size changes
+  useEffect(() => {
+    let active = true;
+    const fetchRecommendations = async () => {
+      try {
+        const res = await tables_services.recommendTables(guests);
+        if (active && res.data && res.data.length > 0) {
+          const mapped: TableOption[] = res.data.map((t, idx) => ({
+            id: `B${t.id}`,
+            title: `B${t.number || t.id} · ${t.maxCapacity} seats`,
+            detail: idx === 0 ? 'Fits well · Recommended' : `Available · Fits up to ${t.maxCapacity}`,
+            recommended: idx === 0,
+            tag: idx === 0 ? 'Recommended' : undefined,
+          }));
+          setTableOptions(mapped);
+          setSelectedTableOption(mapped[0]?.id || '');
+        } else if (active) {
+          setTableOptions([]);
+          setSelectedTableOption('');
+        }
+      } catch {
+        if (active) {
+          setTableOptions([]);
+        }
+      }
+    };
+
+    if (isOpen) {
+      fetchRecommendations();
+    }
+    return () => {
+      active = false;
+    };
+  }, [guests, isOpen]);
+
+  const handleConfirm = async () => {
+    if (!name.trim() || !phone.trim()) {
+      alert('Vui lòng nhập tên và số điện thoại.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const success = await onSubmit({
+        guests,
+        name,
+        phone,
+        email,
+        note,
+        date,
+        time,
+        selectedTableOption,
+      });
+      if (success !== false) {
+        onClose();
+        setName('');
+        setPhone('');
+        setEmail('');
+        setNote('');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -96,6 +144,8 @@ export const NewReservationDrawer: React.FC<NewReservationDrawerProps> = ({
             onNameChange={setName}
             phone={phone}
             onPhoneChange={setPhone}
+            email={email}
+            onEmailChange={setEmail}
             note={note}
             onNoteChange={setNote}
           />
@@ -104,7 +154,7 @@ export const NewReservationDrawer: React.FC<NewReservationDrawerProps> = ({
 
           {/* Smart Table Options */}
           <DrawerTableOptionsList
-            options={DEFAULT_TABLE_OPTIONS}
+            options={tableOptions}
             selectedId={selectedTableOption}
             onSelect={setSelectedTableOption}
           />
@@ -113,9 +163,7 @@ export const NewReservationDrawer: React.FC<NewReservationDrawerProps> = ({
         {/* Footer Actions & Policy */}
         <DrawerFooterActions
           onCancel={onClose}
-          onConfirm={() =>
-            onSubmit({ guests, name, phone, note, selectedTableOption })
-          }
+          onConfirm={handleConfirm}
         />
       </div>
     </div>

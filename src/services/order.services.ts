@@ -2,7 +2,7 @@ import { ORDER_KEY } from "@/config/constants/api"
 import { Query } from '../interfaces/query.interface';
 import { IOrderCreate, IOrderFilter, IOrderResponse, IResponse, OrderStatus } from "@/interfaces";
 import api from "@/config/api/axios";
-import { convertToParams } from "@/utils";
+import { convertToParams, executeIdempotentRequest, IdempotentRequestOptions } from "@/utils";
 import { AxiosRequestConfig } from "axios";
 
 export const getOrders = async (query: Query<IOrderFilter>, option?: AxiosRequestConfig)
@@ -14,10 +14,16 @@ export const getOrders = async (query: Query<IOrderFilter>, option?: AxiosReques
     return response.data
 }
 
-export const postOrder = async (order: IOrderCreate, option?: object): Promise<IResponse<IOrderResponse>> => {
-    const response = await api.post<IResponse<IOrderResponse>>(ORDER_KEY, order, option)
+export const postOrder = async (
+    order: IOrderCreate,
+    option?: IdempotentRequestOptions
+): Promise<IResponse<IOrderResponse>> => {
+    const response = await executeIdempotentRequest<IResponse<IOrderResponse>>(
+        (config) => api.post(ORDER_KEY, order, config),
+        option
+    );
 
-    return response.data
+    return response.data;
 }
 
 export const updateOrderStatus = async (id: number, statusData: OrderStatus, option?: AxiosRequestConfig)

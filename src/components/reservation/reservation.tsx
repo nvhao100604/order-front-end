@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FaUtensils } from "react-icons/fa";
 import { FiCalendar, FiCheckCircle } from "react-icons/fi";
+import { AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { reservation_services } from "@/services/reservation.services";
 import { IReservationPayload } from "@/interfaces";
@@ -80,7 +81,7 @@ const ReservationForm = ({
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-2xl">
             {serverError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
-                    <span>⚠</span>
+                    <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                     <span>{serverError}</span>
                 </div>
             )}
@@ -279,17 +280,34 @@ const ReservationPage = () => {
                     tableID: res.data?.tableID || null,
                 });
                 setShowSuccessModal(true);
-                toast.success("Đặt bàn thành công! Cảm ơn quý khách.");
+                toast.success("Reservation confirmed successfully! Thank you.");
             } else {
                 setServerError(res.message || 'Failed to complete reservation. Please try again.');
             }
         } catch (error: any) {
-            setServerError(
-                error.response?.data?.detail ||
-                error.response?.data?.message ||
-                error.message ||
-                'Something went wrong while reserving.'
-            );
+            const status = error.response?.status;
+            const data = error.response?.data;
+
+            if (status === 409) {
+                setServerError(
+                    data?.message ||
+                    data?.detail ||
+                    'The selected table or time slot has already been booked. Please choose another table or time.'
+                );
+            } else if (status === 422) {
+                setServerError(
+                    data?.detail ||
+                    data?.message ||
+                    'Invalid reservation data or payload conflict. Please verify your details.'
+                );
+            } else {
+                setServerError(
+                    data?.detail ||
+                    data?.message ||
+                    error.message ||
+                    'Something went wrong while reserving. Please try again.'
+                );
+            }
         } finally {
             setIsLoading(false);
         }

@@ -10,51 +10,54 @@ interface TableTileProps {
 }
 
 export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick }) => {
-  // Figma v2 Status Style Tokens
-  const getStatusStyle = () => {
+  // 1. Physical Shape based on capacity or shape attribute
+  const getShapeClasses = () => {
+    if (table.capacity <= 2 || table.shape === 'Round') {
+      return 'rounded-full aspect-square w-28 h-28 flex flex-col items-center justify-center';
+    }
+    if (table.capacity > 4 || table.shape === 'Long') {
+      return 'rounded-2xl w-48 h-32 flex flex-col items-center justify-center';
+    }
+    // Default 4 seats / Square
+    return 'rounded-2xl aspect-square w-32 h-32 flex flex-col items-center justify-center';
+  };
+
+  // 2. Status Color Tokens
+  const getStatusClasses = () => {
     switch (table.status) {
       case 'EMPTY':
-        return 'bg-[#E1EDDD] border-[#8DBB98] text-[#2F6140]';
+        return 'bg-emerald-50/90 border-emerald-300 text-emerald-900 hover:border-emerald-500';
       case 'OCCUPIED':
-        return 'bg-[#F8E7BE] border-[#D9A63E] text-[#7A4E06]';
-      case 'PAY':
-        return 'bg-[#DAEBF1] border-[#7FB1C4] text-[#245A72]';
+        return 'bg-amber-50/90 border-amber-300 text-amber-900 hover:border-amber-500';
       case 'RESERVED':
-        return 'bg-[#E4E5F6] border-[#9B9FDB] text-[#3F4498]';
+        return 'bg-blue-50/90 border-blue-300 text-blue-900 hover:border-blue-500';
+      case 'PAY':
+        return 'bg-sky-50/90 border-sky-300 text-sky-900 hover:border-sky-500';
       case 'CLEAN':
-        return 'bg-[#EDE6D6] border-[#A89F89] border-dashed text-[#5C574A]';
+        return 'bg-stone-100/90 border-stone-300 text-stone-700 hover:border-stone-400';
       case 'LATE':
-        return 'bg-[#F8DCD5] border-[#D4806F] text-[#962B1A]';
+        return 'bg-red-50/90 border-red-300 text-red-900 hover:border-red-500';
       default:
-        return 'bg-[#FFFDF7] border-[#CFC3A6] text-[#1F2535]';
+        return 'bg-stone-50/90 border-stone-300 text-stone-800 hover:border-stone-400';
     }
   };
 
-  const getShapeStyle = () => {
-    switch (table.shape) {
-      case 'Round':
-        return 'rounded-full';
-      case 'Square':
-        return 'rounded-2xl';
-      case 'Long':
-        return 'rounded-2xl';
-    }
-  };
-
-  const statusLabel = () => {
+  const getStatusLabel = () => {
     switch (table.status) {
       case 'EMPTY':
         return 'Available';
       case 'OCCUPIED':
         return 'Occupied';
-      case 'PAY':
-        return 'Payment Pending';
       case 'RESERVED':
         return 'Reserved';
+      case 'PAY':
+        return 'Payment';
       case 'CLEAN':
-        return 'Needs Cleaning';
+        return 'Cleaning';
       case 'LATE':
         return 'Overdue';
+      default:
+        return table.status;
     }
   };
 
@@ -64,31 +67,28 @@ export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick
       style={{
         left: `${table.x}px`,
         top: `${table.y}px`,
-        width: `${table.width}px`,
-        height: `${table.height}px`,
       }}
-      className={`absolute cursor-pointer flex flex-col items-center justify-center p-2 border-[1.5px] transition-all hover:scale-[1.02] shadow-sm select-none ${getStatusStyle()} ${getShapeStyle()} ${
-        isSelected ? 'ring-2 ring-offset-2 ring-[#F25C14]' : ''
+      className={`absolute cursor-pointer border-2 shadow-sm hover:shadow-md transition-all select-none p-2 ${getShapeClasses()} ${getStatusClasses()} ${
+        isSelected
+          ? 'ring-4 ring-orange-500/20 border-orange-600 shadow-md scale-[1.02]'
+          : ''
       }`}
     >
-      <span className="font-serif text-xl font-bold leading-none">{table.name}</span>
+      {/* Table Name */}
+      <span className="font-sans font-bold text-lg tracking-tight leading-tight">
+        {table.name}
+      </span>
 
-      {/* Meta text */}
-      <span className="text-[11px] font-normal opacity-90 mt-0.5">
-        {table.status === 'OCCUPIED' && table.durationMinutes
-          ? `${table.durationMinutes}m · Group`
-          : table.status === 'RESERVED' && table.reservedTime
-          ? `${table.reservedTime} · ${table.capacity} guests`
-          : table.status === 'PAY'
-          ? `${table.currentGuests || 5}/${table.capacity} guests`
-          : table.status === 'LATE'
-          ? `${table.capacity} guests · at 19:30`
+      {/* Seats count */}
+      <span className="text-xs opacity-75 font-medium tabular-nums mt-0.5">
+        {table.status === 'PAY' && table.currentGuests
+          ? `${table.currentGuests}/${table.capacity} seats`
           : `${table.capacity} seats`}
       </span>
 
-      {/* Status Subtitle */}
-      <span className="text-[11px] font-semibold mt-0.5">
-        {table.note ? table.note : statusLabel()}
+      {/* Status badge pill */}
+      <span className="text-[11px] font-semibold uppercase tracking-wider mt-1 px-2.5 py-0.5 rounded-full bg-white/60 shadow-2xs leading-none">
+        {getStatusLabel()}
       </span>
     </div>
   );

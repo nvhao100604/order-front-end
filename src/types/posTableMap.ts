@@ -1,6 +1,6 @@
 export type TableStatus = 'EMPTY' | 'OCCUPIED' | 'PAY' | 'RESERVED' | 'CLEAN' | 'LATE';
 export type TableShape = 'Round' | 'Square' | 'Long';
-export type TableArea = 'Floor 1' | 'Garden' | 'VIP Room' | 'Bar Area';
+export type TableArea = 'Floor 1' | 'Garden' | 'VIP Room' | 'Bar Area' | (string & {});
 
 export interface OrderItem {
   id: string;
@@ -22,7 +22,8 @@ export interface POSTable {
   note?: string;
   isMainMerged?: boolean;
   isSubMerged?: boolean;
-  mergedWithId?: string; // e.g. "B5"
+  mergedWithId?: string | null; // e.g. "B5" or clusterKey
+  clusterKey?: string | null;
   linkedGroupTableIds?: string[]; // e.g. ["B2", "B6"]
   orderItems?: OrderItem[];
   totalPrice?: number;
