@@ -12,7 +12,7 @@ const normalizeShape = (shape?: string | null): TableShape => {
 
 /**
  * Merge raw floor items from backend layout (/areas/{id}/layout) with live backend tables.
- * Maps coordinates, effective sizes, and live table statuses.
+ * Maps coordinates, effective sizes, cluster keys, and live table statuses.
  */
 export function mapFloorItemsToPOSTables(
   items: IFloorItem[],
@@ -43,6 +43,7 @@ export function mapFloorItemsToPOSTables(
 
     const tableId = item.tableId ? `B${item.tableId}` : `T${idx + 1}`;
     const tableName = rawTable?.number ? `B${rawTable.number}` : (item.tableId ? `B${item.tableId}` : `B${idx + 1}`);
+    const cluster = rawTable?.clusterKey ?? (rawTable as any)?.cluster_key ?? null;
 
     return {
       id: tableId,
@@ -51,6 +52,8 @@ export function mapFloorItemsToPOSTables(
       status: (rawTable?.status || 'EMPTY') as POSTable['status'],
       area: areaName as TableArea,
       capacity: rawTable?.maxCapacity || 4,
+      clusterKey: cluster,
+      mergedWithId: cluster,
       x: Math.round(item.x * cellSize),
       y: Math.round(item.y * cellSize),
       width: Math.max(Math.round(eff.effW * cellSize), 60),
@@ -60,19 +63,21 @@ export function mapFloorItemsToPOSTables(
 }
 
 /**
- * Fallback grid arrangement for raw tables when area layout items are not yet created in editor.
+ * Fallback arrangement for raw tables when area layout items are not yet created in editor.
  */
 export function mapBackendTablesToPOSTables(
   rawTables: ITableResponse[],
   areaName: string = 'Floor 1'
 ): POSTable[] {
   return rawTables.map((t, idx) => {
-    const shape: TableShape = t.maxCapacity > 4 ? 'Long' : t.maxCapacity === 2 ? 'Round' : 'Square';
-    const width = shape === 'Long' ? 180 : 100;
-    const height = 100;
+    const inferredCapacity = t.maxCapacity || (t.id <= 2 ? 2 : t.id <= 4 ? 4 : 8);
+    const shape: TableShape = inferredCapacity > 4 ? 'Long' : inferredCapacity === 2 ? 'Round' : 'Square';
+    const width = shape === 'Long' ? 192 : shape === 'Round' ? 112 : 128;
+    const height = 128;
 
     const col = idx % 4;
     const row = Math.floor(idx / 4);
+    const cluster = t.clusterKey ?? (t as any).cluster_key ?? null;
 
     return {
       id: `B${t.id}`,
@@ -80,9 +85,11 @@ export function mapBackendTablesToPOSTables(
       shape,
       status: t.status as POSTable['status'],
       area: areaName as TableArea,
-      capacity: t.maxCapacity || 4,
-      x: 32 + col * 180,
-      y: 32 + row * 130,
+      capacity: inferredCapacity,
+      clusterKey: cluster,
+      mergedWithId: cluster,
+      x: 36 + col * 220,
+      y: 36 + row * 160,
       width,
       height,
     };

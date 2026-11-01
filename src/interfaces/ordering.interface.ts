@@ -58,6 +58,8 @@ export interface ITableBase {
     maxCapacity: number;
     status: TableStatus;
     areaId?: number | null;
+    clusterKey?: string | null;
+    cluster_key?: string | null;
 }
 
 export interface ITableResponse extends ITableBase {
