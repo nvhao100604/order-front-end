@@ -11,6 +11,7 @@ import {
   Users,
   FileText,
   Link2,
+  Unlink,
 } from 'lucide-react';
 
 interface TableQuickPanelProps {
@@ -214,7 +215,13 @@ export const TableQuickPanel: React.FC<TableQuickPanelProps> = ({
         <div className="grid grid-cols-3 gap-2">
           <button
             onClick={onMergeClick}
-            className="py-2.5 bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 text-xs font-medium rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs"
+            disabled={isMerged}
+            title={isMerged ? 'This table is already part of a merged cluster' : 'Merge this table with other tables'}
+            className={`py-2.5 border text-xs font-medium rounded-xl transition-all flex items-center justify-center gap-1 shadow-xs ${
+              isMerged
+                ? 'bg-stone-50 border-stone-200/50 text-stone-400 opacity-40 cursor-not-allowed'
+                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50 cursor-pointer'
+            }`}
           >
             <GitMerge className="w-3.5 h-3.5 text-stone-400" />
             <span>Merge</span>
@@ -231,11 +238,12 @@ export const TableQuickPanel: React.FC<TableQuickPanelProps> = ({
             title={isMerged ? 'Split this table from the cluster' : 'This table is not in a merged cluster'}
             className={`py-2.5 border text-xs font-medium rounded-xl transition-all shadow-xs ${
               isMerged
-                ? 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50 cursor-pointer'
+                ? 'bg-orange-50 border-orange-400 text-orange-700 hover:bg-orange-100 hover:border-orange-500 cursor-pointer ring-2 ring-orange-500/20 shadow-sm'
                 : 'bg-stone-50 border-stone-200/50 text-stone-400 opacity-40 cursor-not-allowed'
             }`}
           >
-            Split Table
+            <Unlink className="w-3.5 h-3.5" />
+            <span>Split Table</span>
           </button>
         </div>
       </div>

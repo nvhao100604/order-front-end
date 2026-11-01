@@ -144,8 +144,16 @@ export function useTableMapData() {
 
   // 7. Dynamic area counts
   const areaListNames = useMemo<TableArea[]>(() => {
-    if (areas.length > 0) {
+    if (areas.length > 1) {
       return areas.map((a) => a.name as TableArea);
+    }
+    if (areas.length === 1) {
+      const mainName = areas[0].name;
+      const defaultOthers = ['Floor 2', 'Garden', 'VIP Room'];
+      return [
+        mainName,
+        ...defaultOthers.filter((n) => n.toLowerCase() !== mainName.toLowerCase()),
+      ] as TableArea[];
     }
     return DEFAULT_AREAS;
   }, [areas]);

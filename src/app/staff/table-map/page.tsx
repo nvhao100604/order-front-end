@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { AreaTabSelector } from '@/components/staff/table-map/AreaTabSelector';
 import { StatusFilterChips } from '@/components/staff/table-map/StatusFilterChips';
 import { FloorPlanCanvas } from '@/components/staff/table-map/FloorPlanCanvas';
@@ -14,11 +15,15 @@ import { QuickOrderDrawer } from '@/components/staff/table-map/QuickOrderDrawer'
 import { LegendBar } from '@/components/staff/table-map/LegendBar';
 import { POSTable } from '@/types/posTableMap';
 import { useTableMapData } from '@/hooks/useTableMapData';
+import { useEnhancedAuth } from '@/hooks/redux_custom_hooks/authSlice.hooks';
 import { ROUTES } from '@/config/constants/route';
-import { Plus, Users, Clock } from 'lucide-react';
+import { Plus, Map } from 'lucide-react';
 
 export default function POSTableMapPage() {
   const router = useRouter();
+  const { user } = useEnhancedAuth();
+  const isAdmin = user?.roleID === 1 || user?.role === 'admin';
+
   const {
     areas,
     areaListNames,
@@ -71,7 +76,18 @@ export default function POSTableMapPage() {
           areaCounts={areaCounts}
         />
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {isAdmin && (
+            <Link
+              href={ROUTES.ADMIN_FLOOR_PLAN}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-amber-600/40 bg-amber-50 hover:bg-amber-100 text-amber-900 transition-all flex items-center gap-1.5 shadow-2xs"
+              title="Open Floor Plan Editor to drag-and-drop table positions"
+            >
+              <Map className="w-3.5 h-3.5 text-amber-600" />
+              <span>Edit Floor Plan (Admin)</span>
+            </Link>
+          )}
+
           <button
             onClick={() => {
               const firstEmpty = posTables.find((t) => t.status === 'EMPTY');

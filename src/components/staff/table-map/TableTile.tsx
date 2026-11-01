@@ -2,14 +2,25 @@
 
 import React from 'react';
 import { POSTable } from '@/types/posTableMap';
+import { Link2 } from 'lucide-react';
 
 interface TableTileProps {
   table: POSTable;
   isSelected: boolean;
+  isSameCluster?: boolean;
+  clusterLabel?: string | null;
   onClick: (table: POSTable) => void;
 }
 
-export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick }) => {
+export const TableTile: React.FC<TableTileProps> = ({
+  table,
+  isSelected,
+  isSameCluster = false,
+  clusterLabel,
+  onClick,
+}) => {
+  const isMerged = Boolean(table.clusterKey || table.mergedWithId);
+
   // 1. Physical Shape based on capacity or shape attribute
   const getShapeClasses = () => {
     if (table.capacity <= 2 || table.shape === 'Round') {
@@ -61,6 +72,20 @@ export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick
     }
   };
 
+  // 3. Selection & Cluster Glow Classes
+  const getHighlightClasses = () => {
+    if (isSelected) {
+      return 'ring-4 ring-orange-500/25 border-orange-600 shadow-md scale-[1.02] z-30';
+    }
+    if (isSameCluster) {
+      return 'ring-4 ring-blue-500/30 border-blue-500 shadow-md scale-[1.01] z-20';
+    }
+    if (isMerged) {
+      return 'border-dashed border-blue-400 shadow-xs';
+    }
+    return '';
+  };
+
   return (
     <div
       onClick={() => onClick(table)}
@@ -68,12 +93,19 @@ export const TableTile: React.FC<TableTileProps> = ({ table, isSelected, onClick
         left: `${table.x}px`,
         top: `${table.y}px`,
       }}
-      className={`absolute cursor-pointer border-2 shadow-sm hover:shadow-md transition-all select-none p-2 ${getShapeClasses()} ${getStatusClasses()} ${
-        isSelected
-          ? 'ring-4 ring-orange-500/20 border-orange-600 shadow-md scale-[1.02]'
-          : ''
-      }`}
+      className={`absolute cursor-pointer border-2 shadow-sm hover:shadow-md transition-all select-none p-2 ${getShapeClasses()} ${getStatusClasses()} ${getHighlightClasses()}`}
     >
+      {/* Merged Cluster Badge Indicator */}
+      {isMerged && (
+        <div
+          title={`Merged with other tables in cluster: ${table.clusterKey || table.mergedWithId}`}
+          className="absolute -top-2.5 -right-2 px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs border border-white z-20"
+        >
+          <Link2 className="w-2.5 h-2.5" />
+          <span>{clusterLabel || 'Linked'}</span>
+        </div>
+      )}
+
       {/* Table Name */}
       <span className="font-sans font-bold text-lg tracking-tight leading-tight">
         {table.name}
