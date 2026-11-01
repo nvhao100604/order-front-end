@@ -388,6 +388,44 @@ export function useTableMapData() {
     [revalidateAll]
   );
 
+  const handleSplitTable = useCallback(
+    async (table: POSTable) => {
+      const numericId = Number(table.id.replace(/\D/g, ''));
+      if (!numericId) return;
+
+      try {
+        const result = await tables_services.splitTable(numericId);
+        if (result.success || result.data) {
+          toast.success(`Table ${table.name} has been successfully separated from the cluster.`);
+          revalidateAll();
+        } else {
+          toast.error(result.message || 'Failed to split table.');
+        }
+      } catch (err: any) {
+        const status = err.response?.status;
+        const data = err.response?.data;
+        if (status === 409) {
+          toast.error(
+            data?.message ||
+            data?.detail ||
+            'Cannot split table while the table cluster has active unpaid orders. Please complete or cancel the orders first.'
+          );
+        } else if (status === 400) {
+          toast.error(
+            data?.message ||
+            data?.detail ||
+            'This table does not belong to any merged table cluster.'
+          );
+        } else {
+          toast.error(
+            data?.detail || data?.message || err.message || 'Error splitting table.'
+          );
+        }
+      }
+    },
+    [revalidateAll]
+  );
+
   return {
     areas,
     areaListNames,
@@ -412,5 +450,6 @@ export function useTableMapData() {
     handleCancelReservation,
     handleAssignTable,
     handleOpenTable,
+    handleSplitTable,
   };
 }

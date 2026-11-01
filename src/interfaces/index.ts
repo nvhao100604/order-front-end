@@ -16,4 +16,6 @@ export * from './enum'
 //reservation
 export * from './reservation.interface'
 //area
-export * from './area.interface'
+export * from './area.interface'
+//health
+export * from './health.interface'

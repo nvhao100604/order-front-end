@@ -41,6 +41,7 @@ export default function POSTableMapPage() {
     handleCancelReservation,
     handleAssignTable,
     handleOpenTable,
+    handleSplitTable,
   } = useTableMapData();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -129,7 +130,7 @@ export default function POSTableMapPage() {
             onPaymentClick={() => router.push(ROUTES.STAFF.INVOICE || '/staff/manage')}
             onMergeClick={() => setIsMergeModalOpen(true)}
             onTransferClick={() => {}}
-            onSplitTableClick={() => {}}
+            onSplitTableClick={() => selectedTable && handleSplitTable(selectedTable)}
             onSplitBillClick={() => {}}
           />
 

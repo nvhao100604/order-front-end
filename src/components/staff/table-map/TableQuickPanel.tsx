@@ -47,6 +47,7 @@ export const TableQuickPanel: React.FC<TableQuickPanelProps> = ({
 
   const orderDetails = order?.details || [];
   const totalPrice = order?.totalPrice || 0;
+  const isMerged = Boolean(table.clusterKey || table.mergedWithId);
 
   const getStatusBadge = () => {
     switch (table.status) {
@@ -130,10 +131,10 @@ export const TableQuickPanel: React.FC<TableQuickPanelProps> = ({
             </div>
           )}
 
-          {table.mergedWithId && (
+          {isMerged && (
             <div className="flex items-center gap-1 text-blue-700 font-medium">
               <Link2 className="w-3.5 h-3.5" />
-              <span>Merged {table.mergedWithId}</span>
+              <span>Cluster: {table.clusterKey || table.mergedWithId}</span>
             </div>
           )}
         </div>
@@ -226,7 +227,13 @@ export const TableQuickPanel: React.FC<TableQuickPanelProps> = ({
           </button>
           <button
             onClick={onSplitTableClick}
-            className="py-2.5 bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 text-xs font-medium rounded-xl transition-all cursor-pointer shadow-xs"
+            disabled={!isMerged}
+            title={isMerged ? 'Split this table from the cluster' : 'This table is not in a merged cluster'}
+            className={`py-2.5 border text-xs font-medium rounded-xl transition-all shadow-xs ${
+              isMerged
+                ? 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50 cursor-pointer'
+                : 'bg-stone-50 border-stone-200/50 text-stone-400 opacity-40 cursor-not-allowed'
+            }`}
           >
             Split Table
           </button>

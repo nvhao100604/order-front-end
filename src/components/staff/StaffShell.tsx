@@ -11,9 +11,11 @@ import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { ROUTES } from "@/config/constants/route";
 import { LOGO_URL } from "@/config/constants/public";
 import { getDashboardOrdersSWR } from "@/hooks/useDashboard";
+import { useSystemHealth } from "@/hooks/useSystemHealth";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   useOrderPolling();
+  const { health, isHealthy, isDbConnected, isError } = useSystemHealth(30000);
 
   const orders_data = getDashboardOrdersSWR();
   const rawOrders = orders_data.data?.data;
@@ -96,9 +98,36 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
 
-        {/* Footer info */}
-        <div className="p-4 border-t border-stone-800/80 text-[10px] font-medium text-stone-500 text-center tracking-wider">
-          FOODIE RESTAURANT V4.0.26
+        {/* Footer info & Health Status */}
+        <div className="p-4 border-t border-stone-800/80 space-y-2">
+          <div className="flex items-center justify-between text-[11px] text-stone-400">
+            <span className="flex items-center gap-1.5">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isHealthy && isDbConnected
+                    ? "bg-emerald-500 animate-pulse"
+                    : isError
+                    ? "bg-red-500"
+                    : "bg-amber-500"
+                }`}
+              />
+              <span className="font-medium">
+                {isHealthy && isDbConnected
+                  ? "System Healthy"
+                  : isError
+                  ? "DB Disconnected"
+                  : "Checking..."}
+              </span>
+            </span>
+            {health?.database?.latency_ms !== null && health?.database?.latency_ms !== undefined && (
+              <span className="tabular-nums text-stone-500 text-[10px]">
+                {health.database.latency_ms}ms
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] font-medium text-stone-500 text-center tracking-wider">
+            FOODIE RESTAURANT V4.0.26
+          </p>
         </div>
       </aside>
 

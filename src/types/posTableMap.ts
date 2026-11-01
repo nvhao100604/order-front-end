@@ -22,7 +22,8 @@ export interface POSTable {
   note?: string;
   isMainMerged?: boolean;
   isSubMerged?: boolean;
-  mergedWithId?: string; // e.g. "B5"
+  mergedWithId?: string | null; // e.g. "B5" or clusterKey
+  clusterKey?: string | null;
   linkedGroupTableIds?: string[]; // e.g. ["B2", "B6"]
   orderItems?: OrderItem[];
   totalPrice?: number;
