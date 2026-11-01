@@ -15,6 +15,7 @@ import { formatter } from "@/utils";
 import { postOrder } from "@/services/order.services";
 import { useAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { mutate } from "swr";
+import { useSystemHealth } from "@/hooks/useSystemHealth";
 import { ORDER_KEY, TABLE_KEY } from "@/config/constants/api";
 import {
   Search,
@@ -62,6 +63,7 @@ const StaffOrderPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccessMsg, setOrderSuccessMsg] = useState("");
   const [orderErrorMsg, setOrderErrorMsg] = useState("");
+  const { isDbConnected, isError: isHealthError } = useSystemHealth(30000);
 
   // Search query & image fallbacks
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,6 +125,12 @@ const StaffOrderPage = () => {
 
   const handlePlaceOrder = async () => {
     if (currentCart.length === 0) return;
+    if (!isDbConnected || isHealthError) {
+      setOrderErrorMsg(
+        "Cannot place order: Server database connection is currently unavailable (HTTP 503). Please wait until connection is restored."
+      );
+      return;
+    }
     setIsSubmitting(true);
     setOrderSuccessMsg("");
     setOrderErrorMsg("");
@@ -168,6 +176,10 @@ const StaffOrderPage = () => {
           data?.message ||
             data?.detail ||
             "Order conflict or table is currently locked. Please try again."
+        );
+      } else if (status === 503) {
+        setOrderErrorMsg(
+          "Server maintenance or database connection unavailable (HTTP 503). Please wait for database reconnection before submitting orders."
         );
       } else if (status === 422) {
         setOrderErrorMsg(

@@ -17,14 +17,14 @@ export function useSystemHealth(refreshInterval: number = 30000) {
 
     const isHealthy = data?.status === 'healthy';
     const isDbConnected = data?.database?.status === 'connected';
+    const isServiceUnavailable = Boolean(error) || data?.status === 'unhealthy' || data?.database?.status === 'disconnected';
 
     return {
         health: data,
         isHealthy,
         isDbConnected,
         isLoading,
-        isError: Boolean(error) || (data && !isHealthy),
+        isError: isServiceUnavailable,
         refreshHealth: mutate,
     };
 }
-

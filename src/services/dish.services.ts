@@ -10,31 +10,22 @@ const getDishes = async (query: Query, config?: object): Promise<IResponse<IDish
     return response.data
 }
 
-
-// const createDish = async (dish: IDish, config?: object) => {
-//     const response = await api.post(`${DISH_KEY}/${ADD}`, dish, config)
-
-//     return response.data
-// }
-
-// const updateDish = async (dish: IDish, config?: object) => {
-//     const response = await api.put(`${DISH_KEY}/${UPDATE}`, dish, config)
-
-//     return response.data
-// }
-
-// const deleteDish = async (dishID: number, config?: object) => {
-//     const response = await api.delete(`${DISH_KEY}/${DELETE}/${dishID}`, config)
-
-//     return response.data
-// }
-
-// const mutateDishes = () => mutate(`${DISH_KEY}`)
+/**
+ * Upload dish image to storage bucket
+ * POST /api/v1/dishes/upload (multipart/form-data with key 'file')
+ */
+const uploadDishImage = async (file: File): Promise<IResponse<string>> => {
+    const formData = new FormData()
+    formData.append("file", file)
+    const response = await api.post<IResponse<string>>(`${DISH_KEY}/upload`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    })
+    return response.data
+}
 
 export const dishes_services = {
     getDishes,
-    // getDishSearch,
-    // createDish,
-    // updateDish,
-    // deleteDish
+    uploadDishImage,
 }

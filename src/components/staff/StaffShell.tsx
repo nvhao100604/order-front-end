@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { STAFF_TABS } from "@/redux/slices/staffSlice";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, AlertTriangle, RefreshCw } from "lucide-react";
 import { NotifPanel } from "./staff.components";
 import useOrderPolling from "@/hooks/useOrderPolling";
 import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
@@ -15,7 +15,7 @@ import { useSystemHealth } from "@/hooks/useSystemHealth";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
   useOrderPolling();
-  const { health, isHealthy, isDbConnected, isError } = useSystemHealth(30000);
+  const { health, isHealthy, isDbConnected, isError, refreshHealth } = useSystemHealth(30000);
 
   const orders_data = getDashboardOrdersSWR();
   const rawOrders = orders_data.data?.data;
@@ -187,6 +187,26 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
+
+        {/* 503 Service Maintenance / DB Disconnection Banner */}
+        {(!isDbConnected || isError) && (
+          <div className="bg-amber-500/15 border-b border-amber-500/30 px-6 py-2.5 flex items-center justify-between text-xs text-amber-950 font-medium shrink-0 animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>
+                <strong className="font-bold">System Notice:</strong> Server database is currently unreachable (HTTP 503 Service Unavailable). Critical operations may be temporarily restricted until connection is restored.
+              </span>
+            </div>
+            <button
+              onClick={() => refreshHealth()}
+              className="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-4 shadow-xs"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry Status</span>
+            </button>
+          </div>
+        )}
 
         {/* Main Content Body */}
         <main className="flex-1 overflow-y-auto p-6 bg-[#F8F7F4]">

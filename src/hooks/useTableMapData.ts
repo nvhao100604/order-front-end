@@ -410,6 +410,10 @@ export function useTableMapData() {
             data?.detail ||
             'Cannot split table while the table cluster has active unpaid orders. Please complete or cancel the orders first.'
           );
+        } else if (status === 503) {
+          toast.error(
+            'Server maintenance or database connection unavailable (HTTP 503). Cannot split table right now.'
+          );
         } else if (status === 400) {
           toast.error(
             data?.message ||
