@@ -67,9 +67,10 @@ export function mapBackendTablesToPOSTables(
   areaName: string = 'Floor 1'
 ): POSTable[] {
   return rawTables.map((t, idx) => {
-    const shape: TableShape = t.maxCapacity > 4 ? 'Long' : t.maxCapacity === 2 ? 'Round' : 'Square';
-    const width = shape === 'Long' ? 180 : 100;
-    const height = 100;
+    const inferredCapacity = t.maxCapacity || (t.id <= 2 ? 2 : t.id <= 4 ? 4 : 8);
+    const shape: TableShape = inferredCapacity > 4 ? 'Long' : inferredCapacity === 2 ? 'Round' : 'Square';
+    const width = shape === 'Long' ? 192 : shape === 'Round' ? 112 : 128;
+    const height = 128;
 
     const col = idx % 4;
     const row = Math.floor(idx / 4);
@@ -80,9 +81,9 @@ export function mapBackendTablesToPOSTables(
       shape,
       status: t.status as POSTable['status'],
       area: areaName as TableArea,
-      capacity: t.maxCapacity || 4,
-      x: 32 + col * 180,
-      y: 32 + row * 130,
+      capacity: inferredCapacity,
+      x: 36 + col * 220,
+      y: 36 + row * 160,
       width,
       height,
     };
