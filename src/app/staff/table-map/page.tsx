@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { POSHeader } from '@/components/staff/table-map/POSHeader';
 import { AreaTabSelector } from '@/components/staff/table-map/AreaTabSelector';
 import { StatusFilterChips } from '@/components/staff/table-map/StatusFilterChips';
 import { FloorPlanCanvas } from '@/components/staff/table-map/FloorPlanCanvas';
@@ -16,6 +15,7 @@ import { LegendBar } from '@/components/staff/table-map/LegendBar';
 import { POSTable } from '@/types/posTableMap';
 import { useTableMapData } from '@/hooks/useTableMapData';
 import { ROUTES } from '@/config/constants/route';
+import { Plus, Users, Clock } from 'lucide-react';
 
 export default function POSTableMapPage() {
   const router = useRouter();
@@ -60,24 +60,9 @@ export default function POSTableMapPage() {
     : 1;
 
   return (
-    <div className="min-h-screen bg-[#FBF5E4] text-[#1F2535] flex flex-col font-sans">
-      {/* Top Header */}
-      <POSHeader
-        activeTab="map"
-        onTabChange={(tab) => {
-          if (tab === 'order') router.push(ROUTES.STAFF.ORDER);
-        }}
-        onNewReservationClick={() => setIsDrawerOpen(true)}
-        onQueueClick={() => {}}
-        onReceiveCustomerClick={() => {
-          const firstEmpty = posTables.find((t) => t.status === 'EMPTY');
-          if (firstEmpty) setPopoverTable(firstEmpty);
-        }}
-        reservationCount={upcomingReservations.length}
-      />
-
-      <main className="flex-1 max-w-[1280px] w-full mx-auto p-6 space-y-4">
-        {/* Area Tabs */}
+    <div className="max-w-7xl mx-auto space-y-4 font-sans">
+      {/* ── Top Bar: Floor Tabs & Quick Action Buttons ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b border-stone-200/80">
         <AreaTabSelector
           areas={areaListNames}
           activeArea={activeArea}
@@ -85,48 +70,79 @@ export default function POSTableMapPage() {
           areaCounts={areaCounts}
         />
 
-        {/* Status Filter Chips */}
-        <StatusFilterChips
-          activeStatusFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          statusCounts={statusCounts}
-        />
-
-        {/* Core Layout Grid */}
-        <div className="flex gap-6 items-start">
-          <div className="flex flex-col gap-2">
-            <FloorPlanCanvas
-              tables={filteredTables}
-              floorItems={floorItems}
-              selectedTableId={selectedTable?.id || null}
-              onTableSelect={handleTableSelect}
-            />
-            <LegendBar />
-          </div>
-
-          <div className="flex flex-col">
-            <TableQuickPanel
-              table={selectedTable}
-              order={selectedTableOrder}
-              onOrderClick={() => router.push(ROUTES.STAFF.ORDER)}
-              onQuickOrderClick={() => setIsQuickOrderOpen(true)}
-              onPaymentClick={() => router.push(ROUTES.STAFF.INVOICE || '/staff/manage')}
-              onMergeClick={() => setIsMergeModalOpen(true)}
-              onTransferClick={() => {}}
-              onSplitTableClick={() => {}}
-              onSplitBillClick={() => {}}
-            />
-            <UpcomingReservations
-              reservations={upcomingReservations}
-              availableTables={posTables}
-              onCheckIn={handleCheckIn}
-              onCallCustomer={(res) => window.open(`tel:${res.phone}`)}
-              onCancel={handleCancelReservation}
-              onAssignTable={handleAssignTable}
-            />
-          </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => {
+              const firstEmpty = posTables.find((t) => t.status === 'EMPTY');
+              if (firstEmpty) setPopoverTable(firstEmpty);
+            }}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer shadow-2xs"
+          >
+            Walk-in
+          </button>
+          <button
+            onClick={() => {}}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+          >
+            <span>Waitlist</span>
+            <span className="w-4 h-4 rounded-full bg-stone-100 text-stone-600 text-[10px] flex items-center justify-center font-bold">
+              2
+            </span>
+          </button>
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white transition-all shadow-sm cursor-pointer flex items-center gap-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Reservation</span>
+          </button>
         </div>
-      </main>
+      </div>
+
+      {/* ── Status Filter Chips ── */}
+      <StatusFilterChips
+        activeStatusFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        statusCounts={statusCounts}
+      />
+
+      {/* ── Core Layout Grid ── */}
+      <div className="flex flex-col xl:flex-row gap-6 items-start">
+        {/* Left: Floor Plan Grid & Legend */}
+        <div className="flex-1 w-full flex flex-col gap-3">
+          <FloorPlanCanvas
+            tables={filteredTables}
+            floorItems={floorItems}
+            selectedTableId={selectedTable?.id || null}
+            onTableSelect={handleTableSelect}
+          />
+          <LegendBar />
+        </div>
+
+        {/* Right: Table Detail Panel & Upcoming Reservations */}
+        <div className="w-full xl:w-[380px] shrink-0 flex flex-col">
+          <TableQuickPanel
+            table={selectedTable}
+            order={selectedTableOrder}
+            onOrderClick={() => router.push(ROUTES.STAFF.ORDER)}
+            onQuickOrderClick={() => setIsQuickOrderOpen(true)}
+            onPaymentClick={() => router.push(ROUTES.STAFF.INVOICE || '/staff/manage')}
+            onMergeClick={() => setIsMergeModalOpen(true)}
+            onTransferClick={() => {}}
+            onSplitTableClick={() => {}}
+            onSplitBillClick={() => {}}
+          />
+
+          <UpcomingReservations
+            reservations={upcomingReservations}
+            availableTables={posTables}
+            onCheckIn={handleCheckIn}
+            onCallCustomer={(res) => window.open(`tel:${res.phone}`)}
+            onCancel={handleCancelReservation}
+            onAssignTable={handleAssignTable}
+          />
+        </div>
+      </div>
 
       {/* Slide-over Drawer & Popover Modals */}
       <NewReservationDrawer
@@ -150,16 +166,21 @@ export default function POSTableMapPage() {
         currentTable={selectedTable}
         allTables={posTables}
         onClose={() => setIsMergeModalOpen(false)}
-        onMergeSuccess={revalidateAll}
+        onMergeSuccess={() => {
+          revalidateAll();
+          setIsMergeModalOpen(false);
+        }}
       />
 
       {/* Quick Order Drawer */}
       <QuickOrderDrawer
         isOpen={isQuickOrderOpen}
         tableId={selectedNumericId}
-        tableName={selectedTable?.name}
         onClose={() => setIsQuickOrderOpen(false)}
-        onOrderCreated={revalidateAll}
+        onOrderCreated={() => {
+          revalidateAll();
+          setIsQuickOrderOpen(false);
+        }}
       />
     </div>
   );

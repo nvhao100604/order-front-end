@@ -2,87 +2,81 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import { HiOutlineBell, HiOutlineXMark } from "react-icons/hi2";
+import { Bell, X } from "lucide-react";
 import { formatter } from "@/utils";
 import { IOrderResponse } from "@/interfaces";
 
 interface NotifPanelProps {
-    orders: IOrderResponse[]
-    show: boolean
-    onToggle: () => void
-    onClose: () => void
+    orders: IOrderResponse[];
+    show: boolean;
+    onToggle: () => void;
+    onClose: () => void;
 }
 
 const NotifPanel = ({ orders, show, onToggle, onClose }: NotifPanelProps) => {
-    const panelRef = useRef<HTMLDivElement>(null)
-    const newOrders = orders.filter(o => o.status === "PENDING")
-    // console.log("all pending: ", orders.length)
+    const panelRef = useRef<HTMLDivElement>(null);
+    const newOrders = orders.filter((o) => o.status === "PENDING");
+
     // Close on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (panelRef.current && !panelRef.current.contains(e.target as Node))
-                onClose()
-        }
-        if (show) document.addEventListener("mousedown", handler)
-        return () => document.removeEventListener("mousedown", handler)
-    }, [show, onClose])
+            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+                onClose();
+            }
+        };
+        if (show) document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [show, onClose]);
 
     return (
         <div className="relative" ref={panelRef}>
             {/* Bell button */}
             <button
                 onClick={onToggle}
-                className="p-2 rounded-xl transition-all"
-                style={{ background: show ? "rgba(255,255,255,0.08)" : "transparent" }}
+                className={`relative p-2 rounded-xl transition-all cursor-pointer ${
+                    show
+                        ? "bg-stone-100 text-stone-900"
+                        : "text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                }`}
+                aria-label="View notifications"
             >
-                <HiOutlineBell
-                    size={22}
-                    style={{ color: newOrders.length > 0 ? "#e85d1a" : "rgba(255,255,255,0.35)" }}
-                />
+                <Bell className="w-5 h-5" />
                 {newOrders.length > 0 && (
-                    <span
-                        className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 animate-ping"
-                        style={{ background: "#ef4444", borderColor: "#2a1f14" }}
-                    />
+                    <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+                    </span>
                 )}
             </button>
 
             {/* Dropdown panel */}
             {show && (
-                <div
-                    className="absolute right-0 mt-4 w-[280px] md:w-80 rounded-2xl shadow-2xl overflow-hidden"
-                    style={{ background: "#2a1f14", border: "1px solid rgba(212,175,120,0.15)" }}
-                >
+                <div className="absolute right-0 mt-3 w-80 rounded-2xl bg-white border border-stone-200/80 shadow-xl overflow-hidden z-50">
                     {/* Panel header */}
-                    <div
-                        className="px-4 py-3 flex items-center justify-between"
-                        style={{ borderBottom: "1px solid rgba(212,175,120,0.1)", background: "rgba(0,0,0,0.2)" }}
-                    >
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-stone-100 bg-stone-50/60">
                         <div className="flex items-center gap-2">
-                            <p className="font-bold text-xs uppercase tracking-widest" style={{ color: "rgba(212,175,120,0.6)" }}>
+                            <p className="font-bold text-xs uppercase tracking-wider text-stone-600">
                                 Notifications
                             </p>
                             {newOrders.length > 0 && (
-                                <span
-                                    className="text-xs px-1.5 py-0.5 rounded-full font-black"
-                                    style={{ background: "#e85d1a", color: "white" }}
-                                >
+                                <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-orange-600 text-white tabular-nums">
                                     {newOrders.length}
                                 </span>
                             )}
                         </div>
-                        <HiOutlineXMark
-                            className="cursor-pointer"
-                            style={{ color: "rgba(255,255,255,0.3)" }}
+                        <button
                             onClick={onClose}
-                        />
+                            className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors cursor-pointer"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
                     </div>
 
                     {/* List */}
-                    <div className="max-h-64 overflow-y-auto">
+                    <div className="max-h-64 overflow-y-auto divide-y divide-stone-100">
                         {newOrders.length === 0 ? (
-                            <div className="py-8 text-center text-sm italic" style={{ color: "rgba(255,255,255,0.15)" }}>
-                                No new orders
+                            <div className="py-8 text-center text-xs text-stone-400">
+                                No new orders in queue
                             </div>
                         ) : (
                             newOrders.map((order) => (
@@ -90,14 +84,16 @@ const NotifPanel = ({ orders, show, onToggle, onClose }: NotifPanelProps) => {
                                     key={order.id}
                                     href="/staff/manage"
                                     onClick={onClose}
-                                    className="block p-4 transition-colors"
-                                    style={{ borderBottom: "1px solid rgba(212,175,120,0.06)" }}
-                                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                    className="block p-3.5 hover:bg-orange-50/50 transition-colors"
                                 >
-                                    <p className="text-sm font-bold text-white">New Order #{order.id}</p>
-                                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                                        {formatter.currency(order.totalPrice)} • {order.details.length} items
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-bold text-stone-800">Order #{order.id}</p>
+                                        <span className="text-[11px] font-bold text-orange-600 tabular-nums">
+                                            {formatter.currency(order.totalPrice)}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-stone-400 mt-0.5">
+                                        {order.details?.length || 0} item{order.details?.length !== 1 ? "s" : ""} • Table {order.tableID || "Online"}
                                     </p>
                                 </Link>
                             ))
@@ -106,9 +102,7 @@ const NotifPanel = ({ orders, show, onToggle, onClose }: NotifPanelProps) => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export {
-    NotifPanel
-}
+export { NotifPanel };

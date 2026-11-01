@@ -16,32 +16,31 @@ export const AreaTabSelector: React.FC<AreaTabSelectorProps> = ({
   areaCounts,
   areas = ['Floor 1', 'Garden', 'VIP Room', 'Bar Area'],
 }) => {
-
   return (
-    <div className="flex items-center gap-7 border-b border-[#CFC3A6]/40 pb-2">
+    <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
       {areas.map((area) => {
         const isSelected = activeArea === area;
         const count = areaCounts[area] || { available: 0, total: 0 };
-        const isFull = count.available === 0;
+        const isFull = count.available === 0 && count.total > 0;
 
         return (
           <button
             key={area}
             onClick={() => onAreaChange(area)}
-            className={`flex items-center gap-2 pb-2 text-base font-semibold transition-all relative cursor-pointer ${
-              isSelected ? 'text-[#1F2535]' : 'text-[#5F6575] hover:text-[#1F2535]'
+            className={`flex items-center gap-2 pb-2 text-sm font-semibold transition-all relative cursor-pointer whitespace-nowrap ${
+              isSelected ? 'text-stone-900 font-bold' : 'text-stone-400 hover:text-stone-700'
             }`}
           >
             <span>{area}</span>
             <span
-              className={`text-xs font-normal ${
-                isFull ? 'text-[#962B1A] font-medium' : 'text-[#2F6140]'
+              className={`text-xs font-medium tabular-nums ${
+                isFull ? 'text-red-600' : 'text-emerald-700'
               }`}
             >
               {isFull ? 'Full' : `${count.available}/${count.total} open`}
             </span>
             {isSelected && (
-              <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#1F2535] rounded-full" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-600 rounded-full" />
             )}
           </button>
         );

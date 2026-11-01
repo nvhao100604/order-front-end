@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useAppSelector } from "@/redux/hooks";
 import { STAFF_TABS } from "@/redux/slices/staffSlice";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { HiOutlineXMark } from "react-icons/hi2";
-import { MdOutlineLogout, MdOutlineMenu } from "react-icons/md";
+import { Menu, X, LogOut } from "lucide-react";
 import { NotifPanel } from "./staff.components";
-import { dashboard_services } from "@/services/dashboard.services";
 import useOrderPolling from "@/hooks/useOrderPolling";
 import { useEnhancedAuth } from "@/hooks/redux_custom_hooks/authSlice.hooks";
 import { ROUTES } from "@/config/constants/route";
@@ -16,26 +13,25 @@ import { LOGO_URL } from "@/config/constants/public";
 import { getDashboardOrdersSWR } from "@/hooks/useDashboard";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
-  useOrderPolling()
+  useOrderPolling();
 
-  const orders_data = getDashboardOrdersSWR()
-  const rawOrders = orders_data.data?.data
-  const orders = Array.isArray(rawOrders) ? rawOrders : []
-  const { user, logout } = useEnhancedAuth()
-  const pathname = usePathname()
+  const orders_data = getDashboardOrdersSWR();
+  const rawOrders = orders_data.data?.data;
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
+  const { user, logout } = useEnhancedAuth();
+  const pathname = usePathname();
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [showNotifPanel, setShowNotifPanel] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
 
-  const activeTab = pathname.split("/").pop()
+  const activeTab = pathname.split("/").pop() || "dashboard";
 
   return (
-    <div className="flex h-screen text-white font-sans overflow-hidden" style={{ background: "#1c1108" }}>
-
+    <div className="h-screen w-screen overflow-hidden flex bg-[#F8F7F4] text-stone-800 font-sans antialiased">
       {/* ── OVERLAY (Mobile) ── */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden transition-opacity"
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 lg:hidden transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -43,186 +39,129 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
       {/* ── SIDEBAR ─────────────────────────────────────────────────────── */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-[70] w-72 flex flex-col
+          fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-[#1C1613] text-stone-300 flex flex-col justify-between
           transition-transform duration-300 ease-in-out lg:static lg:translate-x-0
           ${isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}
         `}
-        style={{
-          background: "#2a1f14",
-          borderRight: "1px solid rgba(212,175,120,0.12)",
-        }}
       >
-        {/* Logo */}
-        <div
-          className="p-6 flex items-center justify-between"
-          style={{ borderBottom: "1px solid rgba(212,175,120,0.1)", background: "rgba(0,0,0,0.15)" }}
-        >
-          <Link href={ROUTES.STAFF.DASHBOARD} className="flex items-center gap-3 group">
-            <img
-              src={LOGO_URL}
-              alt="Logo"
-              className="w-10 h-10 rounded-xl object-cover transition-all group-hover:rotate-12"
-              style={{
-                border: "1px solid rgba(212,175,120,0.25)",
-                boxShadow: "0 4px 12px rgba(232,93,26,0.15)",
-              }}
-            />
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] font-black leading-none mb-1" style={{ color: "#d4af37" }}>
-                Foodie POS
-              </p>
-              <p className="font-bold tracking-tight text-lg text-white">Staff Portal</p>
-            </div>
-          </Link>
-          <button
-            className="lg:hidden p-2 transition-colors"
-            style={{ color: "rgba(255,255,255,0.3)" }}
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <HiOutlineXMark size={24} />
-          </button>
+        <div>
+          {/* Logo */}
+          <div className="h-16 px-6 flex items-center justify-between border-b border-stone-800/80">
+            <Link href={ROUTES.STAFF.DASHBOARD} className="flex items-center gap-3 group">
+              <img
+                src={LOGO_URL}
+                alt="Logo"
+                className="w-9 h-9 rounded-xl object-cover transition-transform group-hover:scale-105"
+              />
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-orange-500 leading-none mb-1">
+                  Foodie POS
+                </p>
+                <p className="font-bold tracking-tight text-base text-white">Staff Portal</p>
+              </div>
+            </Link>
+            <button
+              className="lg:hidden p-1.5 text-stone-400 hover:text-white transition-colors cursor-pointer"
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="p-4 space-y-1.5">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+              Main Menu
+            </p>
+            {STAFF_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = pathname.includes(`/staff/${tab.id}`);
+              return (
+                <Link
+                  key={tab.id}
+                  href={`/staff/${tab.id}`}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-2.5 transition-colors ${
+                    isActive
+                      ? "bg-orange-600 text-white font-medium rounded-xl shadow-sm"
+                      : "text-stone-400 hover:bg-stone-800/60 hover:text-stone-200 rounded-xl"
+                  }`}
+                >
+                  <Icon className="w-5 h-5 shrink-0" />
+                  <span className="text-sm font-medium">{tab.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 p-4 space-y-1 mt-4 overflow-y-auto">
-          <p
-            className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] mb-4"
-            style={{ color: "rgba(212,175,120,0.35)" }}
-          >
-            Main Menu
-          </p>
-          {STAFF_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = pathname.includes(`/staff/${tab.id}`);
-            return (
-              <Link
-                key={tab.id}
-                href={`/staff/${tab.id}`}
-                className="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold transition-all duration-200"
-                style={{
-                  background: isActive ? "#e85d1a" : "transparent",
-                  color: isActive ? "white" : "rgba(255,255,255,0.35)",
-                  boxShadow: isActive ? "0 4px 16px rgba(232,93,26,0.25)" : "none",
-                }}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)" }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent" }}
-              >
-                <Icon size={20} style={{ color: isActive ? "white" : "rgba(255,255,255,0.35)" }} />
-                <span>{tab.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div
-          className="p-6 text-[10px] font-medium text-center"
-          style={{ borderTop: "1px solid rgba(212,175,120,0.08)", color: "rgba(212,175,120,0.2)" }}
-        >
+        {/* Footer info */}
+        <div className="p-4 border-t border-stone-800/80 text-[10px] font-medium text-stone-500 text-center tracking-wider">
           FOODIE RESTAURANT V4.0.26
         </div>
       </aside>
 
       {/* ── MAIN CONTENT AREA ─────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
-
-        {/* HEADER ──────────────────────────────────────────────────────── */}
-        <header
-          className="sticky top-0 z-40 flex items-center justify-between px-8 py-4 backdrop-blur-xl"
-          style={{
-            background: "rgba(26,16,8,0.85)",
-            borderBottom: "1px solid rgba(212,175,120,0.12)",
-          }}
-        >
-          <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Top Header */}
+        <header className="h-16 shrink-0 bg-white/80 backdrop-blur-md border-b border-stone-200/80 px-6 flex items-center justify-between z-40">
+          <div className="flex items-center gap-3">
             <button
-              className="lg:hidden p-2 -ml-2 transition-colors"
-              style={{ color: "rgba(255,255,255,0.5)" }}
+              className="lg:hidden p-2 -ml-2 text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
               onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
             >
-              <MdOutlineMenu size={24} />
+              <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="font-medium hidden sm:inline" style={{ color: "rgba(255,255,255,0.35)" }}>Staff</span>
-              <span className="hidden sm:inline" style={{ color: "rgba(255,255,255,0.15)" }}>/</span>
-              <span
-                className="text-xs md:text-sm px-3 py-1.5 rounded-lg font-bold whitespace-nowrap capitalize"
-                style={{
-                  background: "rgba(232,93,26,0.15)",
-                  color: "#e85d1a",
-                  border: "1px solid rgba(232,93,26,0.25)",
-                }}
-              >
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-stone-400 font-medium hidden sm:inline">Staff</span>
+              <span className="text-stone-300 hidden sm:inline">/</span>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-orange-50 text-orange-700 border border-orange-200/60 uppercase tracking-wide">
                 {activeTab}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
+          <div className="flex items-center gap-4">
             <NotifPanel
               orders={orders}
               show={showNotifPanel}
-              onToggle={() => setShowNotifPanel(v => !v)}
+              onToggle={() => setShowNotifPanel((v) => !v)}
               onClose={() => setShowNotifPanel(false)}
             />
 
-            <div className="w-px h-6 hidden sm:block" style={{ background: "rgba(212,175,120,0.12)" }} />
+            <div className="w-px h-5 bg-stone-200 hidden sm:block" />
 
-            {/* User info & logout */}
+            {/* User profile & logout */}
             <div className="flex items-center gap-3">
-              <div className="text-right hidden lg:block">
-                <p className="text-sm font-bold text-white leading-none mb-1">{user?.name || "Staff"}</p>
-                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#d4af37" }}>
-                  ID: {user?.roleID || 1}
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-stone-800 leading-tight">{user?.name || "Staff"}</p>
+                <p className="text-[11px] font-medium text-stone-400 tabular-nums">
+                  ID: #{user?.id || 1}
                 </p>
               </div>
 
-              <div
-                className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-black text-sm"
-                style={{
-                  background: "rgba(212,175,120,0.12)",
-                  border: "1px solid rgba(212,175,120,0.2)",
-                  color: "#d4af37",
-                }}
-              >
+              <div className="w-9 h-9 rounded-xl bg-orange-100 border border-orange-200 text-orange-700 font-bold text-sm flex items-center justify-center select-none shadow-xs">
                 {user?.name?.[0]?.toUpperCase() ?? "S"}
               </div>
 
               <button
                 onClick={logout}
-                className="flex items-center justify-center w-9 h-9 md:w-auto md:px-4 md:py-2 rounded-xl text-xs font-bold transition-all"
-                style={{
-                  background: "rgba(239,68,68,0.1)",
-                  color: "#f87171",
-                  border: "1px solid rgba(239,68,68,0.2)",
-                }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = "#ef4444"
-                  el.style.color = "white"
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.background = "rgba(239,68,68,0.1)"
-                  el.style.color = "#f87171"
-                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-stone-600 hover:text-red-600 hover:bg-red-50 border border-stone-200 hover:border-red-200 transition-all cursor-pointer"
+                title="Logout"
               >
-                <MdOutlineLogout className="text-lg md:mr-2" />
-                <span className="hidden lg:inline">Logout</span>
+                <LogOut className="w-4 h-4" />
+                <span className="hidden md:inline">Logout</span>
               </button>
             </div>
           </div>
         </header>
 
-        {/* MAIN CONTENT */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 relative" style={{
-          background: 'linear-gradient(135deg, #faf6f0 0%, #f5ede0 40%, #ede0cc 100%)',
-        }}>
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none" style={{ background: "radial-gradient(circle, rgba(232,93,26,0.04) 0%, transparent 70%)" }} />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none" style={{ background: "radial-gradient(circle, rgba(212,175,55,0.03) 0%, transparent 70%)" }} />
-          <div className="relative z-10">
-            {children}
-          </div>
+        {/* Main Content Body */}
+        <main className="flex-1 overflow-y-auto p-6 bg-[#F8F7F4]">
+          {children}
         </main>
       </div>
     </div>
