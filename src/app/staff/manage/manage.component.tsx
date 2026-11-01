@@ -363,4 +363,52 @@ const FilterPanel = ({ query, updateQuery, resetQuery, onClose }: FilterPanelPro
   </div>
 );
 
-export { OrderItem, FilterPanel };
+// ─── OrderItemSkeleton ──────────────────────────────────────────────────────
+const OrderItemSkeleton = () => (
+  <div className="bg-white rounded-2xl border border-stone-200/80 shadow-sm p-5 flex flex-col justify-between font-sans animate-pulse">
+    <div>
+      {/* Header skeleton */}
+      <div className="flex items-start justify-between gap-2 pb-3 border-b border-stone-100">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-20 bg-stone-200 rounded-md" />
+            <div className="h-4 w-16 bg-stone-100 rounded-md" />
+          </div>
+          <div className="h-3 w-28 bg-stone-100 rounded" />
+        </div>
+        <div className="h-5 w-20 bg-stone-200 rounded-full" />
+      </div>
+
+      {/* Body item rows skeleton */}
+      <div className="py-3 space-y-2.5">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center justify-between py-1 px-1.5">
+            <div className="flex items-center gap-2 flex-1 pr-2">
+              <div className="h-4 w-6 bg-stone-200 rounded" />
+              <div
+                className={`h-3 bg-stone-200 rounded ${
+                  i === 1 ? 'w-36' : i === 2 ? 'w-28' : 'w-20'
+                }`}
+              />
+            </div>
+            <div className="h-3 w-14 bg-stone-200 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Footer skeleton */}
+    <div className="pt-3 border-t border-stone-100 space-y-3">
+      <div className="flex items-baseline justify-between">
+        <div className="h-3 w-10 bg-stone-100 rounded" />
+        <div className="h-5 w-24 bg-stone-200 rounded-md" />
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="h-8 flex-1 bg-stone-100 rounded-xl" />
+        <div className="h-8 w-20 bg-stone-200 rounded-xl" />
+      </div>
+    </div>
+  </div>
+);
+
+export { OrderItem, FilterPanel, OrderItemSkeleton };

@@ -2,7 +2,7 @@
 
 import { defaultQuery, IOrderFilter, OrderStatus } from "@/interfaces";
 import { useState, useRef, useEffect } from "react";
-import { FilterPanel, OrderItem } from "./manage.component";
+import { FilterPanel, OrderItem, OrderItemSkeleton } from "./manage.component";
 import useQuery from "@/hooks/useQuery";
 import { useTableCheckout } from "@/hooks/redux_custom_hooks/staffSlice.hooks";
 import useRefresh from "@/hooks/useRefresh";
@@ -22,7 +22,7 @@ const StaffManagePage = () => {
   const [query, updateQuery, resetQuery] = useQuery(defaultQuery);
   const finalizeCheckout = useTableCheckout();
   const refresh = useRefresh();
-  const { data } = useGetOrders(query);
+  const { data, isLoading } = useGetOrders(query);
   const orders = data?.data || [];
   const currentPage = query.page ?? 1;
   const totalPages = Math.ceil((data?.meta?.total ?? 1) / (data?.meta?.limit ?? 1));
@@ -81,15 +81,19 @@ const StaffManagePage = () => {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-stone-900">Order Management</h1>
-          <p className="text-xs text-stone-500 mt-0.5">
-            <span className="tabular-nums font-semibold">{orders.length}</span> order
-            {orders.length !== 1 ? "s" : ""} in current view
-            {activeFilterCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
-              </span>
-            )}
-          </p>
+          {isLoading ? (
+            <div className="h-3.5 w-36 bg-stone-200 rounded animate-pulse mt-1.5" />
+          ) : (
+            <p className="text-xs text-stone-500 mt-0.5">
+              <span className="tabular-nums font-semibold">{orders.length}</span> order
+              {orders.length !== 1 ? "s" : ""} in current view
+              {activeFilterCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                  {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+                </span>
+              )}
+            </p>
+          )}
         </div>
 
         {/* Filter Trigger Button */}
@@ -123,7 +127,13 @@ const StaffManagePage = () => {
       </div>
 
       {/* Order Tickets Grid */}
-      {orders.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <OrderItemSkeleton key={`order-skeleton-${idx}`} />
+          ))}
+        </div>
+      ) : orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-stone-200/80 p-16 text-center shadow-sm">
           <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto mb-3">
             <Receipt className="w-6 h-6" />
